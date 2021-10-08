@@ -1,0 +1,164 @@
+>HINF-KW2-01-000015	HI0016	 GTP-binding membrane protein (lepA): K-rich region from 559 to 577 corrected with score 40
+>HINF-KW2-01-000037	HI0038	 rod shape-determining protein (mreC): E-rich region from 285 to 351 corrected with score 43
+>HINF-KW2-01-000038	HI0039	 rod shape-determining protein (mreD): L-rich region from 39 to 121 corrected with score 46
+>HINF-KW2-01-000049	HI0050	 conserved hypothetical transmembrane protein: V-rich region from 197 to 395 corrected with score 65
+>HINF-KW2-01-000060	HI0061	 recombination protein (rec2): L-rich region from 1 to 62 corrected with score 58
+>HINF-KW2-01-000065	HI0066	 N-acetylmuramoyl-L-alanine amidase, putative: N-rich region from 247 to 381 corrected with score 60
+>HINF-KW2-01-000069	HI0070	 DNA repair protein (recN): Q-rich region from 161 to 395 corrected with score 90
+>HINF-KW2-01-000070	HI0071	 heat shock protein (grpE): E-rich region from 34 to 124 corrected with score 92
+>HINF-KW2-01-000091	HI0092	 hypothetical protein: A-rich region from 2 to 165 corrected with score 44
+>HINF-KW2-01-000105	HI0106	 signal recognition particle protein (ffh): G-rich region from 441 to 458 corrected with score 42
+>HINF-KW2-01-000115	HI0119	 conserved hypothetical protein: H-rich region from 115 to 164 corrected with score 180
+>HINF-KW2-01-000129	HI0136	 GTP-binding protein: E-rich region from 166 to 215 corrected with score 80
+>HINF-KW2-01-000140	HI0147	 conserved hypothetical transmembrane protein: V-rich region from 476 to 632 corrected with score 64
+>HINF-KW2-01-000145	HI0151	 hflK protein (hflK): N-rich region from 2 to 80 corrected with score 84
+>HINF-KW2-01-000149	HI0156	 malonyl CoA-acyl carrier protein transacylase (fabD): A-rich region from 143 to 216 corrected with score 41
+>HINF-KW2-01-000185	HI0195.1	 conserved hypothetical transmembrane protein (aefA): Q-rich region from 41 to 449 corrected with score 147
+>HINF-KW2-01-000185	HI0195.1	 conserved hypothetical transmembrane protein (aefA): W-rich region from 572 to 589 corrected with score 46
+>HINF-KW2-01-000210	HI0221	 inosine-5-monophosphate dehydrogenase (guaB): A-rich region from 275 to 371 corrected with score 53
+>HINF-KW2-01-000221	HI0231	 ATP-dependent RNA helicase DeaD (deaD): R-rich region from 442 to 468 corrected with score 47
+>HINF-KW2-01-000221	HI0231	 ATP-dependent RNA helicase DeaD (deaD): N-rich region from 554 to 612 corrected with score 42
+>HINF-KW2-01-000237	HI0251	 tonB protein: K-rich region from 68 to 143 corrected with score 88
+>HINF-KW2-01-000237	HI0251	 tonB protein: S-rich region from 149 to 266 corrected with score 58
+>HINF-KW2-01-000237	HI0251	 tonB protein: E-rich region from 58 to 110 corrected with score 55
+>HINF-KW2-01-000274	HI0289	 serine transporter (sdaC): I-rich region from 131 to 175 corrected with score 45
+>HINF-KW2-01-000282	HI0297	 protein transport protein: F-rich region from 218 to 234 corrected with score 42
+>HINF-KW2-01-000283	HI0298	 protein transport protein: Q-rich region from 82 to 120 corrected with score 41
+>HINF-KW2-01-000308	HI0325	 conserved hypothetical protein: I-rich region from 6 to 32 corrected with score 43
+>HINF-KW2-01-000312	HI0330	 opacity associated protein (oapA): Q-rich region from 169 to 309 corrected with score 50
+>HINF-KW2-01-000320	HI0338	 conserved hypothetical transmembrane protein: I-rich region from 11 to 80 corrected with score 43
+>HINF-KW2-01-000335	HI0355	 ABC transporter, permease protein: L-rich region from 56 to 110 corrected with score 40
+>HINF-KW2-01-000339	HI0360	 iron (chelated) ABC transporter, permease protein (yfeC): V-rich region from 107 to 264 corrected with score 43
+>HINF-KW2-01-000353	HI0375	 co-chaperone Hsc20 (hscB): Q-rich region from 79 to 148 corrected with score 48
+>HINF-KW2-01-000360	HI0382	 colicin tolerance protein (tolB): S-rich region from 234 to 391 corrected with score 41
+>HINF-KW2-01-000361	HI0383	 outer membrane integrity protein (tolA): E-rich region from 67 to 247 corrected with score 165
+>HINF-KW2-01-000361	HI0383	 outer membrane integrity protein (tolA): A-rich region from 138 to 244 corrected with score 139
+>HINF-KW2-01-000361	HI0383	 outer membrane integrity protein (tolA): Q-rich region from 61 to 145 corrected with score 89
+>HINF-KW2-01-000361	HI0383	 outer membrane integrity protein (tolA): G-rich region from 250 to 291 corrected with score 71
+>HINF-KW2-01-000361	HI0383	 outer membrane integrity protein (tolA): K-rich region from 121 to 239 corrected with score 51
+>HINF-KW2-01-000376	HI0397	 exodeoxyribonuclease VII, large subunit (xseA): Q-rich region from 260 to 381 corrected with score 73
+>HINF-KW2-01-000380	HI0401	 long-chain fatty acid transport protein (fadL): A-rich region from 10 to 57 corrected with score 48
+>HINF-KW2-01-000387	HI0408	 ABC transporter, ATP-binding protein (yebM): H-rich region from 239 to 250 corrected with score 52
+>HINF-KW2-01-000392	HI0413	 ribonuclease E (rne): R-rich region from 588 to 751 corrected with score 95
+>HINF-KW2-01-000392	HI0413	 ribonuclease E (rne): E-rich region from 588 to 734 corrected with score 56
+>HINF-KW2-01-000401	HI0422	 ATP-dependent RNA helicase SrmB (srmB): K-rich region from 380 to 433 corrected with score 85
+>HINF-KW2-01-000403	HI0424	 rRNA methylase, putative: K-rich region from 4 to 119 corrected with score 59
+>HINF-KW2-01-000417	HI0438	 competence protein B (comB): Q-rich region from 43 to 154 corrected with score 59
+>HINF-KW2-01-000424	HI0445	 protein-export membrane protein (secG): G-rich region from 25 to 50 corrected with score 47
+>HINF-KW2-01-000432	HI0453	 conserved hypothetical protein: F-rich region from 4 to 28 corrected with score 43
+>HINF-KW2-01-000462	HI0483	 ATP synthase F0, subunit b (atpF): E-rich region from 48 to 119 corrected with score 43
+>HINF-KW2-01-000465	HI0485.1	 hypothetical protein: I-rich region from 79 to 121 corrected with score 44
+>HINF-KW2-01-000481	HI0503	 D-ribose ABC transporter, permease protein (rbsC): V-rich region from 22 to 141 corrected with score 58
+>HINF-KW2-01-000492	HI0514	 DNA-directed RNA polymerase, beta chain (rpoC): E-rich region from 163 to 217 corrected with score 41
+>HINF-KW2-01-000493	HI0515	 DNA-directed RNA polymerase, beta chain (rpoB): E-rich region from 941 to 1036 corrected with score 43
+>HINF-KW2-01-000511	HI0533	 RNA polymerase sigma-70 factor (rpoD): D-rich region from 175 to 231 corrected with score 95
+>HINF-KW2-01-000511	HI0533	 RNA polymerase sigma-70 factor (rpoD): E-rich region from 179 to 246 corrected with score 52
+>HINF-KW2-01-000516	HI0538	 urease accessory protein (ureE): H-rich region from 161 to 185 corrected with score 90
+>HINF-KW2-01-000521	HI0543	 heat shock protein (groEL): A-rich region from 369 to 470 corrected with score 40
+>HINF-KW2-01-000522	HI0544	 ribosomal protein L9 (rpL9): A-rich region from 36 to 113 corrected with score 59
+>HINF-KW2-01-000528	HI0550	 lipooligosaccharide biosynthesis protein: K-rich region from 249 to 297 corrected with score 62
+>HINF-KW2-01-000539	HI0561	 conserved hypothetical protein: V-rich region from 280 to 364 corrected with score 44
+>HINF-KW2-01-000582	HI0603	 uroporphyrin-III C-methyltransferase (hemX): Q-rich region from 62 to 140 corrected with score 44
+>HINF-KW2-01-000621	HI0641	 ribosomal protein L7/L12 (rpL7/L12): A-rich region from 11 to 118 corrected with score 65
+>HINF-KW2-01-000638	HI0658	 ABC transporter, ATP-binding protein: E-rich region from 499 to 634 corrected with score 69
+>HINF-KW2-01-000641	HI0661	 hemoglobin-binding protein: N-rich region from 37 to 89 corrected with score 50
+>HINF-KW2-01-000648	HI0668	 conserved hypothetical protein: E-rich region from 7 to 61 corrected with score 47
+>HINF-KW2-01-000658	HI0678	 triosephosphate isomerase (tpiA): A-rich region from 118 to 261 corrected with score 50
+>HINF-KW2-01-000678	HI0699	 peptidyl-prolyl cis-trans isomerase, FkbP-type (slyD): H-rich region from 149 to 182 corrected with score 77
+>HINF-KW2-01-000679	HI0700	 conserved hypothetical protein: D-rich region from 113 to 149 corrected with score 79
+>HINF-KW2-01-000684	HI0706	 lipoprotein: T-rich region from 196 to 270 corrected with score 58
+>HINF-KW2-01-000690	HI0712	 hemoglobin-binding protein: N-rich region from 28 to 95 corrected with score 70
+>HINF-KW2-01-000690	HI0712	 hemoglobin-binding protein: P-rich region from 27 to 71 corrected with score 40
+>HINF-KW2-01-000702	HI0724	 conserved hypothetical protein: K-rich region from 3 to 116 corrected with score 68
+>HINF-KW2-01-000715	HI0736	 sodium-dependent transporter, putative: V-rich region from 154 to 200 corrected with score 40
+>HINF-KW2-01-000735	HI0756	 conserved hypothetical protein: Q-rich region from 29 to 275 corrected with score 165
+>HINF-KW2-01-000735	HI0756	 conserved hypothetical protein: K-rich region from 38 to 113 corrected with score 41
+>HINF-KW2-01-000747	HI0768	 signal recognition particle-docking protein FtsY (ftsY): E-rich region from 31 to 107 corrected with score 65
+>HINF-KW2-01-000776	HI0797	 ribosomal protein L15 (rpL15): G-rich region from 20 to 53 corrected with score 50
+>HINF-KW2-01-000808	HI0829	 soluble lytic murein transglycosylase, putative: Q-rich region from 32 to 178 corrected with score 46
+>HINF-KW2-01-000832	HI0853	 heme-binding lipoprotein (dppA): S-rich region from 19 to 72 corrected with score 40
+>HINF-KW2-01-000838	HI0859	 ATP-dependent Clp protease, ATPase subunit (clpB): E-rich region from 395 to 575 corrected with score 78
+>HINF-KW2-01-000840	HI0861	 virulence-associated protein (vacB): K-rich region from 734 to 782 corrected with score 82
+>HINF-KW2-01-000846	HI0867	 lipopolysaccharide biosynthesis protein, putative: F-rich region from 191 to 231 corrected with score 43
+>HINF-KW2-01-000856	HI0877	 GTP-binding protein (yhbZ): E-rich region from 337 to 385 corrected with score 56
+>HINF-KW2-01-000856	HI0877	 GTP-binding protein (yhbZ): G-rich region from 32 to 43 corrected with score 43
+>HINF-KW2-01-000856	HI0877	 GTP-binding protein (yhbZ): D-rich region from 367 to 381 corrected with score 40
+>HINF-KW2-01-000862	HI0883	 amino acid carrier protein, putative: V-rich region from 179 to 241 corrected with score 56
+>HINF-KW2-01-000874	HI0895	 acriflavine resistance protein (acrB): I-rich region from 347 to 411 corrected with score 61
+>HINF-KW2-01-000874	HI0895	 acriflavine resistance protein (acrB): S-rich region from 70 to 157 corrected with score 46
+>HINF-KW2-01-000875	HI0896	 cell division protein (ftsN): Q-rich region from 1 to 124 corrected with score 57
+>HINF-KW2-01-000887	HI0909	 preprotein translocase SecA subunit (secA): E-rich region from 696 to 880 corrected with score 49
+>HINF-KW2-01-000894	HI0916	 outer membrane protein, putative: Q-rich region from 86 to 141 corrected with score 56
+>HINF-KW2-01-000908	HI0930	 hypothetical protein: S-rich region from 60 to 206 corrected with score 49
+>HINF-KW2-01-000914	HI0936	 cytochrome C-type biogenesis: W-rich region from 227 to 241 corrected with score 57
+>HINF-KW2-01-000949	HI0971	 acetyl-CoA carboxylase, biotin carboxyl carrier protein (accB): A-rich region from 33 to 74 corrected with score 64
+>HINF-KW2-01-000951	HI0973	 hypothetical protein: S-rich region from 19 to 289 corrected with score 52
+>HINF-KW2-01-000970	HI0990	 immunoglobin A1 protease (iga1): S-rich region from 748 to 1510 corrected with score 205
+>HINF-KW2-01-000970	HI0990	 immunoglobin A1 protease (iga1): E-rich region from 1039 to 1365 corrected with score 154
+>HINF-KW2-01-000970	HI0990	 immunoglobin A1 protease (iga1): T-rich region from 997 to 1413 corrected with score 76
+>HINF-KW2-01-000970	HI0990	 immunoglobin A1 protease (iga1): N-rich region from 623 to 697 corrected with score 51
+>HINF-KW2-01-000975	HI0995	 transferrin-binding protein 2 precursor (tbp2): T-rich region from 325 to 374 corrected with score 55
+>HINF-KW2-01-000975	HI0995	 transferrin-binding protein 2 precursor (tbp2): Y-rich region from 129 to 159 corrected with score 47
+>HINF-KW2-01-000975	HI0995	 transferrin-binding protein 2 precursor (tbp2): S-rich region from 8 to 232 corrected with score 45
+>HINF-KW2-01-000989	HI1010	 3-hydroxyisobutyrate dehydrogenase, putative: A-rich region from 7 to 202 corrected with score 57
+>HINF-KW2-01-000998	HI1020	 thiamin ABC transporter, permease protein, putative: L-rich region from 293 to 396 corrected with score 53
+>HINF-KW2-01-001007	HI1029	 conserved hypothetical transmembrane protein: V-rich region from 242 to 384 corrected with score 59
+>HINF-KW2-01-001030	HI1053	 conserved hypothetical protein: A-rich region from 29 to 113 corrected with score 74
+>HINF-KW2-01-001033	HI1056	 hypothetical protein: S-rich region from 20 to 61 corrected with score 64
+>HINF-KW2-01-001034	HI1058	 hypothetical protein: S-rich region from 136 to 180 corrected with score 70
+>HINF-KW2-01-001046	HI1070	 ATP-dependent helicase (hrpa): Q-rich region from 534 to 627 corrected with score 43
+>HINF-KW2-01-001065	HI1090	 heme exporter protein B (ccmB): L-rich region from 82 to 180 corrected with score 45
+>HINF-KW2-01-001069	HI1094	 cytochrome C-type biogenesis protein (ccmF): W-rich region from 228 to 242 corrected with score 57
+>HINF-KW2-01-001129	HI1156	 transport ATP-binding protein (cydC): L-rich region from 131 to 175 corrected with score 45
+>HINF-KW2-01-001159	HI1187	 dipeptide ABC transporter, permease protein (dppB): V-rich region from 246 to 327 corrected with score 40
+>HINF-KW2-01-001171	HI1199	 conserved hypothetical protein: K-rich region from 2 to 80 corrected with score 50
+>HINF-KW2-01-001200	HI1229	 DNA polymerase III, subunits gamma and tau (dnaX): E-rich region from 423 to 514 corrected with score 56
+>HINF-KW2-01-001203	HI1232	 dihydrolipoamide acetyltransferase (aceF): A-rich region from 76 to 260 corrected with score 90
+>HINF-KW2-01-001208	HI1237	 heat shock protein 70 (dnaK): E-rich region from 488 to 635 corrected with score 53
+>HINF-KW2-01-001208	HI1237	 heat shock protein 70 (dnaK): A-rich region from 518 to 618 corrected with score 40
+>HINF-KW2-01-001209	HI1238	 heat shock protein (dnaJ): G-rich region from 89 to 122 corrected with score 73
+>HINF-KW2-01-001212	HI1241	 hypothetical protein: L-rich region from 159 to 205 corrected with score 48
+>HINF-KW2-01-001218	HI1247	 excinuclease ABC, subunit B (uvrB): Q-rich region from 572 to 674 corrected with score 41
+>HINF-KW2-01-001223	HI1252	 ABC transporter, ATP-binding protein: Q-rich region from 250 to 311 corrected with score 42
+>HINF-KW2-01-001251	HI1284	 translation initiation factor 2 (infB): K-rich region from 6 to 230 corrected with score 159
+>HINF-KW2-01-001251	HI1284	 translation initiation factor 2 (infB): E-rich region from 51 to 219 corrected with score 92
+>HINF-KW2-01-001263	HI1297	 conserved hypothetical protein: L-rich region from 1 to 111 corrected with score 41
+>HINF-KW2-01-001265	HI1300	 ABC transporter, ATP-binding protein: E-rich region from 540 to 644 corrected with score 43
+>HINF-KW2-01-001265	HI1300	 ABC transporter, ATP-binding protein: R-rich region from 271 to 299 corrected with score 42
+>HINF-KW2-01-001283	HI1318	 translation initiation factor IF-3 (infC): K-rich region from 32 to 53 corrected with score 40
+>HINF-KW2-01-001292	HI1327	 hypothetical protein: G-rich region from 21 to 42 corrected with score 55
+>HINF-KW2-01-001304	HI1339	 hypothetical protein: E-rich region from 25 to 126 corrected with score 62
+>HINF-KW2-01-001307	HI1342	 ABC transporter, ATP-binding protein: R-rich region from 83 to 112 corrected with score 44
+>HINF-KW2-01-001307	HI1342	 ABC transporter, ATP-binding protein: E-rich region from 352 to 453 corrected with score 44
+>HINF-KW2-01-001323	HI1358	 glycogen operon protein (glgX): N-rich region from 452 to 497 corrected with score 45
+>HINF-KW2-01-001327	HI1362	 NAD(P) transhydrogenase, subunit alpha (pntA): A-rich region from 114 to 193 corrected with score 41
+>HINF-KW2-01-001334	HI1369	 conserved hypothetical protein: N-rich region from 79 to 158 corrected with score 40
+>HINF-KW2-01-001340	HI1374	 cell division protein (mukB): Q-rich region from 330 to 1147 corrected with score 115
+>HINF-KW2-01-001372	HI1405	 hypothetical protein: E-rich region from 196 to 272 corrected with score 107
+>HINF-KW2-01-001372	HI1405	 hypothetical protein: K-rich region from 194 to 272 corrected with score 45
+>HINF-KW2-01-001425	HI1458	 hypothetical protein: N-rich region from 26 to 42 corrected with score 41
+>HINF-KW2-01-001428	HI1462.1	 hypothetical protein: E-rich region from 32 to 133 corrected with score 62
+>HINF-KW2-01-001446	HI1478	 transposase (muA): E-rich region from 567 to 679 corrected with score 49
+>HINF-KW2-01-001463	HI1496	 hypothetical protein: Q-rich region from 24 to 63 corrected with score 46
+>HINF-KW2-01-001482	HI1514	 hypothetical protein: A-rich region from 449 to 556 corrected with score 64
+>HINF-KW2-01-001482	HI1514	 hypothetical protein: G-rich region from 361 to 421 corrected with score 57
+>HINF-KW2-01-001486	HI1520	 conserved hypothetical protein: T-rich region from 81 to 162 corrected with score 58
+>HINF-KW2-01-001528	HI1561	 peptide chain release factor 1 (prfA): E-rich region from 11 to 96 corrected with score 47
+>HINF-KW2-01-001533	HI1565	 hemoglobin-binding protein: N-rich region from 9 to 54 corrected with score 59
+>HINF-KW2-01-001545	HI1579	 15 kDa peptidoglycan-associated lipoprotein (lpp): G-rich region from 60 to 100 corrected with score 48
+>HINF-KW2-01-001552	HI1587	 DNA-binding protein H-NS (hns): E-rich region from 24 to 77 corrected with score 47
+>HINF-KW2-01-001559	HI1594	 hypothetical protein: E-rich region from 78 to 171 corrected with score 51
+>HINF-KW2-01-001566	HI1601	 hypothetical protein: A-rich region from 5 to 83 corrected with score 45
+>HINF-KW2-01-001570	HI1605	 conserved hypothetical protein: Q-rich region from 88 to 157 corrected with score 44
+>HINF-KW2-01-001603	HI1639	 peptide ABC transporter, permease protein (sapB): L-rich region from 1 to 28 corrected with score 40
+>HINF-KW2-01-001605	HI1641	 peptide ABC transporter, ATP-binding protein (sapD): W-rich region from 119 to 131 corrected with score 40
+>HINF-KW2-01-001631	HI1668	 tail specific protease (prc): K-rich region from 595 to 645 corrected with score 41
+>HINF-KW2-01-001633	HI1670	 hypothetical protein: K-rich region from 118 to 153 corrected with score 45
+>HINF-KW2-01-001644	HI1681	 conserved hypothetical protein: A-rich region from 152 to 181 corrected with score 46
+>HINF-KW2-01-001645	HI1682	 protease, putative (sohB): K-rich region from 34 to 103 corrected with score 69
+>HINF-KW2-01-001648	HI1685	 conserved hypothetical protein: A-rich region from 538 to 813 corrected with score 154
+>HINF-KW2-01-001648	HI1685	 conserved hypothetical protein: K-rich region from 438 to 811 corrected with score 142
+>HINF-KW2-01-001648	HI1685	 conserved hypothetical protein: Q-rich region from 435 to 562 corrected with score 51
+>HINF-KW2-01-001669	HI1706	 high-affinity choline transport protein (betT): W-rich region from 310 to 325 corrected with score 49
+>HINF-KW2-01-001681	HI1718	 hypothetical protein: S-rich region from 17 to 210 corrected with score 68
+>HINF-KW2-01-001691	HI1728	 conserved hypothetical protein: V-rich region from 311 to 383 corrected with score 40

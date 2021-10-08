@@ -1,0 +1,16 @@
+>PRIO_HUMAN MAJOR PRION PROTEIN PRECURSOR
+
+                                  1-49   MANLGCWMLVLFVATWSDLGLCKKRPKPGG
+                                         WNTGGSRYPGQGSPGGNRY
+ppqggggwgqphgggwgqphgggwgqphgg   50-94   
+               gwgqphgggwgqggg
+                                 95-112  THSQWNKPSKPKTNMKHM
+       agaaaagavvgglggymlgsams  113-135  
+                                136-187  RPIIHFGSDYEDRYYRENMHRYPNQVYYRP
+                                         MDEYSNQNNFVHDCVNITIKQH
+                tvttttkgenftet  188-201  
+                                202-236  DVKMMERVVEQMCITQYERESQAYYQRGSS
+                                         MVLFS
+              sppvillisflifliv  237-252  
+                                253-253  G
+
