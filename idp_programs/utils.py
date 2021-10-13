@@ -3,7 +3,7 @@ import re
 # paths to idp programs
 cast = 'idp_programs/cast-linux/cast'
 seg = 'idp_programs/ncbi-seg_0.0.20000620.orig/seg'
-
+flps = 'idp_programs/fLPS/bin/linux/fLPS'
 
 def arguments():
     parser = argparse.ArgumentParser()
@@ -104,6 +104,8 @@ def select_method(method: str):
 
     elif method == 'seg':
         method_args_list = [seg]
+    elif method == 'flps':
+        method_args_list = [flps]
     return method_args_list
 
 
@@ -124,7 +126,7 @@ def post_process_seg_output(path):
                 if has_numbers(i):
                    # print(i)
                     if '-' in i[-5:]:
-                        print(i)
+                        #print(i)
                         count+=1
 
 
@@ -146,4 +148,45 @@ def post_process_seg_output(path):
         file1.close()
 
 
-post_process_seg_output('/home/iliask/PycharmProjects/MScThesis/results/seg/DisProt_out.txt')
+
+def post_process_cast_output(path):
+    with open(path, 'r') as file1:
+        data = file1.readlines()
+        print(len(data))
+        count=0
+        for idx, i in enumerate(data):
+            #print(i.strip())
+            i = i.strip()
+            if 'region' in i:
+                count+=1
+                #print(i)
+
+            # if idx < 80000:
+            #     i = i.strip()
+            #     if '>disprot' in i:
+            #         continue
+            #     if has_numbers(i):
+            #        # print(i)
+            #         if '-' in i[-5:]:
+            #             print(i)
+            #             count+=1
+            #
+            #
+            # # print(i)
+        print(count)
+        # while True:
+        #     count += 1
+        #
+        #     # Get next line from file
+        #     line = file1.readline()
+        #
+        #     # if line is empty
+        #     # end of file is reached
+        #     if not line:
+        #         print('break')
+        #         break
+        #     print("Line{}: {}".format(count, line.strip()))
+
+        file1.close()
+        return count
+

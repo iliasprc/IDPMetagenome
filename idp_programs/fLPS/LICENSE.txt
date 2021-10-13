@@ -1,7 +1,7 @@
 LICENSE
 =======
 
-Copyright 2017, 2021. Paul Martin Harrison. 
+Copyright 2017. Paul Martin Harrison. 
 
 3-clause BSD license
 --------------------

@@ -1,0 +1,7 @@
+ Mac OSX executables are 32-bit and 64-bit in the mac32 and mac64 directories. 
+They are compiled with gcc and MacOSX Sierra. 
+
+ The linux executable is 64-bit (compiled with gcc and OS CentOS release 6.8). 
+ 
+
+PMH. September 2017. 
