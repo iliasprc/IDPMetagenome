@@ -410,6 +410,7 @@ def cast_metrics_V2(path, ground_truth_path):
     assert len(annotations) == len(predictions)
     avgf1 = 0
     avg_mcc = 0
+    avg_cm = [0,0,0,0]
     for i in range(len(predictions)):
         pred = [int(c) for c in predictions[i]]
         target = [int(c) for c in annotations[i]]
@@ -434,32 +435,41 @@ def cast_metrics_V2(path, ground_truth_path):
 
         cm = confusion_matrix.ravel()
         TN, FP, FN, TP = cm
-        print(TN, FP, FN, TP)
+        print(TN/len(pred), FP/len(pred), FN/len(pred), TP/len(pred))
+        avg_cm[0]+=  TP/len(pred)
+        avg_cm[1] += TN/len(pred)
+        avg_cm[2] += FP/len(pred)
+        avg_cm[3] += FN/len(pred)
         # print(cm, cm.sum(), len(pred))
 
         # Sensitivity, hit rate, recall, or true positive rate
-        # TPR = TP / (TP + FN)
-        # # Specificity or true negative rate
-        # TNR = TN / (TN + FP)
-        # # Precision or positive predictive value
-        # PPV = TP / (TP + FP)
-        # # Negative predictive value
-        # NPV = TN / (TN + FN)
-        # # Fall out or false positive rate
-        # FPR = FP / (FP + TN)
-        # # False negative rate
-        # FNR = FN / (TP + FN)
-        # # False discovery rate
-        # FDR = FP / (TP + FP)
+        TPR = TP / (TP + FN)
+        # Specificity or true negative rate
+        TNR = TN / (TN + FP)
+        # Precision or positive predictive value
+        PPV = TP / (TP + FP)
+        # Negative predictive value
+        NPV = TN / (TN + FN)
+        # Fall out or false positive rate
+        FPR = FP / (FP + TN)
+        # False negative rate
+        FNR = FN / (TP + FN)
+        # False discovery rate
+        FDR = FP / (TP + FP)
         #
         # # Overall accuracy
         ACC = (TP + TN) / (TP + FP + FN + TN)
-        print(ACC)
-        if ACC>1:
-            TP
+        # print(ACC)
+        # if ACC>1:
+        #     TP
 
         # print(auc)
     print(avgf1 / len(predictions), avg_mcc / len(predictions))
+    avg_cm[0] = avg_cm[0]#* len(predictions)
+    avg_cm[1] =avg_cm[1]#* len(predictions)
+    avg_cm[2] =avg_cm[2]#* len(predictions)
+    avg_cm[3] =avg_cm[3]#* len(predictions)
+    print(avg_cm)
     return count
 
 
@@ -480,7 +490,7 @@ def cast_metrics(path, ground_truth_path):
         if 'region' in i:
             count += 1
             # print(i)
-        if '>' in i:
+        elif '>' in i:
 
             print(s)
             print(i)
@@ -501,24 +511,26 @@ def cast_metrics(path, ground_truth_path):
         s = predictions[i]
         s = s.replace('X', '1')
         s = re.sub('\D', '0', s)
-        print(s)
+        #print(s)
         idppreds.append(s)
     print(len(idppreds))
     annotations = []
     with open(ground_truth_path, 'r') as file1:
         gt = file1.read().splitlines()
-        print(gt)
+        #print(gt)
         for i in gt:
             if not '>' in i:
                 annotations.append(i)
 
     assert len(annotations) == len(idppreds)
+    print(len(annotations))
     avgf1 = 0
     avg_mcc = 0
+    avg_cm = [0,0,0,0]
     for i in range(len(idppreds)):
         pred = [int(c) for c in idppreds[i]]
         target = [int(c) for c in annotations[i]]
-        # print(len(pred), len(target))
+        print(len(pred), len(target))
         assert len(pred) == len(target)
         pred = np.array(pred)
         target = np.array(target)
@@ -539,6 +551,10 @@ def cast_metrics(path, ground_truth_path):
 
         cm = confusion_matrix.ravel()
         TN, FP, FN, TP = cm
+        avg_cm[0]+=  TP/len(pred)
+        avg_cm[1] += TN/len(pred)
+        avg_cm[2] += FP/len(pred)
+        avg_cm[3] += FN/len(pred)
         print(TN, FP, FN, TP)
         # print(cm, cm.sum(), len(pred))
 
@@ -563,6 +579,11 @@ def cast_metrics(path, ground_truth_path):
 
         # print(auc)
     print(avgf1 / len(idppreds), avg_mcc / len(idppreds))
+    avg_cm[0] = avg_cm[0]#* len(predictions)
+    avg_cm[1] =avg_cm[1]#* len(predictions)
+    avg_cm[2] =avg_cm[2]#* len(predictions)
+    avg_cm[3] =avg_cm[3]#* len(predictions)
+    print(avg_cm)
     return count
 
 
@@ -629,4 +650,7 @@ def read_json(path):
 
 
 cast_metrics_V2('../results/cast/CAID2018_out.txt',
+                '../data/CAID_data_2018/annotation_files/annot_disprot-disorder.txt')
+
+cast_metrics ('../results/cast/CAID2018_out.txt',
                 '../data/CAID_data_2018/annotation_files/annot_disprot-disorder.txt')
