@@ -39,13 +39,15 @@ print("""# IUPred2A: context-dependent prediction of protein disorder as a funct
 #
 # Prediction type: {}
 # Prediction output""".format(sys.argv[-1]))
+print(iupred2_result[1])
+
 if sys.argv[-1] == 'glob':
     print(iupred2_result[1])
 if '-a' in sys.argv:
     print("# POS\tRES\tIUPRED2\tANCHOR2")
 else:
     print("# POS\tRES\tIUPRED2")
-
+#
 for pos, residue in enumerate(sequence):
     print('{}\t{}\t{:.4f}'.format(pos + 1, residue, iupred2_result[0][pos]), end="")
     if '-a' in sys.argv:

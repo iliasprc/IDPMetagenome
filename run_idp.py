@@ -48,4 +48,4 @@ elif args.method == 'seg':
     idp_count = post_process_seg_output(results_file)
 print(f'Number of IDP regions {idp_count} extracted from {args.method}')
 
-# subprocess.run(method_args)
+subprocess.run(method_args)

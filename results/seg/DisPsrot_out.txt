@@ -1,0 +1,18 @@
+>P53_HUMAN
+
+                                  1-62   MEEPQSDPSVEPPLSQETFSDLWKLLPENN
+                                         VLSPLPSQAMDDLMLSPDDIEQWFTEDPGP
+                                         DE
+   aprmpeaappvapapaaptpaapapap   63-89   
+                                 90-393  SWPLSSSVPSQKTYQGSYGFRLGFLHSGTA
+                                         KSVTCTYSPALNKMFCQLAKTCPVQLWVDS
+                                         TPPPGTRVRAMAIYKQSQHMTEVVRRCPHH
+                                         ERCSDSDGLAPPQHLIRVEGNLRVEYLDDR
+                                         NTFRHSVVVPYEPPEVGSDCTTIHYNYMCN
+                                         SSCMGGMNRRPILTIITLEDSSGNLLGRNS
+                                         FEVRVCACPGRDRRTEEENLRKKGEPHHEL
+                                         PPGSTKRALPNNTSSSPQPKKKPLDGEYFT
+                                         LQIRGRERFEMFRELNEALELKDAQAGKEP
+                                         GGSRAHSSHLKSKKGQSTSRHKKLMFKTEG
+                                         PDSD
+

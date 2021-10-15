@@ -1,9 +1,14 @@
 import argparse
 import re
+import json
+import numpy as np
+import sklearn.metrics
+
 # paths to idp programs
 cast = 'idp_programs/cast-linux/cast'
 seg = 'idp_programs/ncbi-seg_0.0.20000620.orig/seg'
 flps = 'idp_programs/fLPS/bin/linux/fLPS'
+
 
 def arguments():
     parser = argparse.ArgumentParser()
@@ -112,11 +117,12 @@ def select_method(method: str):
 def has_numbers(inputString):
     return bool(re.search(r'\d', inputString))
 
+
 def post_process_seg_output(path):
     with open(path, 'r') as file1:
         data = file1.readlines()
         print(len(data))
-        count=0
+        count = 0
         for idx, i in enumerate(data):
 
             if idx < 80000:
@@ -124,11 +130,10 @@ def post_process_seg_output(path):
                 if '>disprot' in i:
                     continue
                 if has_numbers(i):
-                   # print(i)
+                    # print(i)
                     if '-' in i[-5:]:
-                        #print(i)
-                        count+=1
-
+                        # print(i)
+                        count += 1
 
             # print(i)
         print(count)
@@ -148,18 +153,17 @@ def post_process_seg_output(path):
         file1.close()
 
 
-
-def post_process_cast_output(path):
+def post_process_cast_outputv1(path):
     with open(path, 'r') as file1:
         data = file1.readlines()
         print(len(data))
-        count=0
+        count = 0
         for idx, i in enumerate(data):
-            #print(i.strip())
+            print(f'{i.strip()}----------')
             i = i.strip()
             if 'region' in i:
-                count+=1
-                #print(i)
+                count += 1
+                # print(i)
 
             # if idx < 80000:
             #     i = i.strip()
@@ -190,3 +194,164 @@ def post_process_cast_output(path):
         file1.close()
         return count
 
+
+def post_process_cast_output(path, ground_truth_path):
+    with open(path, 'r') as file1:
+        data = file1.readlines()
+    file1.close()
+    print(len(data))
+    count = 0
+    proteins = []
+    predictions = []
+    s = ''
+    for idx, i in enumerate(data):
+
+        i = i.strip('\n')
+        # print(f'{i}')
+        if 'region' in i:
+            count += 1
+            # print(i)
+        if '>' in i:
+
+            print(s)
+            print(i)
+
+            proteins.append(i)
+            if s != '':
+                predictions.append(s)
+            s = ''
+        else:
+            s += i
+    print(s)
+    if s != '':
+        predictions.append(s)
+    print(len(proteins), len(predictions))
+    idppreds = []
+    for i in range(len(predictions)):
+        print(predictions[i])
+        s = predictions[i]
+        s = s.replace('X', '1')
+        s = re.sub('\D', '0', s)
+        print(s)
+        idppreds.append(s)
+    print(len(idppreds))
+    annotations = []
+    with open(ground_truth_path, 'r') as file1:
+        gt = file1.read().splitlines()
+        print(gt)
+        for i in gt:
+            if not '>' in i:
+                annotations.append(i)
+
+    assert len(annotations) == len(idppreds)
+    avgf1 = 0
+    avg_mcc = 0
+    for i in range(len(idppreds)):
+        pred = [int(c) for c in idppreds[i]]
+        target = [int(c) for c in annotations[i]]
+        #print(len(pred), len(target))
+        assert len(pred) == len(target)
+        pred = np.array(pred)
+        target = np.array(target)
+        auc = sklearn.metrics.accuracy_score(target, pred)
+        precision, recall, thresholds = sklearn.metrics.precision_recall_curve(target, pred)
+        f1 = sklearn.metrics.f1_score(target, pred, average='macro')
+        mcc = sklearn.metrics.matthews_corrcoef(np.where(target < 1, -1, 1), np.where(pred < 1, -1, 1))
+        # mcc = sklearn.metrics.matthews_corrcoef(target,pred)
+        # print(np.where(target<1,target,-1),target)
+       # print(precision, f1, mcc)
+        avg_mcc += mcc
+        avgf1 += f1
+        confusion_matrix = sklearn.metrics.confusion_matrix(target, pred)
+        #
+        # FP = confusion_matrix.sum(axis=0) - np.diag(confusion_matrix)
+        # FN = confusion_matrix.sum(axis=1) - np.diag(confusion_matrix)
+        # TP = np.diag(confusion_matrix)
+
+        cm = confusion_matrix.ravel()
+        TN, FP, FN, TP = cm
+       # print(cm, cm.sum(), len(pred))
+
+        # Sensitivity, hit rate, recall, or true positive rate
+        TPR = TP / (TP + FN)
+        # Specificity or true negative rate
+        TNR = TN / (TN + FP)
+        # Precision or positive predictive value
+        PPV = TP / (TP + FP)
+        # Negative predictive value
+        NPV = TN / (TN + FN)
+        # Fall out or false positive rate
+        FPR = FP / (FP + TN)
+        # False negative rate
+        FNR = FN / (TP + FN)
+        # False discovery rate
+        FDR = FP / (TP + FP)
+
+        # Overall accuracy
+        ACC = (TP + TN) / (TP + FP + FN + TN)
+        print(ACC)
+
+        #print(auc)
+    print(avgf1 / len(idppreds), avg_mcc / len(idppreds))
+    return count
+
+
+def read_caid_data(path):
+    assert path[-4:] == '.txt', print(f"NOT txt file")
+    protein_ids = []
+    proteins = []
+    annotations = []
+    with open(path, 'r') as f:
+        data = f.read().splitlines()
+        # print(data)
+
+        for i in data:
+            # print(i)
+            if '>' in i:
+                protein_ids.append(i)
+            elif (('0' not in i) and ('1' not in i)):
+                proteins.append(i)
+            else:
+                annotations.append(i)
+        assert len(proteins) == len(protein_ids) == len(annotations), f'error in reading txt file with proteins'
+        print(len(proteins), len(protein_ids), len(annotations))
+        print(path)
+    f.close()
+    print(path.rsplit('/', 1))
+    path, name = path.rsplit('/', 1)
+    data_path = f'/mnt/784C5F3A4C5EF1FC/PROJECTS/MScThesis/data/CAID_data_2018/fasta_files/data_{name}'
+    annot_path = f'/mnt/784C5F3A4C5EF1FC/PROJECTS/MScThesis/data/CAID_data_2018/annotation_files/annot_{name}'
+    with open(data_path, 'w') as f:
+        for i in range(len(proteins)):
+            f.write(f'{protein_ids[i]}\n{proteins[i]}\n')
+    f.close()
+    with open(annot_path, 'w') as f:
+        for i in range(len(proteins)):
+            f.write(f'{protein_ids[i]}\n{annotations[i]}\n')
+    f.close()
+
+
+# def create_caid_fasta_file(proteins,protein_ids,annotations):
+
+
+def read_json(path):
+    # Opening JSON file
+    with open(path, 'r') as f:
+        data = json.load(f)
+        print(data.keys())
+        size = data['size']
+        data = data['data']
+        print(data[0])
+        print(size)
+
+
+# read_json('/mnt/784C5F3A4C5EF1FC/PROJECTS/MScThesis/data/DisProt release_2021_08.json')
+# import glob
+# files_ = sorted(glob.glob(f'/mnt/784C5F3A4C5EF1FC/PROJECTS/MScThesis/data/CAID_data_2018/**.txt'))
+# print(files_)
+# for i in files_:
+#
+#     read_caid_data(i)
+
+post_process_cast_output('/mnt/784C5F3A4C5EF1FC/PROJECTS/MScThesis/results/cast/data_disprot-disorder.out.txt',
+                         '/mnt/784C5F3A4C5EF1FC/PROJECTS/MScThesis/data/CAID_data_2018/annotation_files/annot_disprot-disorder.txt')
