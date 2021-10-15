@@ -1,6 +1,7 @@
 import argparse
-import re
 import json
+import re
+
 import numpy as np
 import sklearn.metrics
 
@@ -153,13 +154,13 @@ def post_process_seg_output(path):
         file1.close()
 
 
-def post_process_cast_outputv1(path):
+def post_process_cast_output1(path):
     with open(path, 'r') as file1:
         data = file1.readlines()
         print(len(data))
         count = 0
         for idx, i in enumerate(data):
-            print(f'{i.strip()}----------')
+            print(f'{i.strip()}')
             i = i.strip()
             if 'region' in i:
                 count += 1
@@ -195,7 +196,274 @@ def post_process_cast_outputv1(path):
         return count
 
 
-def post_process_cast_output(path, ground_truth_path):
+def post_process_cast_output(path):
+    with open(path, 'r') as file1:
+        data = file1.readlines()
+        print(len(data))
+        count = 0
+        protein_seq = ''
+        protein_count = 0
+        protein_ids = []
+        proteins = []
+        s = ''
+        idpr = ''
+        idp_regions = []
+        for idx, i in enumerate(data):
+            # print(f'{i.strip()}')
+            i = i.strip()
+
+            if 'region' in i:
+                count += 1
+
+                print(i)
+                # print(re.sub('\D', '_', i))
+                region_start = int(i[18:].split('to')[0].replace(" ", ""))
+                region_end = int(i.split('to')[-1].split('corrected')[0].replace(" ", ""))
+                # print(i[18:],region_start)
+                idpr += f"{region_start},{region_end},"
+                print(f"{region_start},{region_end},")
+            elif '>' in i:
+                regions = []
+                protein_ids.insert(protein_count, i)
+                proteins.insert(protein_count, protein_seq)
+                idp_regions.insert(protein_count, idpr)
+                protein_count += 1
+                print(i, protein_seq)
+                protein_seq = ''
+                idpr = ''
+            else:
+                protein_seq += i
+            # if idx < 80000:
+            #     i = i.strip()
+            #     if '>disprot' in i:
+            #         continue
+            #     if has_numbers(i):
+            #        # print(i)
+            #         if '-' in i[-5:]:
+            #             print(i)
+            #             count+=1
+            #
+            #
+            # # print(i)
+        print(count)
+        # while True:
+        #     count += 1
+        #
+        #     # Get next line from file
+        #     line = file1.readline()
+        #
+        #     # if line is empty
+        #     # end of file is reached
+        #     if not line:
+        #         print('break')
+        #         break
+        #     print("Line{}: {}".format(count, line.strip()))
+        proteins.append(protein_seq)
+        proteins.pop(0)
+        idp_regions.append(idpr)
+        idp_regions.pop(0)
+        print(len(proteins), len(protein_ids), len(idp_regions))
+        print(protein_ids[-1], '\n', proteins[-1], '\n', idp_regions[-1])
+
+        file1.close()
+        with open(path + 'postprocessed.txt', 'w') as f:
+            for i in range(len(proteins)):
+                f.write(f"{protein_ids[i]}\n{proteins[i]}\n{idp_regions[i]}\n")
+        f.close()
+        for i in range(len(proteins)):
+            s = (f"{protein_ids[i]}\n{proteins[i]}\n{idp_regions[i]}\n")
+            sequence_len = len(proteins[i])
+            print(idp_regions[i].split(','))
+            regions = idp_regions[i].split(',')
+            if len(regions) == 1:
+                pred = np.zeros(sequence_len)
+            else:
+                pred = np.zeros(sequence_len)
+                regions = regions[:-1]
+                regions = [int(i) for i in regions]
+                print(regions)
+                regions = iter(regions)
+                for x in regions:
+                    start, end = x, next(regions)
+                    pred[start:end] = 1
+                print(sequence_len, pred)
+            pred_string = ''
+            pred = pred.tolist()
+            for i in pred:
+                pred_string += str(int(i))
+            print(pred_string)
+
+            # print(regions)
+
+        return count
+
+
+def cast_metrics_V2(path, ground_truth_path):
+    with open(path, 'r') as file1:
+        data = file1.readlines()
+        # print(len(data))
+        count = 0
+        protein_seq = ''
+        protein_count = 0
+        protein_ids = []
+        proteins = []
+        s = ''
+        idpr = ''
+        idp_regions = []
+        for idx, i in enumerate(data):
+            # print(f'{i.strip()}')
+            i = i.strip()
+
+            if 'region' in i:
+                count += 1
+
+               # print(i)
+                # print(re.sub('\D', '_', i))
+                region_start = int(i[18:].split('to')[0].replace(" ", ""))
+                region_end = int(i.split('to')[-1].split('corrected')[0].replace(" ", ""))
+                # print(i[18:],region_start)
+                idpr += f"{region_start},{region_end},"
+                #print(f"{region_start},{region_end},")
+            elif '>' in i:
+                regions = []
+                protein_ids.insert(protein_count, i)
+                proteins.insert(protein_count, protein_seq)
+                idp_regions.insert(protein_count, idpr)
+                protein_count += 1
+                #print(i, protein_seq)
+                protein_seq = ''
+                idpr = ''
+            else:
+                protein_seq += i
+            # if idx < 80000:
+            #     i = i.strip()
+            #     if '>disprot' in i:
+            #         continue
+            #     if has_numbers(i):
+            #        # print(i)
+            #         if '-' in i[-5:]:
+            #             print(i)
+            #             count+=1
+            #
+            #
+            # # print(i)
+        # print(count)
+        # while True:
+        #     count += 1
+        #
+        #     # Get next line from file
+        #     line = file1.readline()
+        #
+        #     # if line is empty
+        #     # end of file is reached
+        #     if not line:
+        #         print('break')
+        #         break
+        #     print("Line{}: {}".format(count, line.strip()))
+        proteins.append(protein_seq)
+        proteins.pop(0)
+        idp_regions.append(idpr)
+        idp_regions.pop(0)
+        # print(len(proteins), len(protein_ids), len(idp_regions))
+        # print(protein_ids[-1], '\n', proteins[-1], '\n', idp_regions[-1])
+
+        file1.close()
+        with open(path + 'postprocessed.txt', 'w') as f:
+            for i in range(len(proteins)):
+                f.write(f"{protein_ids[i]}\n{proteins[i]}\n{idp_regions[i]}\n")
+        f.close()
+        predictions = []
+        for i in range(len(proteins)):
+            s = (f"{protein_ids[i]}\n{proteins[i]}\n{idp_regions[i]}\n")
+            sequence_len = len(proteins[i])
+            #print(idp_regions[i].split(','))
+            regions = idp_regions[i].split(',')
+            if len(regions) == 1:
+                pred = np.zeros(sequence_len)
+            else:
+                pred = np.zeros(sequence_len)
+                regions = regions[:-1]
+                regions = [int(i) for i in regions]
+                # print(regions)
+                regions = iter(regions)
+                for x in regions:
+                    start, end = x, next(regions)
+                    pred[start:end] = 1
+                # print(sequence_len, pred)
+            pred_string = ''
+            pred = pred.tolist()
+            for i in pred:
+                pred_string += str(int(i))
+            # print(pred_string)
+            predictions.append(pred_string)
+
+            # print(regions)
+
+    annotations = []
+    with open(ground_truth_path, 'r') as file1:
+        gt = file1.read().splitlines()
+        # print(gt)
+        for i in gt:
+            if not '>' in i:
+                annotations.append(i)
+
+    assert len(annotations) == len(predictions)
+    avgf1 = 0
+    avg_mcc = 0
+    for i in range(len(predictions)):
+        pred = [int(c) for c in predictions[i]]
+        target = [int(c) for c in annotations[i]]
+        # print(len(pred), len(target))
+        assert len(pred) == len(target)
+        pred = np.array(pred)
+        target = np.array(target)
+        auc = sklearn.metrics.accuracy_score(target, pred)
+        precision, recall, thresholds = sklearn.metrics.precision_recall_curve(target, pred)
+        f1 = sklearn.metrics.f1_score(target, pred, average='macro')
+        mcc = sklearn.metrics.matthews_corrcoef(np.where(target < 1, -1, 1), np.where(pred < 1, -1, 1))
+        # mcc = sklearn.metrics.matthews_corrcoef(target,pred)
+        # print(np.where(target<1,target,-1),target)
+        # print(precision, f1, mcc)
+        avg_mcc += mcc
+        avgf1 += f1
+        confusion_matrix = sklearn.metrics.confusion_matrix(target, pred)
+        #
+        # FP = confusion_matrix.sum(axis=0) - np.diag(confusion_matrix)
+        # FN = confusion_matrix.sum(axis=1) - np.diag(confusion_matrix)
+        # TP = np.diag(confusion_matrix)
+
+        cm = confusion_matrix.ravel()
+        TN, FP, FN, TP = cm
+        print(TN, FP, FN, TP)
+        # print(cm, cm.sum(), len(pred))
+
+        # Sensitivity, hit rate, recall, or true positive rate
+        # TPR = TP / (TP + FN)
+        # # Specificity or true negative rate
+        # TNR = TN / (TN + FP)
+        # # Precision or positive predictive value
+        # PPV = TP / (TP + FP)
+        # # Negative predictive value
+        # NPV = TN / (TN + FN)
+        # # Fall out or false positive rate
+        # FPR = FP / (FP + TN)
+        # # False negative rate
+        # FNR = FN / (TP + FN)
+        # # False discovery rate
+        # FDR = FP / (TP + FP)
+        #
+        # # Overall accuracy
+        ACC = (TP + TN) / (TP + FP + FN + TN)
+        print(ACC)
+        if ACC>1:
+            TP
+
+        # print(auc)
+    print(avgf1 / len(predictions), avg_mcc / len(predictions))
+    return count
+
+
+def cast_metrics(path, ground_truth_path):
     with open(path, 'r') as file1:
         data = file1.readlines()
     file1.close()
@@ -204,6 +472,7 @@ def post_process_cast_output(path, ground_truth_path):
     proteins = []
     predictions = []
     s = ''
+    protein_count = 0
     for idx, i in enumerate(data):
 
         i = i.strip('\n')
@@ -249,7 +518,7 @@ def post_process_cast_output(path, ground_truth_path):
     for i in range(len(idppreds)):
         pred = [int(c) for c in idppreds[i]]
         target = [int(c) for c in annotations[i]]
-        #print(len(pred), len(target))
+        # print(len(pred), len(target))
         assert len(pred) == len(target)
         pred = np.array(pred)
         target = np.array(target)
@@ -259,7 +528,7 @@ def post_process_cast_output(path, ground_truth_path):
         mcc = sklearn.metrics.matthews_corrcoef(np.where(target < 1, -1, 1), np.where(pred < 1, -1, 1))
         # mcc = sklearn.metrics.matthews_corrcoef(target,pred)
         # print(np.where(target<1,target,-1),target)
-       # print(precision, f1, mcc)
+        # print(precision, f1, mcc)
         avg_mcc += mcc
         avgf1 += f1
         confusion_matrix = sklearn.metrics.confusion_matrix(target, pred)
@@ -270,7 +539,8 @@ def post_process_cast_output(path, ground_truth_path):
 
         cm = confusion_matrix.ravel()
         TN, FP, FN, TP = cm
-       # print(cm, cm.sum(), len(pred))
+        print(TN, FP, FN, TP)
+        # print(cm, cm.sum(), len(pred))
 
         # Sensitivity, hit rate, recall, or true positive rate
         TPR = TP / (TP + FN)
@@ -291,7 +561,7 @@ def post_process_cast_output(path, ground_truth_path):
         ACC = (TP + TN) / (TP + FP + FN + TN)
         print(ACC)
 
-        #print(auc)
+        # print(auc)
     print(avgf1 / len(idppreds), avg_mcc / len(idppreds))
     return count
 
@@ -319,8 +589,8 @@ def read_caid_data(path):
     f.close()
     print(path.rsplit('/', 1))
     path, name = path.rsplit('/', 1)
-    data_path = f'/mnt/784C5F3A4C5EF1FC/PROJECTS/MScThesis/data/CAID_data_2018/fasta_files/data_{name}'
-    annot_path = f'/mnt/784C5F3A4C5EF1FC/PROJECTS/MScThesis/data/CAID_data_2018/annotation_files/annot_{name}'
+    data_path = f'./data/CAID_data_2018/fasta_files/data_{name}'
+    annot_path = f'./data/CAID_data_2018/annotation_files/annot_{name}'
     with open(data_path, 'w') as f:
         for i in range(len(proteins)):
             f.write(f'{protein_ids[i]}\n{proteins[i]}\n')
@@ -353,5 +623,10 @@ def read_json(path):
 #
 #     read_caid_data(i)
 
-post_process_cast_output('/mnt/784C5F3A4C5EF1FC/PROJECTS/MScThesis/results/cast/data_disprot-disorder.out.txt',
-                         '/mnt/784C5F3A4C5EF1FC/PROJECTS/MScThesis/data/CAID_data_2018/annotation_files/annot_disprot-disorder.txt')
+# post_process_cast_output('/mnt/784C5F3A4C5EF1FC/PROJECTS/MScThesis/results/cast/data_disprot-disorder.out.txt',
+#                          '/mnt/784C5F3A4C5EF1FC/PROJECTS/MScThesis/data/CAID_data_2018/annotation_files
+#                          /annot_disprot-disorder.txt')
+
+
+cast_metrics_V2('../results/cast/CAID2018_out.txt',
+                '../data/CAID_data_2018/annotation_files/annot_disprot-disorder.txt')
