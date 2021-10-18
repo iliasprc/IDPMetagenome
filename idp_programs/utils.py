@@ -52,7 +52,7 @@ def cast_args():
 
 def seg_args():
     parser = argparse.ArgumentParser()
-    parser.add_argument('-x', type=bool, action='store_true', default=False,
+    parser.add_argument('-x',  action='store_true', default=True,
                         help="-x  each input sequence is represented by a single output" \
                              "sequence with low-complexity regions replaced by" \
                              "strings of 'x' characters ")
@@ -61,21 +61,21 @@ def seg_args():
     parser.add_argument('-m', type=int, default=0, help='<size> minimum length for a high-complexity segment'
                                                         '(default 0).  Shorter segments are merged with adjacent'
                                                         'low-complexity segments')
-    parser.add_argument('-l', type=bool, action='store_true', default=False,
+    parser.add_argument('-l', action='store_true', default=False,
                         help='  show only low-complexity segments (fasta format)')
-    parser.add_argument('-h', type=bool, action='store_true', default=False,
-                        help='show only high-complexity segments (fasta format)')
-    parser.add_argument('-a', type=bool, action='store_true', default=False,
+    # parser.add_argument('-h',  action='store_true', default=False,
+    #                     help='show only high-complexity segments (fasta format)')
+    parser.add_argument('-a',  action='store_true', default=False,
                         help='show all segments (fasta format)')
-    parser.add_argument('-n', type=bool, action='store_true', default=False,
+    parser.add_argument('-n',  action='store_true', default=False,
                         help='do not add complexity information to the header line')
-    parser.add_argument('-o', type=bool, action='store_true', default=False,
+    parser.add_argument('-o', action='store_true', default=False,
                         help='show overlapping low-complexity segments (default merge)')
 
     parser.add_argument('-t', type=int, default=100, help='maximum trimming of raw segment (default 100)')
-    parser.add_argument('-p', type=bool, action='store_true', default=False,
+    parser.add_argument('-p',action='store_true', default=False,
                         help='prettyprint each segmented sequence (tree format)')
-    parser.add_argument('-q', type=bool, action='store_true', default=False,
+    parser.add_argument('-q',  action='store_true', default=False,
                         help='prettyprint each segmented sequence (block format)')
     args = parser.parse_args()
     return args
@@ -110,6 +110,11 @@ def select_method(method: str):
 
     elif method == 'seg':
         method_args_list = [seg]
+        cargs = seg_args()
+
+        if cargs.x:
+            method_args_list.append('-x')
+
     elif method == 'flps':
         method_args_list = [flps]
     return method_args_list
@@ -124,17 +129,31 @@ def post_process_seg_output(path):
         data = file1.readlines()
         print(len(data))
         count = 0
+        protein_count = 0
+
+        protein_seq = ''
+        idpr = ''
         for idx, i in enumerate(data):
 
-            if idx < 80000:
-                i = i.strip()
-                if '>disprot' in i:
-                    continue
-                if has_numbers(i):
+
+            #i = i.strip()
+            #print(i[:36])
+            #print(i[30:40])
+            if '>' in i.strip():
+                protein_count+=1
+                #continue
+            elif has_numbers(i.strip()):
+                #
+                # print(i)
+                print(i[30:40].strip())
+                ids = [int(x) for x in i[30:40].strip().split('-')]
+                print(ids)
+                #print(i.strip())
+                #print(len(i))
+               # print(i)
+                if '-' in i.strip()[-5:]:
                     # print(i)
-                    if '-' in i[-5:]:
-                        # print(i)
-                        count += 1
+                    count += 1
 
             # print(i)
         print(count)
@@ -151,7 +170,140 @@ def post_process_seg_output(path):
         #         break
         #     print("Line{}: {}".format(count, line.strip()))
 
-        file1.close()
+    file1.close()
+    return count
+
+
+
+def metrics_seg(path,ground_truth_path=''):
+    with open(path, 'r') as file1:
+        data = file1.readlines()
+        print(len(data))
+        count = 0
+        protein_count = 0
+
+        protein_seq = ''
+        idpr = ''
+        predictions = []
+        pred = ''
+        for idx, i in enumerate(data):
+
+            i = i.strip()
+            print(i)
+            #i = i.strip()
+            #print(i[:36])
+            #print(i[30:40])
+            if '>' in i.strip():
+                #print(pred)
+                predictions.append(pred)
+                pred = ''
+                protein_count+=1
+
+                #continue
+            else:
+                #
+                # print(i)
+                #print(i.strip())
+                region = i
+                region = region.replace('x', '1')
+                region = re.sub('\D', '0', region)
+                print(pred)
+                pred+=region
+
+
+            # print(i)
+        print(count)
+        # while True:
+        #     count += 1
+        #
+        #     # Get next line from file
+        #     line = file1.readline()
+        #
+        #     # if line is empty
+        #     # end of file is reached
+        #     if not line:
+        #         print('break')
+        #         break
+        #     print("Line{}: {}".format(count, line.strip()))
+    predictions.append(pred)
+    predictions.pop(0)
+    print(protein_count)
+    print(len(predictions))
+    file1.close()
+    annotations = []
+    with open(ground_truth_path, 'r') as file1:
+        gt = file1.read().splitlines()
+        #print(gt)
+        for i in gt:
+            if not '>' in i:
+                annotations.append(i)
+
+    assert len(annotations) == len(predictions)
+    print(len(annotations))
+    avgf1 = 0
+    avg_mcc = 0
+    avg_cm = [0, 0, 0, 0]
+    for i in range(len(predictions)):
+        pred = [int(c) for c in predictions[i]]
+        target = [int(c) for c in annotations[i]]
+        print(len(pred), len(target))
+        assert len(pred) == len(target)
+        pred = np.array(pred)
+        target = np.array(target)
+        auc = sklearn.metrics.accuracy_score(target, pred)
+        precision, recall, thresholds = sklearn.metrics.precision_recall_curve(target, pred)
+        f1 = sklearn.metrics.f1_score(target, pred, average='macro')
+        mcc = sklearn.metrics.matthews_corrcoef(np.where(target < 1, -1, 1), np.where(pred < 1, -1, 1))
+        # mcc = sklearn.metrics.matthews_corrcoef(target,pred)
+        # print(np.where(target<1,target,-1),target)
+        # print(precision, f1, mcc)
+        avg_mcc += mcc
+        avgf1 += f1
+        confusion_matrix = sklearn.metrics.confusion_matrix(target, pred)
+        #
+        # FP = confusion_matrix.sum(axis=0) - np.diag(confusion_matrix)
+        # FN = confusion_matrix.sum(axis=1) - np.diag(confusion_matrix)
+        # TP = np.diag(confusion_matrix)
+
+        cm = confusion_matrix.ravel()
+        TN, FP, FN, TP = cm
+        avg_cm[0] += TP / len(pred)
+        avg_cm[1] += TN / len(pred)
+        avg_cm[2] += FP / len(pred)
+        avg_cm[3] += FN / len(pred)
+        print(TN, FP, FN, TP)
+        # print(cm, cm.sum(), len(pred))
+
+        # Sensitivity, hit rate, recall, or true positive rate
+        TPR = TP / (TP + FN)
+        # Specificity or true negative rate
+        TNR = TN / (TN + FP)
+        # Precision or positive predictive value
+        PPV = TP / (TP + FP)
+        # Negative predictive value
+        NPV = TN / (TN + FN)
+        # Fall out or false positive rate
+        FPR = FP / (FP + TN)
+        # False negative rate
+        FNR = FN / (TP + FN)
+        # False discovery rate
+        FDR = FP / (TP + FP)
+
+        # Overall accuracy
+        ACC = (TP + TN) / (TP + FP + FN + TN)
+        print(ACC)
+
+        # print(auc)
+    print(avgf1 / len(predictions), avg_mcc / len(predictions))
+    avg_cm[0] = avg_cm[0]  # * len(predictions)
+    avg_cm[1] = avg_cm[1]  # * len(predictions)
+    avg_cm[2] = avg_cm[2]  # * len(predictions)
+    avg_cm[3] = avg_cm[3]  # * len(predictions)
+    print(f'TP,TN,FP,FN\n{avg_cm[0]:.2f},{avg_cm[1]:.2f},{avg_cm[2]:.2f},{avg_cm[3]:.2f}\n F1 {avgf1 / len(predictions):.4f}  MCC {avg_mcc / len(predictions):.4f}')
+
+    return count
+
+    return count
 
 
 def post_process_cast_output1(path):
@@ -584,6 +736,7 @@ def cast_metrics(path, ground_truth_path):
     avg_cm[2] =avg_cm[2]#* len(predictions)
     avg_cm[3] =avg_cm[3]#* len(predictions)
     print(avg_cm)
+    print(f'TP,TN,FP,FN\n{avg_cm[0]:.2f},{avg_cm[1]:.2f},{avg_cm[2]:.2f},{avg_cm[3]:.2f}\n F1 {avgf1 / len(predictions):.4f}  MCC {avg_mcc / len(predictions):.4f}')
     return count
 
 
@@ -649,8 +802,12 @@ def read_json(path):
 #                          /annot_disprot-disorder.txt')
 
 
-cast_metrics_V2('../results/cast/CAID2018_out.txt',
-                '../data/CAID_data_2018/annotation_files/annot_disprot-disorder.txt')
-
+# cast_metrics_V2('../results/cast/CAID2018_out.txt',
+#                 '../data/CAID_data_2018/annotation_files/annot_disprot-disorder.txt')
+#
 cast_metrics ('../results/cast/CAID2018_out.txt',
                 '../data/CAID_data_2018/annotation_files/annot_disprot-disorder.txt')
+
+
+
+metrics_seg('/home/iliask/PycharmProjects/MScThesis/results/seg/CAID2018_seg_out.txt','../data/CAID_data_2018/annotation_files/annot_disprot-disorder.txt')
