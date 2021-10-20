@@ -27,6 +27,7 @@ if sys.argv[-1] not in ['short', 'long', 'glob']:
     sys.exit('Wrong iupred2 option {}!\n{}'.format(sys.argv[-1], help_msg))
 
 sequence = iupred2a_lib.read_seq(sys.argv[-2])
+print(sequence)
 iupred2_result = iupred2a_lib.iupred(sequence, sys.argv[-1])
 if '-a' in sys.argv:
     if sys.argv[-1] == 'long':

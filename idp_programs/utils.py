@@ -120,6 +120,47 @@ def select_method(method: str):
     return method_args_list
 
 
+
+
+def read_swissprot(path):
+    annotations = []
+    with open(path, 'r') as file1:
+        gt = file1.read().splitlines()
+        #print(gt)
+    s = ''
+    for i in gt:
+        print(i)
+        if not '>' in i:
+            s+= re.sub('\D', '1', i)
+
+        else:
+            annotations.append(s)
+            s=''
+    annotations.pop(0)
+    annotations.append(s)
+    print(len(annotations), (annotations[-1]))
+    return  annotations
+
+
+def read_disprot(path):
+    annotations = []
+    with open(path, 'r') as file1:
+        gt = file1.read().splitlines()
+        #print(gt)
+    s = ''
+    for i in gt:
+        print(i)
+        if not '>' in i:
+            s+= re.sub('\D', '1', i)
+
+        else:
+            annotations.append(s)
+            s=''
+    annotations.pop(0)
+    annotations.append(s)
+    print(len(annotations), (annotations[-1]))
+    return  annotations
+
 def has_numbers(inputString):
     return bool(re.search(r'\d', inputString))
 
@@ -175,7 +216,7 @@ def post_process_seg_output(path):
 
 
 
-def metrics_seg(path,ground_truth_path=''):
+def metrics_seg(path,annotations):
     with open(path, 'r') as file1:
         data = file1.readlines()
         print(len(data))
@@ -230,81 +271,208 @@ def metrics_seg(path,ground_truth_path=''):
     print(protein_count)
     print(len(predictions))
     file1.close()
+    # annotations = []
+    # with open(ground_truth_path, 'r') as file1:
+    #     gt = file1.read().splitlines()
+    #     #print(gt)
+    #     for i in gt:
+    #         if not '>' in i:
+    #             annotations.append(i)
+
+    assert len(annotations) == len(predictions),print(len(annotations),len(predictions))
+    target_metrics(predictions,annotations)
+    return count
+
+    return count
+
+
+def post_process_iupred2a_out1(path, ground_truth_path):
+    with open(path, 'r') as file1:
+        data = file1.read().splitlines()
+        print(len(data))
+        count = 0
+        pred = ''
+        idppreds = []
+        for idx, i in enumerate(data):
+            # print({i.strip()})
+            if '>' not in i:
+                s = 0
+                print(i.split('\t'))
+                amino_score = i.split('\t')[-1]
+                pred += amino_score
+
+
+            else:
+
+                idppreds.append(pred)
+                pred = ''
+                print(i)
     annotations = []
+    idppreds.pop(0)
+    idppreds.append(pred)
     with open(ground_truth_path, 'r') as file1:
         gt = file1.read().splitlines()
-        #print(gt)
+        # print(gt)
         for i in gt:
             if not '>' in i:
                 annotations.append(i)
 
-    assert len(annotations) == len(predictions)
+    assert len(annotations) == len(idppreds), print(f'{len(annotations)}  != {len(idppreds)}')
     print(len(annotations))
     avgf1 = 0
     avg_mcc = 0
     avg_cm = [0, 0, 0, 0]
-    for i in range(len(predictions)):
-        pred = [int(c) for c in predictions[i]]
+    dataset_preds = []
+    dataset_target = []
+    TPR =0
+    # Specificity or true negative rate
+    TNR = 0
+    # Precision or positive predictive value
+    PPV = 0
+    # Negative predictive value
+    NPV = 0
+    # Fall out or false positive rate
+    FPR =0
+    # False negative rate
+    FNR =0
+    # False discovery rate
+    FDR =0
+    F1 = 0
+    # Overall accuracy
+    ACC = 0
+
+    BAC = 0
+
+    for i in range(len(idppreds)):
+        #print(idppreds[i])
+        pred = [int(c) for c in idppreds[i]]
         target = [int(c) for c in annotations[i]]
-        print(len(pred), len(target))
+        #print(i,len(pred), len(target))
         assert len(pred) == len(target)
         pred = np.array(pred)
         target = np.array(target)
-        auc = sklearn.metrics.accuracy_score(target, pred)
-        precision, recall, thresholds = sklearn.metrics.precision_recall_curve(target, pred)
-        f1 = sklearn.metrics.f1_score(target, pred, average='macro')
-        mcc = sklearn.metrics.matthews_corrcoef(np.where(target < 1, -1, 1), np.where(pred < 1, -1, 1))
+
         # mcc = sklearn.metrics.matthews_corrcoef(target,pred)
         # print(np.where(target<1,target,-1),target)
         # print(precision, f1, mcc)
-        avg_mcc += mcc
-        avgf1 += f1
+        #avg_mcc += mcc
+
+        #print(target,pred)
         confusion_matrix = sklearn.metrics.confusion_matrix(target, pred)
-        #
-        # FP = confusion_matrix.sum(axis=0) - np.diag(confusion_matrix)
-        # FN = confusion_matrix.sum(axis=1) - np.diag(confusion_matrix)
-        # TP = np.diag(confusion_matrix)
+
 
         cm = confusion_matrix.ravel()
-        TN, FP, FN, TP = cm
-        avg_cm[0] += TP / len(pred)
-        avg_cm[1] += TN / len(pred)
-        avg_cm[2] += FP / len(pred)
-        avg_cm[3] += FN / len(pred)
-        print(TN, FP, FN, TP)
-        # print(cm, cm.sum(), len(pred))
+        #print(cm)
+        if 0 in cm:
+            print(cm)
+        if(len(cm)!=4):
+            print('GAMWWWWWWWWWWWWWWWWWWWWW\n\n\n\n\n\n\n\n\n')
+            TN =  cm[0]-3
+            FP, FN, TP = 1,1,1
+        else:
+            TN, FP, FN, TP = cm
+
+            #F1 = TP / (TP + 0.5 * (FP + FN))
+        #avgf1 += F1
 
         # Sensitivity, hit rate, recall, or true positive rate
-        TPR = TP / (TP + FN)
+        TPR += TP / (TP + FN)
         # Specificity or true negative rate
-        TNR = TN / (TN + FP)
+        TNR += TN / (TN + FP)
         # Precision or positive predictive value
-        PPV = TP / (TP + FP)
+        PPV += TP / (TP + FP)
         # Negative predictive value
-        NPV = TN / (TN + FN)
+        NPV += TN / (TN + FN)
         # Fall out or false positive rate
-        FPR = FP / (FP + TN)
+        FPR += FP / (FP + TN)
         # False negative rate
-        FNR = FN / (TP + FN)
+        FNR += FN / (TP + FN)
         # False discovery rate
-        FDR = FP / (TP + FP)
-
+        FDR += FP / (TP + FP)
+        F1 += TP / (TP + 0.5 * (FP + FN))
         # Overall accuracy
-        ACC = (TP + TN) / (TP + FP + FN + TN)
-        print(ACC)
+        ACC += (TP + TN) / (TP + FP + FN + TN)
 
+        BAC += (TPR + TNR) / 2.0
+
+        avg_cm[0] += TP
+        avg_cm[1] += TN
+        avg_cm[2] += FP
+        avg_cm[3] += FN
+        #print(TN, FP, FN, TP)
+        # print(cm, cm.sum(), len(pred))
+
+    #Sensitivity, hit rate, recall, or true positive rate
+    # TPR = TP / (TP + FN)
+    # # Specificity or true negative rate
+    # TNR = TN / (TN + FP)
+    # # Precision or positive predictive value
+    # PPV = TP / (TP + FP)
+    # # Negative predictive value
+    # NPV = TN / (TN + FN)
+    # # Fall out or false positive rate
+    # FPR = FP / (FP + TN)
+    # # False negative rate
+    # FNR = FN / (TP + FN)
+    # # False discovery rate
+    # FDR = FP / (TP + FP)
+    # F1 = TP / (TP + 0.5 * (FP + FN))
+    # # Overall accuracy
+    # ACC = (TP + TN) / (TP + FP + FN + TN)
+    #
+    # BAC = (TPR + TNR) / 2.0
         # print(auc)
-    print(avgf1 / len(predictions), avg_mcc / len(predictions))
+    print(avgf1 / len(idppreds), avg_mcc / len(idppreds))
     avg_cm[0] = avg_cm[0]  # * len(predictions)
     avg_cm[1] = avg_cm[1]  # * len(predictions)
     avg_cm[2] = avg_cm[2]  # * len(predictions)
     avg_cm[3] = avg_cm[3]  # * len(predictions)
-    print(f'TP,TN,FP,FN\n{avg_cm[0]:.2f},{avg_cm[1]:.2f},{avg_cm[2]:.2f},{avg_cm[3]:.2f}\n F1 {avgf1 / len(predictions):.4f}  MCC {avg_mcc / len(predictions):.4f}')
-
+    print(avg_cm)
+    print(
+        f'TP,TN,FP,FN\n{avg_cm[0] / len(idppreds):.2f},{avg_cm[1] / len(idppreds):.2f},{avg_cm[2] / len(idppreds):.2f},{avg_cm[3] / len(idppreds):.2f}\n F1 {avgf1 :.4f} F1 {F1 / len(idppreds)}  MCC {avg_mcc :.4f}')
+    print(f" TPR {TPR / len(idppreds):.4f} TNR {TNR / len(idppreds):.4f}  PPV {PPV / len(idppreds):.4f}\nNPV {NPV / len(idppreds):.4f} FPR {FPR / len(idppreds):.4f} FNR {FNR / len(idppreds):.4f} BAC {BAC / len(idppreds):.4f}")
+    return count
     return count
 
-    return count
 
+def post_process_iupred2a_out(path,ground_truth_path):
+    with open(path, 'r') as file1:
+        data = file1.read().splitlines()
+        print(len(data))
+        count = 0
+        pred = ''
+        idppreds = []
+        for idx, i in enumerate(data):
+            #print({i.strip()})
+            if '>' not in i:
+                s=0
+                print(i.split('\t'))
+                amino_score = i.split('\t')[-1]
+                pred+=amino_score
+
+
+            else:
+               
+                idppreds.append(pred)
+                pred = ''
+                print(i)
+    annotations = []
+    idppreds.pop(0)
+    idppreds.append(pred)
+    with open(ground_truth_path, 'r') as file1:
+        gt = file1.read().splitlines()
+        # print(gt)
+        for i in gt:
+            if not '>' in i:
+                annotations.append(i)
+
+    assert len(annotations) == len(idppreds),print(f'{len(annotations)}  != { len(idppreds)}')
+
+    target_metrics(idppreds,annotations)
+#,fn,fp,tn,tp
+#D003_IUPred2A-long.out,19649,78275,203716,34955
+# ,,bac,  csi, f05,  f1s,  f2s,  fnr,  fom,  fpr,  inf   ,mcc,mk,npv,ppv,tnr,tpr,thr
+# 0.684,0.262,0.339,0.416,0.537,0.333,0.084,0.299,0.368,0.283,0.218,0.916,0.302,0.701,0.667,0.477
 
 def post_process_cast_output1(path):
     with open(path, 'r') as file1:
@@ -625,6 +793,79 @@ def cast_metrics_V2(path, ground_truth_path):
     return count
 
 
+
+def target_metrics(idppreds,annotations):
+    assert len(annotations) == len(idppreds),print(f'{len(annotations)}  != { len(idppreds)}')
+    print(len(annotations))
+    avgf1 = 0
+    avg_mcc = 0
+    avg_cm = [0, 0, 0, 0]
+    dataset_preds = []
+    dataset_target =  []
+    for i in range(len(idppreds)):
+        #print(idppreds[i])
+        pred = [int(c) for c in idppreds[i]]
+        target = [int(c) for c in annotations[i]]
+        print(i,len(pred), len(target))
+        assert len(pred) == len(target)
+        dataset_preds+=pred
+        dataset_target+=target
+
+    pred = np.array(dataset_preds)
+    target = np.array(dataset_target)
+
+
+    confusion_matrix = sklearn.metrics.confusion_matrix(target, pred)
+
+    cm = confusion_matrix.ravel()
+    #print(cm)
+
+    TN, FP, FN, TP = cm
+    avg_cm[0] += TP# / len(pred)
+    avg_cm[1] += TN #/ len(pred)
+    avg_cm[2] += FP #/ len(pred)
+    avg_cm[3] += FN #/ len(pred)
+    #print(TN, FP, FN, TP)
+    # print(cm, cm.sum(), len(pred))
+
+    # Sensitivity, hit rate, recall, or true positive rate
+    TPR = TP / (TP + FN)
+    # Specificity or true negative rate
+    TNR = TN / (TN + FP)
+    # Precision or positive predictive value
+    PPV = TP / (TP + FP)
+    # Negative predictive value
+    NPV = TN / (TN + FN)
+    FOR = 1.0-NPV
+    # Fall out or false positive rate
+    FPR = FP / (FP + TN)
+    # False negative rate
+    FNR = FN / (TP + FN)
+    # False discovery rate
+    FDR = FP / (TP + FP)
+    F1 = TP/(TP+0.5*(FP+FN))
+    # Overall accuracy
+    ACC = (TP + TN) / (TP + FP + FN + TN)
+
+    BAC = (TPR+TNR)/2.0
+    numerotr = TP*TN-FP*FN
+    #denominator = ((TP+FP)*(TP+FN)*(TN+FP)*(TN+FN))**0.5
+    MCC = (PPV*TPR*TNR*NPV)**0.5-((FDR*FNR*FPR*FOR)**0.5)
+   # MCC = numerotr/denominator
+    print(ACC)
+
+        # print(auc)
+    print(avgf1 , avg_mcc)
+    avg_cm[0] = avg_cm[0]#  / len(idppreds)
+    avg_cm[1] = avg_cm[1]# / len(idppreds)
+    avg_cm[2] = avg_cm[2]#/ len(idppreds)
+    avg_cm[3] = avg_cm[3] # / len(idppreds)
+    print(avg_cm)
+    print(
+        f'TP,TN,FP,FN\n{avg_cm[0]:.2f},{avg_cm[1]:.2f},{avg_cm[2]:.2f},{avg_cm[3]:.2f}\n F1 {F1 :.4f}   MCC {MCC :.4f}')
+    print(f" TPR {TPR:.4f} TNR {TNR:.4f}  PPV {PPV:.4f}\nNPV {NPV:.4f} FPR {FPR:.4f} FNR {FNR:.4f} BAC {BAC:.4f}")
+    return -1
+
 def cast_metrics(path, ground_truth_path):
     with open(path, 'r') as file1:
         data = file1.readlines()
@@ -675,69 +916,70 @@ def cast_metrics(path, ground_truth_path):
                 annotations.append(i)
 
     assert len(annotations) == len(idppreds)
-    print(len(annotations))
-    avgf1 = 0
-    avg_mcc = 0
-    avg_cm = [0,0,0,0]
-    for i in range(len(idppreds)):
-        pred = [int(c) for c in idppreds[i]]
-        target = [int(c) for c in annotations[i]]
-        print(len(pred), len(target))
-        assert len(pred) == len(target)
-        pred = np.array(pred)
-        target = np.array(target)
-        auc = sklearn.metrics.accuracy_score(target, pred)
-        precision, recall, thresholds = sklearn.metrics.precision_recall_curve(target, pred)
-        f1 = sklearn.metrics.f1_score(target, pred, average='macro')
-        mcc = sklearn.metrics.matthews_corrcoef(np.where(target < 1, -1, 1), np.where(pred < 1, -1, 1))
-        # mcc = sklearn.metrics.matthews_corrcoef(target,pred)
-        # print(np.where(target<1,target,-1),target)
-        # print(precision, f1, mcc)
-        avg_mcc += mcc
-        avgf1 += f1
-        confusion_matrix = sklearn.metrics.confusion_matrix(target, pred)
-        #
-        # FP = confusion_matrix.sum(axis=0) - np.diag(confusion_matrix)
-        # FN = confusion_matrix.sum(axis=1) - np.diag(confusion_matrix)
-        # TP = np.diag(confusion_matrix)
-
-        cm = confusion_matrix.ravel()
-        TN, FP, FN, TP = cm
-        avg_cm[0]+=  TP/len(pred)
-        avg_cm[1] += TN/len(pred)
-        avg_cm[2] += FP/len(pred)
-        avg_cm[3] += FN/len(pred)
-        print(TN, FP, FN, TP)
-        # print(cm, cm.sum(), len(pred))
-
-        # Sensitivity, hit rate, recall, or true positive rate
-        TPR = TP / (TP + FN)
-        # Specificity or true negative rate
-        TNR = TN / (TN + FP)
-        # Precision or positive predictive value
-        PPV = TP / (TP + FP)
-        # Negative predictive value
-        NPV = TN / (TN + FN)
-        # Fall out or false positive rate
-        FPR = FP / (FP + TN)
-        # False negative rate
-        FNR = FN / (TP + FN)
-        # False discovery rate
-        FDR = FP / (TP + FP)
-
-        # Overall accuracy
-        ACC = (TP + TN) / (TP + FP + FN + TN)
-        print(ACC)
-
-        # print(auc)
-    print(avgf1 / len(idppreds), avg_mcc / len(idppreds))
-    avg_cm[0] = avg_cm[0]#* len(predictions)
-    avg_cm[1] =avg_cm[1]#* len(predictions)
-    avg_cm[2] =avg_cm[2]#* len(predictions)
-    avg_cm[3] =avg_cm[3]#* len(predictions)
-    print(avg_cm)
-    print(f'TP,TN,FP,FN\n{avg_cm[0]:.2f},{avg_cm[1]:.2f},{avg_cm[2]:.2f},{avg_cm[3]:.2f}\n F1 {avgf1 / len(predictions):.4f}  MCC {avg_mcc / len(predictions):.4f}')
-    return count
+    target_metrics(idppreds,annotations)
+    # print(len(annotations))
+    # avgf1 = 0
+    # avg_mcc = 0
+    # avg_cm = [0,0,0,0]
+    # for i in range(len(idppreds)):
+    #     pred = [int(c) for c in idppreds[i]]
+    #     target = [int(c) for c in annotations[i]]
+    #     print(len(pred), len(target))
+    #     assert len(pred) == len(target)
+    #     pred = np.array(pred)
+    #     target = np.array(target)
+    #     auc = sklearn.metrics.accuracy_score(target, pred)
+    #     precision, recall, thresholds = sklearn.metrics.precision_recall_curve(target, pred)
+    #     f1 = sklearn.metrics.f1_score(target, pred, average='macro')
+    #     mcc = sklearn.metrics.matthews_corrcoef(np.where(target < 1, -1, 1), np.where(pred < 1, -1, 1))
+    #     # mcc = sklearn.metrics.matthews_corrcoef(target,pred)
+    #     # print(np.where(target<1,target,-1),target)
+    #     # print(precision, f1, mcc)
+    #     avg_mcc += mcc
+    #     avgf1 += f1
+    #     confusion_matrix = sklearn.metrics.confusion_matrix(target, pred)
+    #     #
+    #     # FP = confusion_matrix.sum(axis=0) - np.diag(confusion_matrix)
+    #     # FN = confusion_matrix.sum(axis=1) - np.diag(confusion_matrix)
+    #     # TP = np.diag(confusion_matrix)
+    #
+    #     cm = confusion_matrix.ravel()
+    #     TN, FP, FN, TP = cm
+    #     avg_cm[0]+=  TP/len(pred)
+    #     avg_cm[1] += TN/len(pred)
+    #     avg_cm[2] += FP/len(pred)
+    #     avg_cm[3] += FN/len(pred)
+    #     print(TN, FP, FN, TP)
+    #     # print(cm, cm.sum(), len(pred))
+    #
+    #     # Sensitivity, hit rate, recall, or true positive rate
+    #     TPR = TP / (TP + FN)
+    #     # Specificity or true negative rate
+    #     TNR = TN / (TN + FP)
+    #     # Precision or positive predictive value
+    #     PPV = TP / (TP + FP)
+    #     # Negative predictive value
+    #     NPV = TN / (TN + FN)
+    #     # Fall out or false positive rate
+    #     FPR = FP / (FP + TN)
+    #     # False negative rate
+    #     FNR = FN / (TP + FN)
+    #     # False discovery rate
+    #     FDR = FP / (TP + FP)
+    #
+    #     # Overall accuracy
+    #     ACC = (TP + TN) / (TP + FP + FN + TN)
+    #     print(ACC)
+    #
+    #     # print(auc)
+    # print(avgf1 / len(idppreds), avg_mcc / len(idppreds))
+    # avg_cm[0] = avg_cm[0]#* len(predictions)
+    # avg_cm[1] =avg_cm[1]#* len(predictions)
+    # avg_cm[2] =avg_cm[2]#* len(predictions)
+    # avg_cm[3] =avg_cm[3]#* len(predictions)
+    # print(avg_cm)
+    # print(f'TP,TN,FP,FN\n{avg_cm[0]:.2f},{avg_cm[1]:.2f},{avg_cm[2]:.2f},{avg_cm[3]:.2f}\n F1 {avgf1 / len(predictions):.4f}  MCC {avg_mcc / len(predictions):.4f}')
+    # return count
 
 
 def read_caid_data(path):
@@ -789,25 +1031,30 @@ def read_json(path):
         print(size)
 
 
-# read_json('/mnt/784C5F3A4C5EF1FC/PROJECTS/MScThesis/data/DisProt release_2021_08.json')
-# import glob
-# files_ = sorted(glob.glob(f'/mnt/784C5F3A4C5EF1FC/PROJECTS/MScThesis/data/CAID_data_2018/**.txt'))
-# print(files_)
-# for i in files_:
+# # read_json('/mnt/784C5F3A4C5EF1FC/PROJECTS/MScThesis/data/DisProt release_2021_08.json')
+# # import glob
+# # files_ = sorted(glob.glob(f'/mnt/784C5F3A4C5EF1FC/PROJECTS/MScThesis/data/CAID_data_2018/**.txt'))
+# # print(files_)
+# # for i in files_:
+# #
+# #     read_caid_data(i)
 #
-#     read_caid_data(i)
-
-# post_process_cast_output('/mnt/784C5F3A4C5EF1FC/PROJECTS/MScThesis/results/cast/data_disprot-disorder.out.txt',
-#                          '/mnt/784C5F3A4C5EF1FC/PROJECTS/MScThesis/data/CAID_data_2018/annotation_files
-#                          /annot_disprot-disorder.txt')
-
-
-# cast_metrics_V2('../results/cast/CAID2018_out.txt',
-#                 '../data/CAID_data_2018/annotation_files/annot_disprot-disorder.txt')
+# # post_process_cast_output('/mnt/784C5F3A4C5EF1FC/PROJECTS/MScThesis/results/cast/data_disprot-disorder.out.txt',
+# #                          '/mnt/784C5F3A4C5EF1FC/PROJECTS/MScThesis/data/CAID_data_2018/annotation_files
+# #                          /annot_disprot-disorder.txt')
 #
-cast_metrics ('../results/cast/CAID2018_out.txt',
-                '../data/CAID_data_2018/annotation_files/annot_disprot-disorder.txt')
+#
+# # cast_metrics_V2('../results/cast/CAID2018_out.txt',
+# #                 '../data/CAID_data_2018/annotation_files/annot_disprot-disorder.txt')
+# #
+# cast_metrics ('../results/cast/CAID2018_out.txt',
+#                '../data/CAID_data_2018/annotation_files/annot_disprot-disorder.txt')
+# #
+# #
+# #
+# metrics_seg('/home/iliask/PycharmProjects/MScThesis/results/seg/CAID2018_seg_out.txt','../data/CAID_data_2018/annotation_files/annot_disprot-disorder.txt')
+#
+# #post_process_iupred2a_out('/home/iliask/PycharmProjects/MScThesis/results/iupred2a/Caid_disorder.txt','../data/CAID_data_2018/annotation_files/annot_disprot-disorder.txt')
 
 
-
-metrics_seg('/home/iliask/PycharmProjects/MScThesis/results/seg/CAID2018_seg_out.txt','../data/CAID_data_2018/annotation_files/annot_disprot-disorder.txt')
+read_disprot('/home/iliask/PycharmProjects/MScThesis/data/DisProt release_2021_08.fasta')
