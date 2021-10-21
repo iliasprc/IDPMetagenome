@@ -28,7 +28,7 @@ def arguments():
 
 args = arguments()
 
-print(f' RUN ARGS \n{args.__dict__}')
+print(f'RUN ARGS \n{args.__dict__}')
 method_args = select_method(args.method)
 if args.dataset_name == 'SwissProt':
     ground_truth = swiss_prot_data
