@@ -793,6 +793,47 @@ def cast_metrics_V2(path, ground_truth_path):
     return count
 
 
+def metric(dataset_preds,dataset_target):
+    pred = np.array(dataset_preds)
+    target = np.array(dataset_target)
+
+    confusion_matrix = sklearn.metrics.confusion_matrix(target, pred)
+
+    cm = confusion_matrix.ravel()
+    # print(cm)
+
+    TN, FP, FN, TP = cm
+
+    # print(TN, FP, FN, TP)
+    # print(cm, cm.sum(), len(pred))
+
+    # Sensitivity, hit rate, recall, or true positive rate
+    TPR = TP / (TP + FN)
+    # Specificity or true negative rate
+    TNR = TN / (TN + FP)
+    # Precision or positive predictive value
+    PPV = TP / (TP + FP)
+    # Negative predictive value
+    NPV = TN / (TN + FN)
+    FOR = 1.0 - NPV
+    # Fall out or false positive rate
+    FPR = FP / (FP + TN)
+    # False negative rate
+    FNR = FN / (TP + FN)
+    # False discovery rate
+    FDR = FP / (TP + FP)
+    F1 = TP / (TP + 0.5 * (FP + FN))
+    # Overall accuracy
+    ACC = (TP + TN) / (TP + FP + FN + TN)
+
+    BAC = (TPR + TNR) / 2.0
+    numerotr = TP * TN - FP * FN
+    # denominator = ((TP+FP)*(TP+FN)*(TN+FP)*(TN+FN))**0.5
+    MCC = (PPV * TPR * TNR * NPV) ** 0.5 - ((FDR * FNR * FPR * FOR) ** 0.5)
+    print(
+        f'TP,TN,FP,FN\n{TP:.2f},{TN:.2f},{TP:.2f},{FP:.2f}\n F1 {F1 :.4f}   MCC {MCC :.4f}')
+    print(f" TPR {TPR:.4f} TNR {TNR:.4f}  PPV {PPV:.4f}\nNPV {NPV:.4f} FPR {FPR:.4f} FNR {FNR:.4f} BAC {BAC:.4f}")
+    return ACC , MCC
 
 def target_metrics(idppreds,annotations):
     assert len(annotations) == len(idppreds),print(f'{len(annotations)}  != { len(idppreds)}')
@@ -802,6 +843,7 @@ def target_metrics(idppreds,annotations):
     avg_cm = [0, 0, 0, 0]
     dataset_preds = []
     dataset_target =  []
+    print(idppreds)
     for i in range(len(idppreds)):
         #print(idppreds[i])
         pred = [int(c) for c in idppreds[i]]
@@ -1057,4 +1099,4 @@ def read_json(path):
 # #post_process_iupred2a_out('/home/iliask/PycharmProjects/MScThesis/results/iupred2a/Caid_disorder.txt','../data/CAID_data_2018/annotation_files/annot_disprot-disorder.txt')
 
 
-read_disprot('/home/iliask/PycharmProjects/MScThesis/data/DisProt release_2021_08.fasta')
+#read_disprot('/home/iliask/PycharmProjects/MScThesis/data/DisProt release_2021_08.fasta')

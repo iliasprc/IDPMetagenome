@@ -30,6 +30,29 @@ class DMLoader(Dataset):
 
     def __getitem__(self, index):
 
-        x = torch.FloatTensor([self.w2i[amino] for amino in self.proteins[index]])
-        y = torch.FloatTensor([int(i) for i in self.annotations[index]])
+        x = torch.LongTensor([self.w2i[amino] for amino in self.proteins[index]])#.unsqueeze(-1)
+        y = torch.FloatTensor([int(i) for i in self.annotations[index]])#.unsqueeze(-1)
         return x, y
+
+
+
+class SSLDM(Dataset):
+    def __init__(self, args, mode):
+        cwd = args.cwd
+        if mode == train_prefix:
+            self.names, self.annotations, self.proteins, self.classes, self.w2i = read_data_(
+                os.path.join(cwd, train_filepath))
+            self.mode = mode
+        elif mode == dev_prefix:
+            self.names, self.annotations, self.proteins, self.classes, self.w2i = read_data_(
+                os.path.join(cwd, train_filepath))
+            self.mode = mode
+
+    def __len__(self):
+        return len(self.proteins)
+
+    def __getitem__(self, index):
+
+        x = torch.LongTensor([self.w2i[amino] for amino in self.proteins[index]])#.unsqueeze(-1)
+        #y = torch.FloatTensor([int(i) for i in self.annotations[index]])#.unsqueeze(-1)
+        return x, x

@@ -57,18 +57,18 @@ def read_data_(path):
         assert len(names) == len(proteins)
         classes = sorted(classes)
         indixes = list(range(len(classes)))
-        print(classes)
+        #print(classes)
         w2i = dict(zip(classes,indixes))
-        print(w2i)
-        print(len(classes))
+        #print(w2i)
+       # print(len(classes))
         return names,annotations,proteins,classes,w2i
-names,annotations,proteins,classes,w2i = read_data_('/home/iliask/PycharmProjects/MScThesis/data/idp_seq_2_seq/train/all_train.txt')
-import torch
-for i in range(len(names)):
-
-    print(names[i],'\n',proteins[i],'\n',annotations[i])
-    x = [w2i[amino] for amino in  proteins[i]]
-    y = torch.FloatTensor([int(k) for k in annotations[i]])
-    print(y)
+# names,annotations,proteins,classes,w2i = read_data_('/home/iliask/PycharmProjects/MScThesis/data/idp_seq_2_seq/train/all_train.txt')
+# import torch
+# for i in range(len(names)):
+#
+#     print(names[i],'\n',proteins[i],'\n',annotations[i])
+#     x = [w2i[amino] for amino in  proteins[i]]
+#     y = torch.FloatTensor([int(k) for k in annotations[i]])
+#     print(y)
 #
 # remove_blanks('/home/iliask/PycharmProjects/MScThesis/data/idp_seq_2_seq/validation/ldr_valid.txt')
