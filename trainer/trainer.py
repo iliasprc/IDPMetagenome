@@ -74,8 +74,8 @@ class Trainer(BaseTrainer):
             target = target.to(self.device)
 
             output = self.model(data)
-            print(target.shape,output.shape)
-            loss = self.criterion(output, target.float().unsqueeze(-1))
+            #print(target.shape,output.shape)
+            loss = self.criterion(output.squeeze(0), target.squeeze(0) )
             loss = loss.mean()
 
             (loss / gradient_accumulation).backward()
@@ -83,13 +83,15 @@ class Trainer(BaseTrainer):
                 self.optimizer.step()  # Now we can do an optimizer step
                 self.optimizer.zero_grad()  # Reset gradients tensors
 
-            prediction = torch.max(output, 1)
-            output = torch.sigmoid(output).squeeze()
+
+            output = torch.softmax(output,dim=-1).squeeze()
+            _,output = torch.max(output, 1)
+            #print(output)
             #print(output.shape)
             ol = output.detach().cpu().numpy().tolist()
             #print(ol)
             yhat_raw+=output.detach().cpu().numpy().tolist()
-            output = np.round(output.detach().cpu().numpy())
+            output = output.detach().cpu().numpy()
             y+=target.squeeze().detach().cpu().numpy().tolist()
             yhat+=output.tolist()
             writer_step = (epoch - 1) * self.len_epoch + batch_idx
@@ -108,6 +110,7 @@ class Trainer(BaseTrainer):
 
 
         metrics = metric(yhat , y)
+        self.logger.info(metrics)
        # print_metrics(metrics, self.logger)
         self._progress(batch_idx, epoch, metrics=self.train_metrics, mode='train', print_summary=True)
 
@@ -131,18 +134,19 @@ class Trainer(BaseTrainer):
                 target = target.to(self.device)
 
                 output = self.model(data)
-                loss = self.criterion(output, target)
+                loss = self.criterion(output.squeeze(0), target.squeeze(0) )
                 loss = loss.mean()
                 writer_step = (epoch - 1) * len(loader) + batch_idx
 
-                prediction = torch.max(output, 1)
+               # prediction = torch.max(output, 1)
 
-                output = torch.sigmoid(output).squeeze()
+                output = torch.softmax(output, dim=-1).squeeze()
+                _, output = torch.max(output, 1)
                 # print(output.shape)
                 ol = output.detach().cpu().numpy().tolist()
                 # print(ol)
                 yhat_raw += output.detach().cpu().numpy().tolist()
-                output = np.round(output.detach().cpu().numpy())
+                output =  output.detach().cpu().numpy()
                 y += target.squeeze().detach().cpu().numpy().tolist()
                 yhat += output.tolist()
                 self.valid_metrics.update(key='loss', value=loss.item(), n=1, writer_step=writer_step)
@@ -151,7 +155,7 @@ class Trainer(BaseTrainer):
 
 
         metrics = metric(yhat , y)
-
+        self.logger.info(metrics)
         self._progress(batch_idx, epoch, metrics=self.valid_metrics, mode=mode, print_summary=True)
         k = 5
 

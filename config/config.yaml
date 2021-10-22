@@ -1,7 +1,7 @@
 trainer:
   cwd: /home/ # working directory
   logger: IDP # logger name
-  epochs: 100 # number of training epochs
+  epochs: 1000 # number of training epochs
   seed: 123 # randomness seed
   cuda: True # use nvidia gpu
   gpu: 0 # id of gpu
@@ -9,11 +9,11 @@ trainer:
   batch_size: 1
   dim: 128
   load: False # load pretrained checkpoint
-  gradient_accumulation: 32 # gradient accumulation steps
-  pretrained_cpkt: /home/papastrat/PycharmProjects/CNNs/checkpoints/dataset_celeba/model_resnet18/date_02_05_2021_10.33.55/_backbone_last_checkpoint.pth.tar
+  gradient_accumulation: 256 # gradient accumulation steps
+  pretrained_cpkt: /home/iliask/PycharmProjects/MScThesis/checkpoints/dataset_DM/model_resnet18/date_22_10_2021_21.11.16/_model_last_checkpoint.pth.tar
   log_interval: 1000 # print statistics every log_interval
   model:
-    name: resnet18 # model name  [mobilenet_v2,COVIDNet_small]
+    name: idptransformer # model name  [mobilenet_v2,COVIDNet_small]
     pretrained: False
     optimizer: # optimizer configuration
       type: Adam # optimizer type

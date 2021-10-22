@@ -152,7 +152,7 @@ class PositionalEncodingSin(nn.Module):
         pe[..., 1::2] = torch.cos(position * div_term)
         #pe = pe.unsqueeze(0).transpose(0, 1)
         self.pe = nn.Parameter(pe)
-        self.pe.requires_grad = False
+        #self.pe.requires_grad = False
 
     def forward(self, x):
         batch, seq_tokens, _ = x.size()
@@ -174,11 +174,35 @@ class IDPTransformer(nn.Module):
         #assert len(x.shape) == 3
         x = self.embed(x )
         #print(x.shape)
+
         x = self.pos_embed(x)#self.embed(x))
         for layer in self.layers:
             x = layer(x, mask)
         x = self.head(x).squeeze(-1)
         return x
+
+
+
+class IDPTransformer(nn.Module):
+    def __init__(self, dim, blocks=6, heads=8, dim_head=None, dim_linear_block=1024, dropout=0, prenorm=False,classes=1):
+        super().__init__()
+        self.embed = nn.Embedding(20,dim)
+        self.pos_embed = PositionalEncodingSin(dim, dropout=0.1, max_tokens=2000)
+        encoder_layer = nn.TransformerEncoderLayer(d_model=dim,dim_feedforward=dim_linear_block, nhead=8,activation='gelu',dropout=dropout,batch_first=True)
+        self.transformer_encoder = nn.TransformerEncoder(encoder_layer, num_layers=6)
+
+        self.head = nn.Linear(dim,classes)
+
+    def forward(self, x, mask=None):
+        #print(x.shape)
+        #assert len(x.shape) == 3
+        x = self.embed(x )
+        #print(x.shape)
+        x = self.pos_embed(x)#self.embed(x))
+        x = self.transformer_encoder(x)
+        x = self.head(x).squeeze(-1)
+        return x
+
 
 #
 # m = IDPTransformer(768)
