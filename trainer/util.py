@@ -495,6 +495,11 @@ def select_optimizer_pretrain(model, config, checkpoint=None):
 
 
 def select_model(config, n_classes, pretrained=False):
-    from idp_programs.transformer.model import IDPTransformer
-    return IDPTransformer(dim=config.dim, blocks=3, heads=8, dim_head=None, dim_linear_block=256, dropout=0.5,
-                          prenorm=False, classes=n_classes)
+    if config.model.name == 'idptransformer':
+        from idp_programs.dnn.transformer import IDPTransformer
+        return IDPTransformer(dim=config.dim, blocks=3, heads=8, dim_head=None, dim_linear_block=256, dropout=0.2,
+                              prenorm=False, classes=n_classes)
+    elif config.model.name == 'idprnn':
+        from idp_programs.dnn.rnn import IDPrnn
+        return IDPrnn(dropout=0.2,dim=config.dim,blocks=2,classes=n_classes)
+

@@ -141,7 +141,7 @@ class Trainer(BaseTrainer):
                # prediction = torch.max(output, 1)
 
                 output = torch.softmax(output, dim=-1).squeeze()
-                _, output = torch.max(output, 1)
+                _, output = torch.max(output, -1)
                 # print(output.shape)
                 ol = output.detach().cpu().numpy().tolist()
                 # print(ol)
@@ -176,7 +176,7 @@ class Trainer(BaseTrainer):
             make_dirs(self.checkpoint_dir)
 
             self.checkpointer(epoch, validation_loss)
-            # self.lr_scheduler.step(validation_loss)
+            self.lr_scheduler.step(validation_loss)
             if self.do_test:
                 self.logger.info(f"{'!' * 10}    TEST  , {'!' * 10}")
                 self._valid_epoch(epoch, 'test', self.test_data_loader)

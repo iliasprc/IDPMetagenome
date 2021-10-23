@@ -8,7 +8,7 @@ trainer:
   save: True # save checkpoint
   batch_size: 1
   dim: 64
-  load: True  # load pretrained checkpoint
+  load: False # load pretrained checkpoint
   gradient_accumulation: 256 # gradient accumulation steps
   pretrained_cpkt: /home/iliask/PycharmProjects/MScThesis/checkpoints/dataset_DM/model_idptransformer/date_23_10_2021_11.21.45/_model_best_checkpoint.pth.tar
   log_interval: 1000 # print statistics every log_interval
@@ -17,12 +17,12 @@ trainer:
     pretrained: False
     optimizer: # optimizer configuration
       type: Adam # optimizer type
-      lr: 5e-4 # learning rate
+      lr: 1e-3 # learning rate
       weight_decay: 0.000001 # weight decay
     scheduler: # learning rate scheduler
       type: ReduceLRonPlateau # type of scheduler
-      scheduler_factor: 0.8 # learning rate change ratio
-      scheduler_patience: 3 # patience for some epochs
+      scheduler_factor: 0.5 # learning rate change ratio
+      scheduler_patience: 0 # patience for some epochs
       scheduler_min_lr: 1e-3 # minimum learning rate value
       scheduler_verbose: 5e-6 # print if learning rate is changed
   dataloader:
@@ -40,7 +40,7 @@ trainer:
       num_workers: 2
   dataset:
     input_data: data_dir
-    name: DM # dataset name
+    name: SSLDM # dataset name
     type: bce # multi_target or clf
     train:
       augmentation: True # do augmentation to video

@@ -8,7 +8,7 @@ def loaders(args, dataset_name=''):
                   'num_workers': 2}
 
     train_params = {'batch_size' : batch_size,
-                    'shuffle'    : False,
+                    'shuffle'    : True,
                     'num_workers': 2}
 
     if dataset_name == 'DM':

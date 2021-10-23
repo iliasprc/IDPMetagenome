@@ -21,7 +21,7 @@ def compute_mhsa(q, k, v, scale_factor=1, mask=None):
 class MultiHeadSelfAttention(nn.Module):
     def __init__(self, dim, heads=8, dim_head=None):
         """
-        Implementation of multi-head attention layer of the original transformer model.
+        Implementation of multi-head attention layer of the original dnn model.
         einsum and einops.rearrange is used whenever possible
         Args:
             dim: token's dimension, i.e. word embedding vector size
@@ -92,7 +92,7 @@ class SelfAttention(nn.Module):
 
 class TransformerBlock(nn.Module):
     """
-    Vanilla transformer block from the original paper "Attention is all you need"
+    Vanilla dnn block from the original paper "Attention is all you need"
     Detailed analysis: https://theaisummer.com/transformer/
     """
 
@@ -152,14 +152,14 @@ class PositionalEncodingSin(nn.Module):
         pe[..., 1::2] = torch.cos(position * div_term)
         #pe = pe.unsqueeze(0).transpose(0, 1)
         self.pe = nn.Parameter(pe)
-        #self.pe.requires_grad = False
+        self.pe.requires_grad = False
 
     def forward(self, x):
         batch, seq_tokens, _ = x.size()
         x = x + expand_to_batch( self.pe[:, :seq_tokens, :], desired_size=batch)
         return self.dropout(x)
 
-class IDPTransformer(nn.Module):
+class IDPTransforme1r(nn.Module):
     def __init__(self, dim, blocks=6, heads=8, dim_head=None, dim_linear_block=1024, dropout=0, prenorm=False,classes=1):
         super().__init__()
         self.embed = nn.Embedding(20,dim)
@@ -182,11 +182,14 @@ class IDPTransformer(nn.Module):
         return x
 
 
-
+from .tcn import TemporalConvNet
 class IDPTransformer(nn.Module):
     def __init__(self, dim, blocks=6, heads=8, dim_head=None, dim_linear_block=1024, dropout=0, prenorm=False,classes=1):
         super().__init__()
         self.embed = nn.Embedding(20,dim)
+        #self.embed = nn.Sequential(nn.Linear(20, dim,bias=False), nn.LeakyReLU(0.1))
+        # self.tcn = TemporalConvNet(num_inputs=dim, num_channels=[dim, dim // 2, dim // 2, dim], kernel_size=2,
+        #                            dropout=0.2)
         self.pos_embed = PositionalEncodingSin(dim, dropout=0.1, max_tokens=2000)
         encoder_layer = nn.TransformerEncoderLayer(d_model=dim,dim_feedforward=dim_linear_block, nhead=8,activation='gelu',dropout=dropout,batch_first=True)
         self.transformer_encoder = nn.TransformerEncoder(encoder_layer, num_layers=6)
@@ -198,6 +201,10 @@ class IDPTransformer(nn.Module):
         #assert len(x.shape) == 3
         x = self.embed(x )
         #print(x.shape)
+
+        # x = rearrange(x,'b t c -> b c t')
+        # x = self.tcn(x)
+        # x = rearrange(x, ' b c t -> b t c')
         x = self.pos_embed(x)#self.embed(x))
         x = self.transformer_encoder(x)
         x = self.head(x).squeeze(-1)
