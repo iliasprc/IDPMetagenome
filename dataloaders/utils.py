@@ -3,7 +3,7 @@ def has_numbers(inputString):
 def remove_blanks(path):
     with open(path,'r') as f:
         data = f.read().splitlines()
-    with open('/home/iliask/PycharmProjects/MScThesis/s.txt', 'w') as f1:
+    with open('/home/iliask/PycharmProjects/MScThesis/scratch.txt', 'w') as f1:
         proteins = []
         names = []
         annotations = []
@@ -33,7 +33,7 @@ def remove_blanks(path):
                     #print(sequence)
             # else:
             #     print('not rstrip',line)
-    print(f'{sequence}\n{annot} ')
+        print(f'{sequence}\n{annot} ')
 
 def create_annot_fasta(path):
     name = path.split('/')[-1]
@@ -59,25 +59,32 @@ def read_data_(path):
         annotations = []
         sequence = ''
         annot = ''
-        for line in data:
+        cou = 0
+        c = 0
+        for idx,line in enumerate(data):
+
             if line.rstrip():
-                #print(line,)
+              #  print(line)
                 if ">" in line:
                     names.append(line)
+                    c+=1
                 elif not has_numbers(line):
+                    cou+=1
                     for chari in line:
                         if chari not in classes:
                             classes.append(chari)
                     proteins.append(line)
                 elif has_numbers(line):
                     annotations.append(line)
+        print(len(names), len(proteins),len(annotations))
         assert len(names) == len(proteins),print(len(names),len(proteins))
+        assert len(proteins) == len(annotations),print(len(annotations),len(proteins))
         classes = sorted(classes)
         indixes = list(range(len(classes)))
         #print(classes)
         w2i = dict(zip(classes,indixes))
-        #print(w2i)
-        #print(len(classes))
+       # print(w2i)
+        print(len(classes))
         return names,annotations,proteins,classes,w2i
 
 classes = ['A', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'K', 'L', 'M', 'N', 'P', 'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X', 'Y']
@@ -92,5 +99,5 @@ print(len(classes))
 #     y = torch.FloatTensor([int(k) for k in annotations[i]])
 #     print(y)
 #
-#remove_blanks('/home/iliask/PycharmProjects/MScThesis/data/idp_seq_2_seq/mxd494/MXD494_SDR_train.txt')
-create_annot_fasta('/home/iliask/PycharmProjects/MScThesis/data/idp_seq_2_seq/mxd494/MXD494.txt')
+#remove_blanks('/home/iliask/PycharmProjects/MScThesis/data/idp_seq_2_seq/disorder723/disorder723.txt')
+create_annot_fasta('/home/iliask/PycharmProjects/MScThesis/data/idp_seq_2_seq/disorder723/disorder723.txt')

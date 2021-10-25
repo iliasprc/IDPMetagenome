@@ -186,7 +186,7 @@ from .tcn import TemporalConvNet
 class IDPTransformer(nn.Module):
     def __init__(self, dim, blocks=6, heads=8, dim_head=None, dim_linear_block=1024, dropout=0, prenorm=False,classes=1):
         super().__init__()
-        self.embed = nn.Embedding(20,dim)
+        self.embed = nn.Embedding(22,dim)
         #self.embed = nn.Sequential(nn.Linear(20, dim,bias=False), nn.LeakyReLU(0.1))
         # self.tcn = TemporalConvNet(num_inputs=dim, num_channels=[dim, dim // 2, dim // 2, dim], kernel_size=2,
         #                            dropout=0.2)

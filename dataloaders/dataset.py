@@ -23,7 +23,18 @@ def loaders(args, dataset_name=''):
         classes = [0,1]
         return training_generator, val_generator,classes
 
-    else:
+    elif dataset_name == 'MXD494':
+        from dataloaders.dm_loader import MXD494Loader
+        training_set = MXD494Loader(args, 'train')
+        training_generator = data.DataLoader(training_set, **train_params)
+        classes = training_set.classes
+        val_set = MXD494Loader(args, 'val')
+        val_generator = data.DataLoader(val_set, **val_params)
+        classes = ['A', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'K', 'L', 'M', 'N', 'P', 'Q', 'R', 'S', 'T', 'U', 'V',
+                        'W', 'X', 'Y']
+        classes = [0, 1]
+        return training_generator, val_generator, classes
+    elif dataset_name == 'SSLDM':
         from dataloaders.dm_loader import SSLDM
         training_set = SSLDM(args, 'train')
         training_generator = data.DataLoader(training_set, **train_params)

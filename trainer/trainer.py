@@ -134,7 +134,7 @@ class Trainer(BaseTrainer):
                 target = target.to(self.device)
 
                 output = self.model(data)
-                print(target.shape,output.shape)
+               # print(target.shape,output.shape)
                 loss = self.criterion(output.squeeze(0), target.squeeze(0) )
                 loss = loss.mean()
                 writer_step = (epoch - 1) * len(loader) + batch_idx

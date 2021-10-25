@@ -56,7 +56,7 @@ def main():
     device = torch.device("cuda:0" if use_cuda else "cpu")
     log.info(f'device: {device}')
 
-    training_generator, val_generator, classes = loaders(args=config, dataset_name='DM')
+    training_generator, val_generator, classes = loaders(args=config, dataset_name=config.dataset.name)
     n_classes = len(classes)
 
     # if config.dataset.name == 'celeba':
@@ -66,9 +66,9 @@ def main():
     log.info(f"{model}")
 
     if (config.load):
-        model.head = torch.nn.Linear(64, 22)
-        pth_file, _ = load_checkpoint(config.pretrained_cpkt, model, strict=True, load_seperate_layers=False)
         model.head = torch.nn.Linear(64, n_classes)
+        pth_file, _ = load_checkpoint(config.pretrained_cpkt, model, strict=True, load_seperate_layers=False)
+        model.head = torch.nn.Linear(64, 2)
 
 
 

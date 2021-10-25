@@ -56,7 +56,7 @@ def main():
     device = torch.device("cuda:0" if use_cuda else "cpu")
     log.info(f'device: {device}')
 
-    training_generator, val_generator, classes = loaders(args=config, dataset_name='')
+    training_generator, val_generator, classes = loaders(args=config, dataset_name='SSLDM')
     n_classes = len(classes)
 
     # if config.dataset.name == 'celeba':

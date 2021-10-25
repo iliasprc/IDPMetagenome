@@ -8,7 +8,7 @@ trainer:
   save: True # save checkpoint
   batch_size: 1
   dim: 64
-  load: True # load pretrained checkpoint
+  load: False # load pretrained checkpoint
   gradient_accumulation: 256 # gradient accumulation steps
   pretrained_cpkt: /home/iliask/PycharmProjects/MScThesis/checkpoints/dataset_DM/model_idptransformer/date_24_10_2021_14.58.06/_model_best_checkpoint.pth.tar
   log_interval: 1000 # print statistics every log_interval
@@ -40,7 +40,7 @@ trainer:
       num_workers: 2
   dataset:
     input_data: data_dir
-    name: DM # dataset name
+    name: MXD494 # dataset name
     type: bce # multi_target or clf
     train:
       augmentation: True # do augmentation to video
