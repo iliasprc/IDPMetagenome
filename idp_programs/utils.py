@@ -9,7 +9,7 @@ import sklearn.metrics
 cast = 'idp_programs/cast-linux/cast'
 seg = 'idp_programs/ncbi-seg_0.0.20000620.orig/seg'
 flps = 'idp_programs/fLPS/bin/linux/fLPS'
-
+iupred2a = 'idp_programs/iupred2a/main.py'
 
 def arguments():
     parser = argparse.ArgumentParser()
@@ -117,6 +117,8 @@ def select_method(method: str):
 
     elif method == 'flps':
         method_args_list = [flps]
+    elif method == 'iupred2a':
+        method_args_list=['python',iupred2a,'long']
     return method_args_list
 
 
@@ -216,7 +218,7 @@ def post_process_seg_output(path):
 def metrics_seg(path, annotations):
     with open(path, 'r') as file1:
         data = file1.readlines()
-        print(len(data))
+        #print(len(data))
         count = 0
         protein_count = 0
 
@@ -227,7 +229,7 @@ def metrics_seg(path, annotations):
         for idx, i in enumerate(data):
 
             i = i.strip()
-            print(i)
+            #print(i)
             # i = i.strip()
             # print(i[:36])
             # print(i[30:40])
@@ -249,7 +251,7 @@ def metrics_seg(path, annotations):
                 pred += region
 
             # print(i)
-        print(count)
+        #print(count)
         # while True:
         #     count += 1
         #
@@ -264,8 +266,8 @@ def metrics_seg(path, annotations):
         #     print("Line{}: {}".format(count, line.strip()))
     predictions.append(pred)
     predictions.pop(0)
-    print(protein_count)
-    print(len(predictions))
+   # print(protein_count)
+    #print(len(predictions))
     file1.close()
     # annotations = []
     # with open(ground_truth_path, 'r') as file1:
@@ -435,7 +437,7 @@ def post_process_iupred2a_out1(path, ground_truth_path):
     return count
 
 
-def post_process_iupred2a_out(path, ground_truth_path):
+def iupred2a_metrics(path, annotations):
     with open(path, 'r') as file1:
         data = file1.read().splitlines()
         print(len(data))
@@ -456,15 +458,15 @@ def post_process_iupred2a_out(path, ground_truth_path):
                 idppreds.append(pred)
                 pred = ''
                 print(i)
-    annotations = []
+    #annotations = []
     idppreds.pop(0)
     idppreds.append(pred)
-    with open(ground_truth_path, 'r') as file1:
-        gt = file1.read().splitlines()
-        # print(gt)
-        for i in gt:
-            if not '>' in i:
-                annotations.append(i)
+    # with open(ground_truth_path, 'r') as file1:
+    #     gt = file1.read().splitlines()
+    #     # print(gt)
+    #     for i in gt:
+    #         if not '>' in i:
+    #             annotations.append(i)
 
     assert len(annotations) == len(idppreds), print(f'{len(annotations)}  != {len(idppreds)}')
 
@@ -845,12 +847,12 @@ def target_metrics(idppreds, annotations):
     avg_cm = [0, 0, 0, 0]
     dataset_preds = []
     dataset_target = []
-    print(idppreds)
+    #print(idppreds)
     for i in range(len(idppreds)):
         # print(idppreds[i])
         pred = [int(c) for c in idppreds[i]]
         target = [int(c) for c in annotations[i]]
-        print(i, len(pred), len(target))
+        #print(i, len(pred), len(target))
         assert len(pred) == len(target)
         dataset_preds += pred
         dataset_target += target
@@ -895,23 +897,23 @@ def target_metrics(idppreds, annotations):
     # denominator = ((TP+FP)*(TP+FN)*(TN+FP)*(TN+FN))**0.5
     MCC = (PPV * TPR * TNR * NPV) ** 0.5 - ((FDR * FNR * FPR * FOR) ** 0.5)
     # MCC = numerotr/denominator
-    print(ACC)
 
+    s = f'{"TP":4}\t{"TN":4}\t{"FP":4}\t{"FN":4}\t{"F1":4}\t{"MCC":4}\t{"TPR":4}\t{"TNR":4}' \
+           f'\t{"PPV":4}\t{"NPV":4}\t{"FPR":4}\t{"FNR":4}\t{"BAC":4}'
+    print(s)
+    s = f'{TP:d}\t{TN:d}\t{FP:d}\t{FN:d}\t{F1:.4f}\t{MCC:.4f}\t{TPR:.4f}\t{TNR:.4f}' \
+    f'\t{PPV:.4f}\t{NPV:.4f}\t{FPR:.4f}\t{FNR:.4f}\t{BAC:.4f}'
     # print(auc)
-    print(avgf1, avg_mcc)
-    avg_cm[0] = avg_cm[0]  # / len(idppreds)
-    avg_cm[1] = avg_cm[1]  # / len(idppreds)
-    avg_cm[2] = avg_cm[2]  # / len(idppreds)
-    avg_cm[3] = avg_cm[3]  # / len(idppreds)
-    print(avg_cm)
-    print(
-        f'TP,TN,FP,FN\n{avg_cm[0]:.2f},{avg_cm[1]:.2f},{avg_cm[2]:.2f},{avg_cm[3]:.2f}\n F1 {F1 :.4f}   MCC {MCC :.4f}')
-    print(f" TPR {TPR:.4f} TNR {TNR:.4f}  PPV {PPV:.4f}\nNPV {NPV:.4f} FPR {FPR:.4f} FNR {FNR:.4f} BAC {BAC:.4f}")
-    return -1
+    print(s)
+    s = f'TP={TP:.2f}\tTN={TN:.2f}\tFP={FP:.2f}\tFN={FN:.2f}\tF1={F1 :.4f}\t   MCC {MCC :.4f}\n TPR {TPR:.4f} TNR ' \
+           f'{TNR:.4f}  PPV {PPV:.4f}\nNPV {NPV:.4f} FPR {FPR:.4f} FNR {FNR:.4f} BAC {BAC:.4f}'
+    #print(s)
+
+    return s
 
 
-def cast_metrics(path, ground_truth_path):
-    with open(path, 'r') as file1:
+def cast_metrics(predictions_path, ground_truth_path):
+    with open(predictions_path, 'r') as file1:
         data = file1.readlines()
     file1.close()
     print(len(data))
@@ -929,8 +931,8 @@ def cast_metrics(path, ground_truth_path):
             # print(i)
         elif '>' in i:
 
-            print(s)
-            print(i)
+            #print(s)
+            #print(i)
 
             proteins.append(i)
             if s != '':
@@ -938,13 +940,13 @@ def cast_metrics(path, ground_truth_path):
             s = ''
         else:
             s += i
-    print(s)
+    #print(s)
     if s != '':
         predictions.append(s)
-    print(len(proteins), len(predictions))
+    #print(len(proteins), len(predictions))
     idppreds = []
     for i in range(len(predictions)):
-        print(predictions[i])
+        #print(predictions[i])
         s = predictions[i]
         s = s.replace('X', '1')
         s = re.sub('\D', '0', s)
@@ -1096,8 +1098,7 @@ def read_json(path):
 # #
 # #
 # #
-# metrics_seg('/home/iliask/PycharmProjects/MScThesis/results/seg/CAID2018_seg_out.txt',
-# '../data/CAID_data_2018/annotation_files/annot_disprot-disorder.txt')
+#metrics_seg('/home/iliask/PycharmProjects/MScThesis/results/seg/CAID2018_seg_out.txt', '../data/CAID_data_2018/annotation_files/annot_disprot-disorder.txt')
 #
 # #post_process_iupred2a_out('/home/iliask/PycharmProjects/MScThesis/results/iupred2a/Caid_disorder.txt',
 # '../data/CAID_data_2018/annotation_files/annot_disprot-disorder.txt')

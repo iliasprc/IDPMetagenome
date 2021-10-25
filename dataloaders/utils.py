@@ -3,6 +3,7 @@ def has_numbers(inputString):
 def remove_blanks(path):
     with open(path,'r') as f:
         data = f.read().splitlines()
+    with open('/home/iliask/PycharmProjects/MScThesis/s.txt', 'w') as f1:
         proteins = []
         names = []
         annotations = []
@@ -13,12 +14,13 @@ def remove_blanks(path):
             # if ">" in i:
             # if "" in i:
             #     print(i)
-            if '>DM_train280' in line:
-                exit()
+
+
             if line.rstrip():
                 #print(line,'\n')
                 if ">" in line:
                     print(f'{sequence}\n{annot}\n{line}')
+                    f1.write(f'{sequence}\n{annot}\n{line}\n')
                     sequence  = ''
                     annot = ''
                 if not has_numbers(line):
@@ -31,12 +33,27 @@ def remove_blanks(path):
                     #print(sequence)
             # else:
             #     print('not rstrip',line)
+    print(f'{sequence}\n{annot} ')
 
+def create_annot_fasta(path):
+    name = path.split('/')[-1]
+    pathfolder,name = path.rsplit('/',1)
+    name_annot= f'{pathfolder}/annot_{name}'
+    print(name,path,name_annot)
+    name_prot = f'{pathfolder}/data_{name}'
+    names,annotations,proteins,classes,w2i= read_data_(path)
+    with open(name_annot,'w') as f:
+        for i in range(len(names)):
+            f.write(f"{names[i]}\n{annotations[i]}\n")
+    with open(name_prot,'w') as f:
+        for i in range(len(names)):
+            f.write(f"{names[i]}\n{proteins[i]}\n")
 
 def read_data_(path):
     classes = []
     with open(path,'r') as f:
         data = f.read().splitlines()
+    
         proteins = []
         names = []
         annotations = []
@@ -44,7 +61,7 @@ def read_data_(path):
         annot = ''
         for line in data:
             if line.rstrip():
-                #print(line,'\n')
+                #print(line,)
                 if ">" in line:
                     names.append(line)
                 elif not has_numbers(line):
@@ -54,15 +71,19 @@ def read_data_(path):
                     proteins.append(line)
                 elif has_numbers(line):
                     annotations.append(line)
-        assert len(names) == len(proteins)
+        assert len(names) == len(proteins),print(len(names),len(proteins))
         classes = sorted(classes)
         indixes = list(range(len(classes)))
         #print(classes)
         w2i = dict(zip(classes,indixes))
         #print(w2i)
-       # print(len(classes))
+        #print(len(classes))
         return names,annotations,proteins,classes,w2i
-# names,annotations,proteins,classes,w2i = read_data_('/home/iliask/PycharmProjects/MScThesis/data/idp_seq_2_seq/train/all_train.txt')
+
+classes = ['A', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'K', 'L', 'M', 'N', 'P', 'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X', 'Y']
+print(len(classes))
+# names,annotations,proteins,classes,w2i = read_data_('/home/iliask/PycharmProjects/MScThesis/data/CAID_data_2018/fasta_files/data_disprot-disorder.txt')
+#names,annotations,proteins,classes,w2i = read_data_('/home/iliask/PycharmProjects/MScThesis/data/idp_seq_2_seq/mxd494/MXD494.txt')
 # import torch
 # for i in range(len(names)):
 #
@@ -71,4 +92,5 @@ def read_data_(path):
 #     y = torch.FloatTensor([int(k) for k in annotations[i]])
 #     print(y)
 #
-# remove_blanks('/home/iliask/PycharmProjects/MScThesis/data/idp_seq_2_seq/validation/ldr_valid.txt')
+#remove_blanks('/home/iliask/PycharmProjects/MScThesis/data/idp_seq_2_seq/mxd494/MXD494_SDR_train.txt')
+create_annot_fasta('/home/iliask/PycharmProjects/MScThesis/data/idp_seq_2_seq/mxd494/MXD494.txt')
