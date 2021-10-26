@@ -20,14 +20,14 @@ def main():
         if 'c' in myargs:
             config_file = myargs['c']
     else:
-        config_file = 'config/config.yaml'
+        config_file = 'config/sslconfig.yaml'
 
     config = OmegaConf.load(os.path.join(cwd, config_file))['trainer']
     config.cwd = str(cwd)
     reproducibility(config)
     dt_string = now.strftime("%d_%m_%Y_%H.%M.%S")
     cpkt_fol_name = os.path.join(config.cwd,
-                                 f'checkpoints/dataset_{config.dataset.name}/model_{config.model.name}/date_'
+                                 f'checkpoints/SSL/dataset_{config.dataset.name}/model_{config.model.name}/date_'
                                  f'{dt_string}')
 
     log = Logger(path=cpkt_fol_name, name='LOG').get_logger()
@@ -56,15 +56,13 @@ def main():
     device = torch.device("cuda:0" if use_cuda else "cpu")
     log.info(f'device: {device}')
 
-    training_generator, val_generator, classes = loaders(args=config, dataset_name='SSLDM')
+    training_generator, val_generator, classes = loaders(args=config, dataset_name=config.dataset.name)
     n_classes = len(classes)
 
-    # if config.dataset.name == 'celeba':
-    #n_classes = 1
     model = select_model(config, n_classes)
 
     log.info(f"{model}")
-
+    print(n_classes)
     if (config.load):
 
         pth_file, _ = load_checkpoint(config.pretrained_cpkt, model.cnn, strict=False, load_seperate_layers=False)
@@ -87,10 +85,10 @@ def main():
 
     from trainer.ssltrainer import SSLTrainer
     trainer = SSLTrainer(config, model=model, optimizer=optimizer,
-                      data_loader=training_generator, writer=writer, logger=log,
-                      valid_data_loader=val_generator, class_dict=classes,
-                      lr_scheduler=scheduler,
-                      checkpoint_dir=cpkt_fol_name)
+                         data_loader=training_generator, writer=writer, logger=log,
+                         valid_data_loader=val_generator, class_dict=classes,
+                         lr_scheduler=scheduler,
+                         checkpoint_dir=cpkt_fol_name)
     trainer.train()
 
 

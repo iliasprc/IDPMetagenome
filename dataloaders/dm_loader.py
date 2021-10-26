@@ -89,9 +89,9 @@ class SSLDM(Dataset):
             left = randint(0, L//4)
             right = randint(L//2, L)
             x = [self.w2i[amino] for amino in self.proteins[index]][left:right]
-            y = [int(i) for i in self.annotations[index]][left:right]
+            #y = [int(i) for i in self.annotations[index]][left:right]
             x = torch.LongTensor(x)  # .unsqueeze(-1)
-            y = torch.LongTensor(y)  # .unsqueeze(-1)
+            #y = torch.LongTensor(y)  # .unsqueeze(-1)
            # x = torch.nn.functional.one_hot(x, num_classes=20).float()
 
             #print(y.shape, y1.shape)
@@ -108,7 +108,7 @@ class SSLDM(Dataset):
 
 
 class MXD494Loader(Dataset):
-    def __init__(self, args, mode):
+    def __init__(self, config, mode):
         train_prefix = "train"
         dev_prefix = "val"
         test_prefix = "test"
@@ -116,7 +116,8 @@ class MXD494Loader(Dataset):
 
         test_filepath = "data/idp_seq_2_seq/mxd494/MXD494.txt"
         dev_filepath = test_filepath
-        cwd = args.cwd
+        cwd = config.cwd
+
         if mode == train_prefix:
             self.names, self.annotations, self.proteins, self.classes, self.w2i = read_data_(
                 os.path.join(cwd, train_filepath))
@@ -131,7 +132,12 @@ class MXD494Loader(Dataset):
         indixes = list(range(len(self.classes)))
         print(self.classes)
         self.w2i = dict(zip(self.classes,indixes))
-        print('classes\n\n', self.classes,len(self.classes))
+        #print('classes\n\n', self.classes,len(self.classes))
+        self.ssl = config.dataset.type == 'SSL'
+        if self.ssl:
+            print('\n SELF-SUPERVISED\n')
+        else:
+            print('\nIDP fully-supervised\n')
 
     def __len__(self):
         return len(self.proteins)
@@ -152,6 +158,25 @@ class MXD494Loader(Dataset):
         #         #print(x[:5] , y1[:5])
         #         # print(x,y)
         #         return x, y#1
+
+        if self.mode == 'train' and self.augment:
+
+            L = len(self.proteins[index])
+            left = randint(0, L//4)
+            right = randint(L//2, L)
+            x = [self.w2i[amino] for amino in self.proteins[index]][left:right]
+            y = [int(i) for i in self.annotations[index]][left:right]
+            x = torch.LongTensor(x)  # .unsqueeze(-1)
+            y = torch.LongTensor(y)  # .unsqueeze(-1)
+           # x = torch.nn.functional.one_hot(x, num_classes=20).float()
+
+            #print(y.shape, y1.shape)
+            #print(x[:5] , y1[:5])
+            # print(x,y)
+            if self.ssl:
+                return x,x
+            return x, y#1
+
         x = [self.w2i[amino] for amino in self.proteins[index]]
         y = [int(i) for i in self.annotations[index]]
        # print(len(x),len(y),len(self.proteins[index]),len(self.annotations[index]))
@@ -165,4 +190,6 @@ class MXD494Loader(Dataset):
         #x = torch.nn.functional.one_hot(x, num_classes=20).float()
         #print(y,y1)
         #print(x,y)
+        if self.ssl:
+            return x, x
         return x, y#1

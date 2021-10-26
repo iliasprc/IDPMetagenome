@@ -61,7 +61,7 @@ def main():
 
     # if config.dataset.name == 'celeba':
     #n_classes = 1
-    model = select_model(config, n_classes)
+    model = select_model(config, 2)
     #model.head = torch.nn.Linear(128,20)
     log.info(f"{model}")
 

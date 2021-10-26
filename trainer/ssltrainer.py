@@ -67,13 +67,14 @@ class SSLTrainer(BaseTrainer):
 
         gradient_accumulation = self.gradient_accumulation
         for batch_idx, (data, target) in enumerate(self.train_data_loader):
-            #print(data.shape,data[:,0:-1].shape)
+           # print(data.shape,data[:,0:-1].shape)
+            target = data[:,1:].to(self.device)
             data = data[:,0:-1].to(self.device)
 
-            target = target[:,1:].to(self.device)
+
 
             output = self.model(data)
-            #rint(target.shape,output.shape)
+            ###########################print(target.shape,output.shape)
             loss = self.criterion(output.squeeze(0), target.squeeze(0))
             loss = loss.mean()
 
@@ -112,10 +113,8 @@ class SSLTrainer(BaseTrainer):
 
         with torch.no_grad():
             for batch_idx, (data, target) in enumerate(loader):
+                target = data[:, 1:].to(self.device)
                 data = data[:, 0:-1].to(self.device)
-
-                target = target[:, 1:].to(self.device)
-
                 output = self.model(data)
                 loss = self.criterion(output.squeeze(0), target.squeeze(0))
                 loss = loss.mean()
