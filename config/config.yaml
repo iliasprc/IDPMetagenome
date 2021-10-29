@@ -23,7 +23,7 @@ trainer:
       type: ReduceLRonPlateau # type of scheduler
       scheduler_factor: 0.8 # learning rate change ratio
       scheduler_patience: 3 # patience for some epochs
-      scheduler_min_lr: 1e-3 # minimum learning rate value
+      scheduler_min_lr: 1e-5 # minimum learning rate value
       scheduler_verbose: 5e-6 # print if learning rate is changed
   dataloader:
     train:
