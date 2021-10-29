@@ -7,10 +7,10 @@ trainer:
   gpu: 0 # id of gpu
   save: True # save checkpoint
   batch_size: 1
-  dim: 128
-  load: False # load pretrained checkpoint
+  dim: 256
+  load: True  # load pretrained checkpoint
   gradient_accumulation: 128 # gradient accumulation steps
-  pretrained_cpkt: /home/iliask/PycharmProjects/MScThesis/cpkts/27_10_2021_11.17.42/model.pth
+  pretrained_cpkt: /home/iliask/PycharmProjects/MScThesis/cpktsenwik8/29_10_2021_14.18.10/model.pth
   log_interval: 1000 # print statistics every log_interval
   model:
     name: idpcct # model name  [mobilenet_v2,COVIDNet_small]

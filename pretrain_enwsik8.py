@@ -25,10 +25,10 @@ parser.add_argument('--nhead', type=int, default=8,
 
                     help='the number of heads in the encoder/decoder of the transformer model')
 
-parser.add_argument('--emsize', type=int, default=256,
+parser.add_argument('--emsize', type=int, default=512,
                     help='size of word embeddings')
-parser.add_argument('--depth', type=int, default=6, help='number of layers')
-parser.add_argument('--gradient_steps', type=int, default=16)
+parser.add_argument('--depth', type=int, default=12, help='number of layers')
+parser.add_argument('--gradient_steps', type=int, default=2)
 parser.add_argument('--causal', action='store_true', default=False)
 parser.add_argument('--tied_connections', action='store_true', default=False)
 parser.add_argument('--kmeans', action='store_true', default=False)
@@ -46,7 +46,7 @@ parser.add_argument('--clip', type=float, default=1.0,
                     help='gradient clipping')
 parser.add_argument('--epochs', type=int, default=200,
                     help='upper epoch limit')
-parser.add_argument('--batch_size', type=int, default=8, metavar='N',
+parser.add_argument('--batch_size', type=int, default=4, metavar='N',
                     help='batch size')
 
 parser.add_argument('--seed', type=int, default=1111,
@@ -93,7 +93,7 @@ def decode_tokens(tokens):
 
 # instantiate model
 def select_model(args, name, n_classes, pretrained=False):
-    dim = 256
+    dim = args.emsize
     if name == 'idptransformer':
         from idp_programs.dnn.transformer import IDPTransformer
         return IDPTransformer(dim=dim, blocks=args.depth, heads=args.nhead, dim_head=None, dim_linear_block=dim * 2,
@@ -106,7 +106,7 @@ def select_model(args, name, n_classes, pretrained=False):
                        prenorm=False, classes=n_classes)
 
 
-model = select_model(args, 'idpcct', 256)
+model = select_model(args, 'idptransformer', 256)
 if use_cuda:
     model.cuda()
 
@@ -147,7 +147,7 @@ len_epoch = len(train_loader) * BATCH_SIZE
 print(len(train_loader))
 # optimizer
 
-optim = torch.optim.Adam(model.parameters(), lr=LEARNING_RATE,weight_decay=0.00001)
+optim = torch.optim.Adam(model.parameters(), lr=LEARNING_RATE)
 print(model)
 # training
 best_loss = 1000
@@ -176,7 +176,7 @@ for i in range(EPOCHS):
         trainloss += loss.item()
         # if idx % VALIDATE_EVERY
         if idx % GRADIENT_ACCUMULATE_EVERY == 0:
-            #torch.nn.utils.clip_grad_norm_(model.parameters(), args.clip)
+            torch.nn.utils.clip_grad_norm_(model.parameters(), args.clip)
             optim.step()
             optim.zero_grad()
         if idx % 1000 == 0:

@@ -73,7 +73,7 @@ def load_checkpoint(checkpoint, model, strict=True, optimizer=None, load_seperat
     """
     checkpoint1 = torch.load(checkpoint, map_location='cpu')
     print(checkpoint1.keys())
-    pretrained_dict = checkpoint1['state_dict']
+    pretrained_dict = checkpoint1#['state_dict']
     model_dict = model.state_dict()
     print(pretrained_dict.keys())
     print(model_dict.keys())
@@ -81,8 +81,8 @@ def load_checkpoint(checkpoint, model, strict=True, optimizer=None, load_seperat
     # # pretrained_dict = {k: v for k, v in pretrained_dict.items() if k in model_dict}
     pretrained_dictnew = {}
     for k, v in pretrained_dict.items():
-        if 'module.' in k:
-            k = k[7:]
+        # if 'module.' in k:
+        #     k = k[7:]
         pretrained_dictnew[k] = v
 
     print(pretrained_dictnew.keys())

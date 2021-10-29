@@ -1,7 +1,7 @@
 import datetime
 import os
 import shutil
-
+import torch.nn as nn
 import torch
 from omegaconf import OmegaConf
 from torch.utils.tensorboard import SummaryWriter
@@ -9,6 +9,7 @@ from torch.utils.tensorboard import SummaryWriter
 from dataloaders.dataset import loaders
 from trainer.logger import Logger
 from trainer.util import reproducibility, select_model, select_optimizer, load_checkpoint, get_arguments
+from idp_programs.dnn.transformer import TextTokenizer
 
 
 def main():
@@ -65,10 +66,21 @@ def main():
     print(n_classes)
     if (config.load):
         model.head = torch.nn.Linear(256, 256)
-        model.embed = torch.nn.Embedding(256,256)
+        dim=256
+        model.embed = nn.Sequential(nn.Embedding(256, dim), TextTokenizer(word_embedding_dim=dim,
+                                                                        embedding_dim=dim,
+                                                                        n_output_channels=dim,
+                                                                        kernel_size=1,
+                                                                        stride=1,
+                                                                        padding=0))
         pth_file, _ = load_checkpoint(config.pretrained_cpkt, model, strict=True, load_seperate_layers=False)
         model.head = torch.nn.Linear(256, 22)
-        model.embed = torch.nn.Embedding(22, 256)
+        model.embed = nn.Sequential(nn.Embedding(22, dim), TextTokenizer(word_embedding_dim=dim,
+                                                                        embedding_dim=dim,
+                                                                        n_output_channels=dim,
+                                                                        kernel_size=1,
+                                                                        stride=1,
+                                                                        padding=0))
 
 
     else:

@@ -190,9 +190,9 @@ class IDP_cct(nn.Module):
     def __init__(self, dim, blocks=6, heads=8, dim_head=None, dim_linear_block=1024, dropout=0, prenorm=False,
                  classes=1):
         super().__init__()
-        self.embed = nn.Sequential(nn.Embedding(256, dim), TextTokenizer(word_embedding_dim=dim,
+        self.embed = nn.Sequential(nn.Embedding(22, dim), TextTokenizer(word_embedding_dim=dim,
                                                                         embedding_dim=dim,
-                                                                         n_output_channels=dim,
+                                                                        n_output_channels=dim,
                                                                         kernel_size=1,
                                                                         stride=1,
                                                                         padding=0))
