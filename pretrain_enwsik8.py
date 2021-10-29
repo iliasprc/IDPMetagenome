@@ -148,6 +148,15 @@ print(len(train_loader))
 # optimizer
 
 optim = torch.optim.Adam(model.parameters(), lr=LEARNING_RATE)
+from idp_programs.dnn.utils import Cosine_LR_Scheduler
+scheduler = Cosine_LR_Scheduler(
+        optimizer,
+        warmup_epochs=1, warmup_lr=0,
+        num_epochs=EPOCHS, base_lr=LEARNING_RATE, final_lr=1e-5,
+        iter_per_epoch=len(train_loader)//GRADIENT_ACCUMULATE_EVERY,
+        constant_predictor_lr=True # see the end of section 4.2 predictor
+    )
+
 print(model)
 # training
 best_loss = 1000
@@ -177,6 +186,7 @@ for i in range(EPOCHS):
         # if idx % VALIDATE_EVERY
         if idx % GRADIENT_ACCUMULATE_EVERY == 0:
             torch.nn.utils.clip_grad_norm_(model.parameters(), args.clip)
+            scheduler.step()
             optim.step()
             optim.zero_grad()
         if idx % 1000 == 0:

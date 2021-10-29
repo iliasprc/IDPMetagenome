@@ -3,7 +3,7 @@ import torch
 from einops import rearrange
 from einops import repeat
 from torch import nn
-
+from idp_programs.dnn.utils import weights_init
 class TextTokenizer(nn.Module):
     def __init__(self,
                  kernel_size, stride, padding,
@@ -230,6 +230,7 @@ class IDPTransformer(nn.Module):
         self.transformer_encoder = nn.TransformerEncoder(encoder_layer, num_layers=blocks)
 
         self.head = nn.Linear(dim, classes)
+        self.apply(weights_init)
 
     def forward(self, x, mask=None):
         # print(x.shape)
