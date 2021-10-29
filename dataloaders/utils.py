@@ -100,4 +100,4 @@ print(len(classes))
 #     print(y)
 #
 #remove_blanks('/home/iliask/PycharmProjects/MScThesis/data/idp_seq_2_seq/disorder723/disorder723.txt')
-create_annot_fasta('/home/iliask/PycharmProjects/MScThesis/data/idp_seq_2_seq/disorder723/disorder723.txt')
+create_annot_fasta('/home/iliask/PycharmProjects/MScThesis/data/idp_seq_2_seq/validation/all_valid.txt')

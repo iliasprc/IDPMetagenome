@@ -64,9 +64,11 @@ def main():
     log.info(f"{model}")
     print(n_classes)
     if (config.load):
-
-        pth_file, _ = load_checkpoint(config.pretrained_cpkt, model.cnn, strict=False, load_seperate_layers=False)
-
+        model.head = torch.nn.Linear(256, 256)
+        model.embed = torch.nn.Embedding(256,256)
+        pth_file, _ = load_checkpoint(config.pretrained_cpkt, model, strict=True, load_seperate_layers=False)
+        model.head = torch.nn.Linear(256, 22)
+        model.embed = torch.nn.Embedding(22, 256)
 
 
     else:

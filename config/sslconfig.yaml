@@ -7,23 +7,23 @@ trainer:
   gpu: 0 # id of gpu
   save: True # save checkpoint
   batch_size: 1
-  dim: 64
+  dim: 128
   load: False # load pretrained checkpoint
-  gradient_accumulation: 256 # gradient accumulation steps
-  pretrained_cpkt: /home/iliask/PycharmProjects/MScThesis/checkpoints/dataset_DM/model_idptransformer/date_24_10_2021_14.58.06/_model_best_checkpoint.pth.tar
+  gradient_accumulation: 128 # gradient accumulation steps
+  pretrained_cpkt: /home/iliask/PycharmProjects/MScThesis/cpkts/27_10_2021_11.17.42/model.pth
   log_interval: 1000 # print statistics every log_interval
   model:
-    name: idptransformer # model name  [mobilenet_v2,COVIDNet_small]
+    name: idpcct # model name  [mobilenet_v2,COVIDNet_small]
     pretrained: False
     optimizer: # optimizer configuration
       type: Adam # optimizer type
-      lr: 1e-3 # learning rate
-      weight_decay: 0.000001 # weight decay
+      lr: 1e-4 # learning rate
+      weight_decay: 0.00001 # weight decay
     scheduler: # learning rate scheduler
       type: ReduceLRonPlateau # type of scheduler
       scheduler_factor: 0.8 # learning rate change ratio
-      scheduler_patience: 3 # patience for some epochs
-      scheduler_min_lr: 1e-3 # minimum learning rate value
+      scheduler_patience: 5 # patience for some epochs
+      scheduler_min_lr: 1e-5 # minimum learning rate value
       scheduler_verbose: 5e-6 # print if learning rate is changed
   dataloader:
     train:
@@ -40,7 +40,7 @@ trainer:
       num_workers: 2
   dataset:
     input_data: data_dir
-    name: MXD494 # dataset name
+    name: DM # dataset name
     type: SSL # multi_target or clf
     train:
       augmentation: True # do augmentation to video

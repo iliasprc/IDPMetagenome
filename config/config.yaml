@@ -7,18 +7,18 @@ trainer:
   gpu: 0 # id of gpu
   save: True # save checkpoint
   batch_size: 1
-  dim: 64
+  dim: 128
   load: True # load pretrained checkpoint
-  gradient_accumulation: 128 # gradient accumulation steps
-  pretrained_cpkt: /home/iliask/PycharmProjects/MScThesis/checkpoints/SSL/dataset_MXD494/model_idptransformer/date_25_10_2021_19.16.40/_model_best_checkpoint.pth.tar
-  log_interval: 1000 # print statistics every log_interval
+  gradient_accumulation: 32 # gradient accumulation steps
+  pretrained_cpkt: /home/iliask/PycharmProjects/MScThesis/checkpoints/SSL/dataset_DM/model_idpcct/date_29_10_2021_12.14.31/_model_best_checkpoint.pth.tar
+  log_interval: 10000 # print statistics every log_interval
   model:
-    name: idptransformer # model name  [mobilenet_v2,COVIDNet_small]
+    name: idpcct # model name  [mobilenet_v2,COVIDNet_small]
     pretrained: False
     optimizer: # optimizer configuration
       type: Adam # optimizer type
       lr: 1e-4 # learning rate
-      weight_decay: 0.000001 # weight decay
+      weight_decay: 0.00001 # weight decay
     scheduler: # learning rate scheduler
       type: ReduceLRonPlateau # type of scheduler
       scheduler_factor: 0.8 # learning rate change ratio

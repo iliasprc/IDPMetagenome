@@ -20,7 +20,7 @@ def loaders(args, dataset_name=''):
         classes = training_set.classes
         val_set = DMLoader(args, 'val')
         val_generator = data.DataLoader(val_set, **val_params)
-        classes = [0,1]
+
         return training_generator, val_generator,classes
 
     elif dataset_name == 'MXD494':

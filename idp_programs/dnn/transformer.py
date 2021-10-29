@@ -1,9 +1,31 @@
 import numpy as np
 import torch
 from einops import rearrange
+from einops import repeat
 from torch import nn
 
-from einops import repeat
+class TextTokenizer(nn.Module):
+    def __init__(self,
+                 kernel_size, stride, padding,
+                 embedding_dim=300,
+                 n_output_channels=128,
+                 activation=None,
+                 *args, **kwargs):
+        super(TextTokenizer, self).__init__()
+        self.conv_layers = nn.Sequential(
+            nn.Conv2d(1, n_output_channels,
+                      kernel_size=(kernel_size, embedding_dim),
+                      stride=(stride, 1),
+                      padding=(padding, 0), bias=False),nn.GELU())
+
+    def forward(self, x, mask=None):
+        x = x.unsqueeze(1)
+        #print(x.shape)
+        x = self.conv_layers(x)
+        x = x.transpose(1, 3).squeeze(1)
+
+        return x
+
 
 def compute_mhsa(q, k, v, scale_factor=1, mask=None):
     # resulted shape will be: [batch, heads, tokens, tokens]
@@ -134,11 +156,11 @@ class TransformerBlock(nn.Module):
         return out
 
 
-
-
 def expand_to_batch(tensor, desired_size):
     tile = desired_size // tensor.shape[0]
     return repeat(tensor, 'b ... -> (b tile) ...', tile=tile)
+
+
 class PositionalEncodingSin(nn.Module):
 
     def __init__(self, dim, dropout=0.1, max_tokens=5000):
@@ -150,66 +172,78 @@ class PositionalEncodingSin(nn.Module):
         div_term = torch.exp(torch.arange(0, dim, 2).float() * (-torch.log(torch.Tensor([10000.0])) / dim))
         pe[..., 0::2] = torch.sin(position * div_term)
         pe[..., 1::2] = torch.cos(position * div_term)
-        #pe = pe.unsqueeze(0).transpose(0, 1)
+        # pe = pe.unsqueeze(0).transpose(0, 1)
         self.pe = nn.Parameter(pe)
         self.pe.requires_grad = False
 
     def forward(self, x):
         batch, seq_tokens, _ = x.size()
-        x = x + expand_to_batch( self.pe[:, :seq_tokens, :], desired_size=batch)
+        x = x + expand_to_batch(self.pe[:, :seq_tokens, :], desired_size=batch)
         return self.dropout(x)
 
-class IDPTransforme1r(nn.Module):
-    def __init__(self, dim, blocks=6, heads=8, dim_head=None, dim_linear_block=1024, dropout=0, prenorm=False,classes=1):
+
+
+
+
+class IDP_cct(nn.Module):
+
+    def __init__(self, dim, blocks=6, heads=8, dim_head=None, dim_linear_block=1024, dropout=0, prenorm=False,
+                 classes=1):
         super().__init__()
-        self.embed = nn.Embedding(20,dim)
-        self.pos_embed = PositionalEncodingSin(dim, dropout=0.1, max_tokens=5000)
+        self.embed = nn.Sequential(nn.Embedding(256, dim), TextTokenizer(word_embedding_dim=dim,
+                                                                        embedding_dim=dim,
+                                                                         n_output_channels=dim,
+                                                                        kernel_size=1,
+                                                                        stride=1,
+                                                                        padding=0))
+        self.pos_embed = PositionalEncodingSin(dim, dropout=0.1, max_tokens=2000)
         self.block_list = [TransformerBlock(dim, heads, dim_head,
                                             dim_linear_block, dropout, prenorm=prenorm) for _ in range(blocks)]
         self.layers = nn.ModuleList(self.block_list)
-        self.head = nn.Linear(dim,classes)
+        self.head = nn.Linear(dim, classes)
+
 
     def forward(self, x, mask=None):
-        #print(x.shape)
-        #assert len(x.shape) == 3
-        x = self.embed(x )
+        # print(x.shape)
+        # assert len(x.shape) == 3
+        x = self.embed(x)
         #print(x.shape)
 
-        x = self.pos_embed(x)#self.embed(x))
+        x = self.pos_embed(x)  # self.embed(x))
         for layer in self.layers:
             x = layer(x, mask)
         x = self.head(x).squeeze(-1)
         return x
 
 
-from .tcn import TemporalConvNet
 class IDPTransformer(nn.Module):
-    def __init__(self, dim, blocks=6, heads=8, dim_head=None, dim_linear_block=1024, dropout=0, prenorm=False,classes=1):
+    def __init__(self, dim, blocks=6, heads=8, dim_head=None, dim_linear_block=1024, dropout=0, prenorm=False,
+                 classes=1):
         super().__init__()
-        self.embed = nn.Embedding(22,dim)
-        #self.embed = nn.Sequential(nn.Linear(20, dim,bias=False), nn.LeakyReLU(0.1))
+        self.embed = nn.Embedding(256, dim)
+        # self.embed = nn.Sequential(nn.Linear(20, dim,bias=False), nn.LeakyReLU(0.1))
         # self.tcn = TemporalConvNet(num_inputs=dim, num_channels=[dim, dim // 2, dim // 2, dim], kernel_size=2,
         #                            dropout=0.2)
         self.pos_embed = PositionalEncodingSin(dim, dropout=0.1, max_tokens=2000)
-        encoder_layer = nn.TransformerEncoderLayer(d_model=dim,dim_feedforward=dim_linear_block, nhead=8,activation='gelu',dropout=dropout,batch_first=True)
-        self.transformer_encoder = nn.TransformerEncoder(encoder_layer, num_layers=6)
+        encoder_layer = nn.TransformerEncoderLayer(d_model=dim, dim_feedforward=dim_linear_block, nhead=heads,
+                                                   activation='gelu', dropout=dropout, batch_first=True)
+        self.transformer_encoder = nn.TransformerEncoder(encoder_layer, num_layers=blocks)
 
-        self.head = nn.Linear(dim,classes)
+        self.head = nn.Linear(dim, classes)
 
     def forward(self, x, mask=None):
-        #print(x.shape)
-        #assert len(x.shape) == 3
-        x = self.embed(x )
-        #print(x.shape)
+        # print(x.shape)
+        # assert len(x.shape) == 3
+        x = self.embed(x)
+        # print(x.shape)
 
         # x = rearrange(x,'b t c -> b c t')
         # x = self.tcn(x)
         # x = rearrange(x, ' b c t -> b t c')
-        x = self.pos_embed(x)#self.embed(x))
+        x = self.pos_embed(x)  # self.embed(x))
         x = self.transformer_encoder(x)
         x = self.head(x).squeeze(-1)
         return x
-
 
 #
 # m = IDPTransformer(768)
@@ -217,3 +251,10 @@ class IDPTransformer(nn.Module):
 # i = torch.randn(1,1000,768)
 # o =  m(i)
 # print(o.shape)
+# m = IDP_cct(128)
+# dim = 128
+# # m = TextTokenizer(word_embedding_dim=dim,embedding_dim=dim,kernel_size=1,stride=1,
+# #                                                                         padding=1)
+# print(m )
+# a = torch.randint(0,19,(8,1000))
+# o = m(a)
