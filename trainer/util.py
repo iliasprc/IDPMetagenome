@@ -75,6 +75,8 @@ def load_checkpoint(checkpoint, model, strict=True, optimizer=None, load_seperat
     print(checkpoint1.keys())
     if 'state_dict' in checkpoint1.keys():
         pretrained_dict = checkpoint1['state_dict']
+    else:
+        pretrained_dict = checkpoint1
     model_dict = model.state_dict()
     print(pretrained_dict.keys())
     print(model_dict.keys())
@@ -498,7 +500,7 @@ def select_optimizer_pretrain(model, config, checkpoint=None):
 def select_model(config, n_classes, pretrained=False):
     if config.model.name == 'idptransformer':
         from idp_programs.dnn.transformer import IDPTransformer
-        return IDPTransformer(dim=config.dim, blocks=2, heads=4, dim_head=None, dim_linear_block=config.dim*2, dropout=0.2,
+        return IDPTransformer(dim=config.dim, blocks=6, heads=8, dim_head=None, dim_linear_block=config.dim*2, dropout=0.2,
                               prenorm=False, classes=n_classes)
     elif config.model.name == 'idpcct':
         from idp_programs.dnn.transformer import IDP_cct
@@ -508,3 +510,6 @@ def select_model(config, n_classes, pretrained=False):
         from idp_programs.dnn.rnn import IDPrnn
         return IDPrnn(dropout=0.2,dim=config.dim,blocks=2,classes=n_classes)
 
+    elif config.model.name == 'lm':
+        from idp_programs.dnn.embed import LM
+        return LM(vocab=n_classes,dim=config.dim)

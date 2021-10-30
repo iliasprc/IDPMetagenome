@@ -60,6 +60,6 @@ def weights_init(m):
 
     elif classname.find('LayerNorm') != -1:
         if hasattr(m, 'weight'):
-            nn.init.normal_(m.weight, 1.0, args.init_std)
+            nn.init.normal_(m.weight, 1.0, 0.01)
         if hasattr(m, 'bias') and m.bias is not None:
             init_bias(m.bias)

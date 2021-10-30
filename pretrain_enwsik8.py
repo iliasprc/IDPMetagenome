@@ -25,9 +25,9 @@ parser.add_argument('--nhead', type=int, default=8,
 
                     help='the number of heads in the encoder/decoder of the transformer model')
 
-parser.add_argument('--emsize', type=int, default=128,
+parser.add_argument('--emsize', type=int, default=512,
                     help='size of word embeddings')
-parser.add_argument('--depth', type=int, default=2, help='number of layers')
+parser.add_argument('--depth', type=int, default=12, help='number of layers')
 parser.add_argument('--gradient_steps', type=int, default=32)
 parser.add_argument('--causal', action='store_true', default=False)
 parser.add_argument('--tied_connections', action='store_true', default=False)
@@ -35,7 +35,7 @@ parser.add_argument('--kmeans', action='store_true', default=False)
 parser.add_argument('--full_attention', action='store_true', default=False)
 parser.add_argument('--seqlen', type=int, default=1024,
                     help='sequence length')
-parser.add_argument('--dropout', type=float, default=0.1,
+parser.add_argument('--dropout', type=float, default=0.2,
                     help='dropout applied to layers (0 = no dropout)')
 parser.add_argument('--tied', action='store_true', default=True,
                     help='tie the word embedding and softmax weights')
@@ -44,9 +44,9 @@ parser.add_argument('--lr', type=float, default=1e-4,
                     help='initial learning rate')
 parser.add_argument('--clip', type=float, default=1.0,
                     help='gradient clipping')
-parser.add_argument('--epochs', type=int, default=200,
+parser.add_argument('--epochs', type=int, default=100,
                     help='upper epoch limit')
-parser.add_argument('--batch_size', type=int, default=2, metavar='N',
+parser.add_argument('--batch_size', type=int, default=4, metavar='N',
                     help='batch size')
 
 parser.add_argument('--seed', type=int, default=1111,
@@ -150,8 +150,8 @@ print(len(train_loader))
 optim = torch.optim.Adam(model.parameters(), lr=LEARNING_RATE)
 from idp_programs.dnn.utils import Cosine_LR_Scheduler
 scheduler = Cosine_LR_Scheduler(
-        optimizer,
-        warmup_epochs=1, warmup_lr=0,
+        optim,
+        warmup_epochs=3, warmup_lr=0,
         num_epochs=EPOCHS, base_lr=LEARNING_RATE, final_lr=1e-5,
         iter_per_epoch=len(train_loader)//GRADIENT_ACCUMULATE_EVERY,
         constant_predictor_lr=True # see the end of section 4.2 predictor
@@ -215,7 +215,10 @@ for i in range(EPOCHS):
                           )
                     best_loss = valloss
                     torch.save(model.state_dict(),
-                               pathdir + '/model.pth')
+                               pathdir + '/bestmodel.pth')
                     with open(pathdir + '/commandline_args.txt', 'w') as f:
                         json.dump(args.__dict__, f, indent=2)
+                best_loss = valloss
+                torch.save(model.state_dict(),
+                           pathdir + '/lastmodel.pth')
             model.train()

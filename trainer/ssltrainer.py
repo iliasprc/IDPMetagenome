@@ -32,19 +32,27 @@ class SSLTrainer(BaseTrainer):
         self.test_data_loader = test_data_loader
         self.do_validation = self.valid_data_loader is not None
         self.do_test = self.test_data_loader is not None
-        self.lr_scheduler = lr_scheduler
+
         self.log_step = self.config.log_interval
         self.model = model
         self.num_classes = len(class_dict)
         self.optimizer = optimizer
-
+        self.gradient_accumulation = config.gradient_accumulation
+        from idp_programs.dnn.utils import Cosine_LR_Scheduler
+        self.scheduler = Cosine_LR_Scheduler(
+            self.optimizer,
+            warmup_epochs=20, warmup_lr=0,
+            num_epochs=self.epochs, base_lr=  self.config['model']['optimizer']['lr'], final_lr=1e-5,
+            iter_per_epoch=len(self.train_data_loader) // self.gradient_accumulation,
+            constant_predictor_lr=True  # see the end of section 4.2 predictor
+        )
         self.mnt_best = np.inf
         #if self.config.dataset.type == 'multi_target':
         self.criterion = torch.nn.BCEWithLogitsLoss(reduction='mean')
         self.criterion = torch.nn.CrossEntropyLoss(reduction='mean')
 
         self.checkpoint_dir = checkpoint_dir
-        self.gradient_accumulation = config.gradient_accumulation
+
         self.writer = writer
         self.metric_ftns = ['loss', 'acc']
         self.train_metrics = MetricTracker(*[m for m in self.metric_ftns], writer=self.writer, mode='train')
@@ -80,6 +88,8 @@ class SSLTrainer(BaseTrainer):
 
             (loss / gradient_accumulation).backward()
             if (batch_idx % gradient_accumulation == 0):
+                torch.nn.utils.clip_grad_norm_(self.model.parameters(), 1.0)
+                self.scheduler.step()
                 self.optimizer.step()  # Now we can do an optimizer step
                 self.optimizer.zero_grad()  # Reset gradients tensors
 
@@ -149,7 +159,7 @@ class SSLTrainer(BaseTrainer):
             make_dirs(self.checkpoint_dir)
 
             self.checkpointer(epoch, validation_loss)
-            self.lr_scheduler.step(validation_loss)
+            #self.lr_scheduler.step(validation_loss)
             if self.do_test:
                 self.logger.info(f"{'!' * 10}    TEST  , {'!' * 10}")
                 self._valid_epoch(epoch, 'test', self.test_data_loader)
