@@ -65,16 +65,26 @@ def main():
     log.info(f"{model}")
     print(n_classes)
     if (config.load):
-        #model.head = torch.nn.Linear(256, 256)
-        dim=256
+        model.head = torch.nn.Linear(128, 256)
+        model.embed = nn.Embedding(256, 128)
+        # dim=256
         # model.embed = nn.Sequential(nn.Embedding(256, dim), TextTokenizer(word_embedding_dim=dim,
         #                                                                 embedding_dim=dim,
         #                                                                 n_output_channels=dim,
         #                                                                 kernel_size=1,
         #                                                                 stride=1,
         #                                                                 padding=0))
-        pth_file, _ = load_checkpoint(config.pretrained_cpkt, model, strict=True, load_seperate_layers=False)
-        model.head = torch.nn.Linear(256, 22)
+        pth_file, _ = load_checkpoint( config.pretrained_cpkt, model, strict=True, load_seperate_layers=False)
+        model.head = torch.nn.Linear(128, 22)
+        model.embed = nn.Embedding(22, 128)
+        print(model)
+
+        # embed_w = torch.load('/home/iliask/PycharmProjects/MScThesis/checkpoints/SSL/dataset_DM/_embed.pth')
+        # print(embed_w.shape)
+        # model.embed.from_pretrained(embed_w)
+        # model.embed.requires_grad = False
+        #exit()
+
         # model.embed = nn.Sequential(nn.Embedding(22, dim), TextTokenizer(word_embedding_dim=dim,
         #                                                                 embedding_dim=dim,
         #                                                                 n_output_channels=dim,

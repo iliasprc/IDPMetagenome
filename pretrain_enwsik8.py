@@ -21,13 +21,13 @@ parser.add_argument('--data', type=str,
 parser.add_argument('--model', type=str, default='Reformer',
                     help='type of  net (RNN_TANH, RNN_RELU, LSTM, GRU, Transformer,Reformer)')
 parser.add_argument('--n_hashes', type=int, default=4)
-parser.add_argument('--nhead', type=int, default=8,
+parser.add_argument('--nhead', type=int, default=46,
 
                     help='the number of heads in the encoder/decoder of the transformer model')
 
-parser.add_argument('--emsize', type=int, default=512,
+parser.add_argument('--emsize', type=int, default=256,
                     help='size of word embeddings')
-parser.add_argument('--depth', type=int, default=12, help='number of layers')
+parser.add_argument('--depth', type=int, default=6, help='number of layers')
 parser.add_argument('--gradient_steps', type=int, default=32)
 parser.add_argument('--causal', action='store_true', default=False)
 parser.add_argument('--tied_connections', action='store_true', default=False)
@@ -105,14 +105,14 @@ def select_model(args, name, n_classes, pretrained=False):
                        dropout=0.2,
                        prenorm=False, classes=n_classes)
 
-
-model = select_model(args, 'idptransformer', 256)
+name = 'idpcct'
+model = select_model(args, 'idpcct', 256)
 if use_cuda:
     model.cuda()
 
 time_string = datetime.datetime.now().strftime("%d_%m_%Y_%H.%M.%S")
 
-pathdir = os.path.join(args.cpkt_dir, time_string)
+pathdir = os.path.join(args.cpkt_dir, time_string,name)
 # prepare enwik8 data
 writer = SummaryWriter(pathdir + '/runs')
 
@@ -215,10 +215,10 @@ for i in range(EPOCHS):
                           )
                     best_loss = valloss
                     torch.save(model.state_dict(),
-                               pathdir + '/bestmodel.pth')
+                               pathdir + f'/bestmodel.pth')
                     with open(pathdir + '/commandline_args.txt', 'w') as f:
                         json.dump(args.__dict__, f, indent=2)
                 best_loss = valloss
                 torch.save(model.state_dict(),
-                           pathdir + '/lastmodel.pth')
+                           pathdir + f'/lastmodel.pth')
             model.train()

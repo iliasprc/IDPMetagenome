@@ -2,19 +2,22 @@ import datetime
 import os
 import shutil
 
+import esm
 import torch
 from omegaconf import OmegaConf
 from torch.utils.tensorboard import SummaryWriter
 
 from dataloaders.dataset import loaders
+from idp_programs.dnn.fair_esm_model import IDP_ESM
 from trainer.logger import Logger
-from trainer.util import reproducibility, select_model, select_optimizer, load_checkpoint, get_arguments
+from trainer.util import reproducibility, select_optimizer, get_arguments
 
-import esm
 #
 # Load ESM-1b model
 model, alphabet = esm.pretrained.esm1_t6_43M_UR50S()
 batch_converter = alphabet.get_batch_converter()
+
+
 # ("protein2", "KALTARQQEVFDLIRDHISQTGMPPTRAEIAQRLGFRSPNAAEEHLKALARKGVIEIVSGASRGIRLLQEE"),
 # ("protein2 with mask","KALTARQQEVFDLIRD<mask>ISQTGMPPTRAEIAQRLGFRSPNAAEEHLKALARKGVIEIVSGASRGIRLLQEE"),
 # ("protein3",  "K A <mask> I S Q"),
@@ -41,7 +44,7 @@ def main():
         if 'c' in myargs:
             config_file = myargs['c']
     else:
-        config_file = 'config/config.yaml'
+        config_file = 'config/esm_config.yaml'
 
     config = OmegaConf.load(os.path.join(cwd, config_file))['trainer']
     config.cwd = str(cwd)
@@ -81,22 +84,11 @@ def main():
     n_classes = len(classes)
 
     # if config.dataset.name == 'celeba':
-    #n_classes = 1
-    model = select_model(config, 2)
-    #model.head = torch.nn.Linear(128,20)
+    # n_classes = 1
+    model = IDP_ESM()
+    # model.head = torch.nn.Linear(128,20)
     log.info(f"{model}")
 
-    if (config.load):
-       # model.head = torch.nn.Linear(512, n_classes)
-        model.embed = torch.nn.Embedding(22, 128)
-        model.head = torch.nn.Linear(128, 22)
-        pth_file, _ = load_checkpoint(config.pretrained_cpkt, model, strict=True, load_seperate_layers=False)
-        model.head = torch.nn.Linear(128, 2)
-
-
-
-    else:
-        pth_file = None
     if (config.cuda and use_cuda):
         if torch.cuda.device_count() > 1:
             log.info(f"Let's use {torch.cuda.device_count()} GPUs!")
@@ -109,12 +101,12 @@ def main():
     log.info(f"Checkpoint Folder {cpkt_fol_name} ")
     shutil.copy(os.path.join(config.cwd, config_file), cpkt_fol_name)
 
-    from trainer.trainer import Trainer
-    trainer = Trainer(config, model=model, optimizer=optimizer,
-                      data_loader=training_generator, writer=writer, logger=log,
-                      valid_data_loader=val_generator, class_dict=classes,
-                      lr_scheduler=scheduler,
-                      checkpoint_dir=cpkt_fol_name)
+    from trainer.esm_trainer import ESMTrainer
+    trainer = ESMTrainer(config, model=model, optimizer=optimizer,
+                         data_loader=training_generator, writer=writer, logger=log,
+                         valid_data_loader=val_generator, class_dict=classes,
+                         lr_scheduler=scheduler,
+                         checkpoint_dir=cpkt_fol_name)
     trainer.train()
 
 

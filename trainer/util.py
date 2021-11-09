@@ -4,10 +4,12 @@ import json
 import os
 import time
 from collections import OrderedDict
+import torch
+import torch.nn as nn
+import torch.nn.functional as F
 
 import numpy as np
 import pandas as pd
-import torch
 import torch.optim as optim
 
 
@@ -73,6 +75,10 @@ def load_checkpoint(checkpoint, model, strict=True, optimizer=None, load_seperat
     """
     checkpoint1 = torch.load(checkpoint, map_location='cpu')
     print(checkpoint1.keys())
+    # e = checkpoint1['state_dict']['embed.weight']
+    # print(e,e.shape)
+    # torch.save( e,'/home/iliask/PycharmProjects/MScThesis/checkpoints/SSL/dataset_DM/model_idprnn
+    # /date_29_10_2021_22.07.39/_embed.pth')
     if 'state_dict' in checkpoint1.keys():
         pretrained_dict = checkpoint1['state_dict']
     else:
@@ -500,16 +506,41 @@ def select_optimizer_pretrain(model, config, checkpoint=None):
 def select_model(config, n_classes, pretrained=False):
     if config.model.name == 'idptransformer':
         from idp_programs.dnn.transformer import IDPTransformer
-        return IDPTransformer(dim=config.dim, blocks=6, heads=8, dim_head=None, dim_linear_block=config.dim*2, dropout=0.2,
+        return IDPTransformer(config, dim=config.dim, blocks=2, heads=4, dim_head=None, dim_linear_block=config.dim * 2,
+                              dropout=0.2,
                               prenorm=False, classes=n_classes)
     elif config.model.name == 'idpcct':
         from idp_programs.dnn.transformer import IDP_cct
-        return IDP_cct(dim=config.dim, blocks=6, heads=8, dim_head=None, dim_linear_block=config.dim*2, dropout=0.2,
-                              prenorm=False, classes=n_classes)
+        return IDP_cct(dim=config.dim, blocks=3, heads=4, dim_head=None, dim_linear_block=config.dim * 2, dropout=0.2,
+                       prenorm=False, classes=n_classes)
     elif config.model.name == 'idprnn':
         from idp_programs.dnn.rnn import IDPrnn
-        return IDPrnn(dropout=0.2,dim=config.dim,blocks=2,classes=n_classes)
+        return IDPrnn(dropout=0.2, dim=config.dim, blocks=2, classes=n_classes)
+    elif config.model.name == 'IDPseqvec':
+        from idp_programs.dnn.transformer import IDPseqvec
 
+        return IDPseqvec()
     elif config.model.name == 'lm':
         from idp_programs.dnn.embed import LM
-        return LM(vocab=n_classes,dim=config.dim)
+        return LM(vocab=n_classes, dim=config.dim)
+
+
+
+
+class FocalLoss(nn.CrossEntropyLoss):
+    ''' Focal loss for classification tasks on imbalanced datasets '''
+
+    def __init__(self, gamma, alpha=None, ignore_index=-100, reduction='mean'):
+        super().__init__(weight=alpha, ignore_index=ignore_index, reduction='mean')
+        self.reduction = reduction
+        self.gamma = gamma
+
+    def forward(self, input_, target):
+        cross_entropy = super().forward(input_, target)
+        # Temporarily mask out ignore index to '0' for valid gather-indices input.
+        # This won't contribute final loss as the cross_entropy contribution
+        # for these would be zero.
+        target = target * (target != self.ignore_index).long()
+        input_prob = torch.gather(F.softmax(input_, 1), 1, target.unsqueeze(1))
+        loss = torch.pow(1 - input_prob, self.gamma) * cross_entropy
+        return torch.mean(loss) if self.reduction == 'mean' else torch.sum(loss) if self.reduction == 'sum' else loss

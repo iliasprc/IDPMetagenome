@@ -35,6 +35,23 @@
 #     metadata[sample.name] = sample.metadata
 # metadata = pd.DataFrame.from_dict(metadata, orient='index')
 # metadata.to_csv("MetaSUB Doha_metadata.csv")
-fpath = '/home/iliask/PycharmProjects/uniref50.fasta'
-from pysam import FastaFile
-sequences_object = FastaFile(fpath)
+# fpath = '/home/iliask/PycharmProjects/uniref50.fasta'
+# from pysam import FastaFile
+# sequences_object = FastaFile(fpath)
+
+from allennlp.commands.elmo import ElmoEmbedder
+from pathlib import Path
+
+model_dir = Path('/home/iliask/PycharmProjects/MScThesis/uniref50_v2')
+weights = model_dir / 'weights.hdf5'
+options = model_dir / 'options.json'
+embedder = ElmoEmbedder(options,weights, cuda_device=0)
+
+
+seq = 'MEGSKTSNNSTMQVSFVCQRCSQPLKLDTSFKILDRVTIQELTAPLLTTAQAKPGETQEEETNSGEEPFIETPRQDGVSRRFIPPARMMSTESANSFTLIGEASDGGTMENLSRRLKVTGDLFDIMSGQTDVDHPLCEECTDTLLDQLDTQLNVTENECQNYKRCLEILEQMNEDDSEQLQMELKELALEEERLIQELEDVEKNRKIVAENLEKVQAEAERLDQEEAQYQREYSEFKRQQLELDDELKSVENQMRYAQTQLDKLKKTNVFNATFHIWHSGQFGTINNFRLGRLPSVPVEWNEINAAWGQTVLLLHALANKMGLKFQRYRLVPYGNHSYLESLTDKSKELPLYCSGGLRFFWDNKFDHAMVAFLDCVQQFKEEVEKGETRFCLPYRMDVEKGKIEDTGGSGGSYSIKTQFNSEEQWTKALKFMLTNLK' \
+      'WGLAWVSSQFYNK'
+embedding = embedder.embed_sentence(list(seq)) #
+for i in range(1000):
+      embedding = embedder.embed_sentence(list(seq))
+      print(embedding.shape)
+print(embedder)

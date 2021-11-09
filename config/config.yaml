@@ -8,10 +8,10 @@ trainer:
   save: True # save checkpoint
   batch_size: 1
   dim: 256
-  load: True # load pretrained checkpoint
-  gradient_accumulation: 8 # gradient accumulation steps
-  pretrained_cpkt: /home/iliask/PycharmProjects/MScThesis/checkpoints/SSL/dataset_DM/model_idptransformer/date_29_10_2021_22.46.20/_model_best_checkpoint.pth.tar
-  log_interval: 10000 # print statistics every log_interval
+  load: False # load pretrained checkpoint
+  gradient_accumulation: 128 # gradient accumulation steps
+  pretrained_cpkt: /home/iliask/PycharmProjects/MScThesis/checkpoints/SSL/dataset_DM/model_idpcct/date_31_10_2021_10.58.06/_model_best_checkpoint.pth.tar
+  log_interval: 1000 # print statistics every log_interval
   model:
     name: idptransformer # model name  [mobilenet_v2,COVIDNet_small]
     pretrained: False
@@ -42,6 +42,7 @@ trainer:
     input_data: data_dir
     name: DM # dataset name
     type: bce # multi_target or clf
+    use_elmo: True
     train:
       augmentation: True # do augmentation to video
     val:

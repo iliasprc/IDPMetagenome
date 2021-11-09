@@ -190,12 +190,10 @@ class IDP_cct(nn.Module):
     def __init__(self, dim, blocks=6, heads=8, dim_head=None, dim_linear_block=1024, dropout=0, prenorm=False,
                  classes=1):
         super().__init__()
-        self.embed = nn.Sequential(nn.Embedding(22, dim), TextTokenizer(word_embedding_dim=dim,
-                                                                        embedding_dim=dim,
-                                                                        n_output_channels=dim,
-                                                                        kernel_size=1,
+        self.embed = nn.Embedding(classes, dim)
+        self.conv = TextTokenizer(word_embedding_dim=dim,embedding_dim=dim, n_output_channels=dim,                                                                        kernel_size=1,
                                                                         stride=1,
-                                                                        padding=0))
+                                                                        padding=0)
         self.pos_embed = PositionalEncodingSin(dim, dropout=0.1, max_tokens=2000)
         self.block_list = [TransformerBlock(dim, heads, dim_head,
                                             dim_linear_block, dropout, prenorm=prenorm) for _ in range(blocks)]
@@ -206,7 +204,7 @@ class IDP_cct(nn.Module):
     def forward(self, x, mask=None):
         # print(x.shape)
         # assert len(x.shape) == 3
-        x = self.embed(x)
+        x = self.conv(self.embed(x))
         #print(x.shape)
 
         x = self.pos_embed(x)  # self.embed(x))
@@ -216,11 +214,25 @@ class IDP_cct(nn.Module):
         return x
 
 
+class IDPseqvec(nn.Module):
+    def __init__(self):
+        super().__init__()
+        dim=256
+        self.embed = nn.Sequential(nn.Linear(1024, dim),nn.ReLU(),nn.Linear(dim,2))
+
+    def forward(self, x, mask=None):
+
+        x = self.embed(x)
+
+        return x
 class IDPTransformer(nn.Module):
-    def __init__(self, dim, blocks=6, heads=8, dim_head=None, dim_linear_block=1024, dropout=0, prenorm=False,
+    def __init__(self,config, dim, blocks=6, heads=8, dim_head=None, dim_linear_block=1024, dropout=0, prenorm=False,
                  classes=1):
         super().__init__()
-        self.embed = nn.Embedding(256, dim)
+        self.embed = nn.Embedding(classes, dim)
+        self.use_elmo = config.dataset.use_elmo
+        if self.use_elmo:
+            self.embed = nn.Linear(1024,dim)
         # self.embed = nn.Sequential(nn.Linear(20, dim,bias=False), nn.LeakyReLU(0.1))
         # self.tcn = TemporalConvNet(num_inputs=dim, num_channels=[dim, dim // 2, dim // 2, dim], kernel_size=2,
         #                            dropout=0.2)
@@ -235,6 +247,7 @@ class IDPTransformer(nn.Module):
     def forward(self, x, mask=None):
         # print(x.shape)
         # assert len(x.shape) == 3
+        #print(x.shape)
         x = self.embed(x)
         # print(x.shape)
 
