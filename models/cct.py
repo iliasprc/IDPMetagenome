@@ -424,7 +424,7 @@ class TextTokenizer(nn.Module):
         print(x.shape)
         x = self.conv_layers(x)
         x = x.transpose(1, 3).squeeze(1)
-        x = x if mask is None else x * self.forward_mask(mask).unsqueeze(-1).float()
+        x = x #if mask is None else x * self.forward_mask(mask).unsqueeze(-1).float()
         return x, mask
 
     @staticmethod
@@ -479,7 +479,7 @@ __all__ = [
 class TextCCT(nn.Module):
     def __init__(self,
                  seq_len=64,
-                 word_embedding_dim=300,
+                 word_embedding_dim=25,
                  embedding_dim=256,
                  kernel_size=2,
                  stride=1,

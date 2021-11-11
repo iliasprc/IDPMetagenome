@@ -722,7 +722,7 @@ def metric(dataset_preds, dataset_target):
     # denominator = ((TP+FP)*(TP+FN)*(TN+FP)*(TN+FN))**0.5
     MCC = (PPV * TPR * TNR * NPV) ** 0.5 - ((FDR * FNR * FPR * FOR) ** 0.5)
     s = f'\nTP\tTN\tFP\tFN\t\n{TP:.2f}\t{TN:.2f}\t{FP:.2f}\t{FN:.2f}\n' \
-        f'F1\tMCC\tTPR\tTNR\tPPV\tNPV\tFPR\tFNR\tBAC\t \n' \
+        f'F1  \t  MCC  \t  TPR  \t  TNR  \t  PPV  \t  NPV  \t  FPR  \t  FNR  \t  BAC\t \n' \
         f'{F1 :.4f}\t{MCC :.4f}\t{TPR:.4f}\t{TNR:.4f}\t{PPV:.4f}\t{NPV:.4f}\t{FPR:.4f}\t{FNR:.4f}\t{BAC:.4f}'
     return s# f'TP {TP:.2f} ,TN {TN:.2f} FP {FP:.2f},FN {FN:.2f},\n F1 {F1 :.4f}   MCC {MCC :.4f}\n TPR {TPR:.4f} TNR ' \
            #f'{TNR:.4f}  PPV {PPV:.4f}\nNPV {NPV:.4f} FPR {FPR:.4f} FNR {FNR:.4f} BAC {BAC:.4f}'

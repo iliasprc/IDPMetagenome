@@ -194,11 +194,13 @@ class IDP_cct(nn.Module):
         self.conv = TextTokenizer(word_embedding_dim=dim, embedding_dim=dim, n_output_channels=dim, kernel_size=1,
                                   stride=1,
                                   padding=0)
-        self.pos_embed = PositionalEncodingSin(dim, dropout=0.1, max_tokens=2000)
+        self.pos_embed = PositionalEncodingSin(dim, dropout=0.1, max_tokens=2500)
         self.block_list = [TransformerBlock(dim, heads, dim_head,
                                             dim_linear_block, dropout, prenorm=prenorm) for _ in range(blocks)]
         self.layers = nn.ModuleList(self.block_list)
-        self.head = nn.Linear(dim, classes)
+        self.head = nn.Sequential(nn.LayerNorm(dim), nn.Linear(dim, classes))
+
+        self.apply(weights_init)
 
     def forward(self, x, mask=None):
         # print(x.shape)

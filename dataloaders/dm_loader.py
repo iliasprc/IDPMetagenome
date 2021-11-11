@@ -196,10 +196,10 @@ class MXD494Loader(Dataset):
         self.use_elmo = config.dataset.use_elmo
         if self.use_elmo:
             print('\n USE ELMO \n')
-            model_dir = Path('/config/uniref50_v2')
-            weights = model_dir / 'weights.hdf5'
-            options = model_dir / 'options.json'
-            embedder = ElmoEmbedder(options, weights, cuda_device=0)
+            # model_dir = Path('/config/uniref50_v2')
+            # weights = model_dir / 'weights.hdf5'
+            # options = model_dir / 'options.json'
+            # embedder = ElmoEmbedder(options, weights, cuda_device=0)
         if self.ssl:
             print('\n SELF-SUPERVISED\n')
         else:
@@ -232,8 +232,8 @@ class MXD494Loader(Dataset):
             right = randint(L // 2, L)
             x = [self.w2i[amino] for amino in self.proteins[index]]  # [left:right]
             if self.use_elmo:
-                seq = self.proteins[index]
-                x = embedding = torch.FloatTensor(embedder.embed_sentence(list(seq))).sum(dim=0)
+                x = self.proteins[index]
+
             else:
                 x = torch.LongTensor(x)
             y = [int(i) for i in self.annotations[index]]  # [left:right]
@@ -252,13 +252,13 @@ class MXD494Loader(Dataset):
         y = [int(i) for i in self.annotations[index]]
         # print(len(x),len(y),len(self.proteins[index]),len(self.annotations[index]))
         if self.use_elmo:
-            seq = self.proteins[index]
-            x = embedding = torch.FloatTensor(embedder.embed_sentence(list(seq))).sum(dim=0)
+            x = self.proteins[index]
+
         else:
             x = torch.LongTensor(x)
         y = torch.LongTensor([int(i) for i in self.annotations[index]])  # .unsqueeze(-1)
         # print(x.shape,y.shape)
-        assert x.shape == y.shape, print(self.names[index])
+#        assert x.shape == y.shape, print(self.names[index])
         y1 = torch.nn.functional.one_hot(y, num_classes=2)
         # x = torch.nn.functional.one_hot(x, num_classes=20).float()
         # print(y,y1)
