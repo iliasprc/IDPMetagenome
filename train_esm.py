@@ -8,7 +8,7 @@ from omegaconf import OmegaConf
 from torch.utils.tensorboard import SummaryWriter
 
 from dataloaders.dataset import loaders
-from models.fair_esm_model import IDP_esm1_t6_43M_UR50S,IDP_esm1_t12_85M_UR50S
+from models.fair_esm_model import IDP_esm1_t6_43M_UR50S
 from trainer.logger import Logger
 from trainer.util import reproducibility, select_optimizer, get_arguments
 
@@ -83,9 +83,10 @@ def main():
     training_generator, val_generator, classes = loaders(args=config, dataset_name=config.dataset.name)
     n_classes = len(classes)
 
-    # if config.dataset.name == 'celeba':
-    # n_classes = 1
-    model = IDP_esm1_t12_85M_UR50S()
+    if config.model.name == 'IDP_esm1_t12_85M_UR50S':
+        model = IDP_esm1_t6_43M_UR50S()
+    elif config.model.name == 'IDP_esm1_t6_43M_UR50S':
+        model = IDP_esm1_t6_43M_UR50S()
     # model.head = torch.nn.Linear(128,20)
     log.info(f"{model}")
 
