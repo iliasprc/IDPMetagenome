@@ -25,7 +25,7 @@ parser.add_argument('--nhead', type=int, default=46,
 
                     help='the number of heads in the encoder/decoder of the transformer model')
 
-parser.add_argument('--emsize', type=int, default=256,
+parser.add_argument('--emsize', type=int, default=128,
                     help='size of word embeddings')
 parser.add_argument('--depth', type=int, default=6, help='number of layers')
 parser.add_argument('--gradient_steps', type=int, default=32)
@@ -44,7 +44,7 @@ parser.add_argument('--lr', type=float, default=1e-4,
                     help='initial learning rate')
 parser.add_argument('--clip', type=float, default=1.0,
                     help='gradient clipping')
-parser.add_argument('--epochs', type=int, default=100,
+parser.add_argument('--epochs', type=int, default=5,
                     help='upper epoch limit')
 parser.add_argument('--batch_size', type=int, default=4, metavar='N',
                     help='batch size')

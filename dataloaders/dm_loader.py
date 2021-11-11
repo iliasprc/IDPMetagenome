@@ -105,7 +105,7 @@ class DMLoader(Dataset):
             x = torch.LongTensor(x)
         y = torch.LongTensor([int(i) for i in self.annotations[index]])  # .unsqueeze(-1)
         # print(x.shape,y.shape)
-        # assert x.shape == y.shape, print(self.names[index])
+        assert x.shape == y.shape, print(self.names[index])
         y1 = torch.nn.functional.one_hot(y, num_classes=2)
         # x = torch.nn.functional.one_hot(x, num_classes=20).float()
         # print(y,y1)

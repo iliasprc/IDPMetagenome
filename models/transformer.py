@@ -3,7 +3,7 @@ import torch
 from einops import rearrange
 from einops import repeat
 from torch import nn
-
+import torch.nn.functional as F
 from models.utils import weights_init
 
 
@@ -19,11 +19,11 @@ class TextTokenizer(nn.Module):
             nn.Conv2d(1, n_output_channels,
                       kernel_size=(kernel_size, embedding_dim),
                       stride=(stride, 1),
-                      padding=(padding, 0), bias=False), nn.GELU())
+                      padding=(padding, 0), bias=False), nn.ReLU())
 
     def forward(self, x, mask=None):
         x = x.unsqueeze(1)
-        # print(x.shape)
+        #print(x.shape)
         x = self.conv_layers(x)
         x = x.transpose(1, 3).squeeze(1)
 
@@ -164,6 +164,104 @@ def expand_to_batch(tensor, desired_size):
     return repeat(tensor, 'b ... -> (b tile) ...', tile=tile)
 
 
+
+
+
+
+
+
+def drop_path(x, drop_prob: float = 0., training: bool = False):
+    """
+    Obtained from: github.com:rwightman/pytorch-image-models
+    Drop paths (Stochastic Depth) per sample (when applied in main path of residual blocks).
+    This is the same as the DropConnect impl I created for EfficientNet, etc networks, however,
+    the original name is misleading as 'Drop Connect' is a different form of dropout in a separate paper...
+    See discussion: https://github.com/tensorflow/tpu/issues/494#issuecomment-532968956 ... I've opted for
+    changing the layer and argument names to 'drop path' rather than mix DropConnect as a layer name and use
+    'survival rate' as the argument.
+    """
+    if drop_prob == 0. or not training:
+        return x
+    keep_prob = 1 - drop_prob
+    shape = (x.shape[0],) + (1,) * (x.ndim - 1)  # work with diff dim tensors, not just 2D ConvNets
+    random_tensor = keep_prob + torch.rand(shape, dtype=x.dtype, device=x.device)
+    random_tensor.floor_()  # binarize
+    output = x.div(keep_prob) * random_tensor
+    return output
+
+
+class DropPath(nn.Module):
+    """
+    Obtained from: github.com:rwightman/pytorch-image-models
+    Drop paths (Stochastic Depth) per sample  (when applied in main path of residual blocks).
+    """
+
+    def __init__(self, drop_prob=None):
+        super(DropPath, self).__init__()
+        self.drop_prob = drop_prob
+
+    def forward(self, x):
+        return drop_path(x, self.drop_prob, self.training)
+
+class Attention(nn.Module):
+    """
+    Obtained from timm: github.com:rwightman/pytorch-image-models
+    """
+
+    def __init__(self, dim, num_heads=8, attention_dropout=0.1, projection_dropout=0.1):
+        super().__init__()
+        self.num_heads = num_heads
+        head_dim = dim // self.num_heads
+        self.scale = head_dim ** -0.5
+
+        self.qkv = nn.Linear(dim, dim * 3, bias=False)
+        self.attn_drop = nn.Dropout(attention_dropout)
+        self.proj = nn.Linear(dim, dim)
+        self.proj_drop = nn.Dropout(projection_dropout)
+
+    def forward(self, x):
+        B, N, C = x.shape
+        qkv = self.qkv(x).reshape(B, N, 3, self.num_heads, C // self.num_heads).permute(2, 0, 3, 1, 4)
+        q, k, v = qkv[0], qkv[1], qkv[2]
+
+        attn = (q @ k.transpose(-2, -1)) * self.scale
+        attn = attn.softmax(dim=-1)
+        attn = self.attn_drop(attn)
+
+        x = (attn @ v).transpose(1, 2).reshape(B, N, C)
+        x = self.proj(x)
+        x = self.proj_drop(x)
+        return x
+class TransformerEncoderLayer(nn.Module):
+    """
+    Inspired by torch.nn.TransformerEncoderLayer and timm.
+    """
+
+    def __init__(self, d_model, nhead, dim_feedforward=2048, dropout=0.1,
+                 attention_dropout=0.1, drop_path_rate=0.1):
+        super(TransformerEncoderLayer, self).__init__()
+        self.pre_norm = nn.LayerNorm(d_model)
+        self.self_attn = Attention(dim=d_model, num_heads=nhead,
+                                   attention_dropout=attention_dropout, projection_dropout=dropout)
+
+        self.linear1 = nn.Linear(d_model, dim_feedforward)
+        self.dropout1 = nn.Dropout(dropout)
+        self.norm1 = nn.LayerNorm(d_model)
+        self.linear2 = nn.Linear(dim_feedforward, d_model)
+        self.dropout2 = nn.Dropout(dropout)
+
+        self.drop_path = DropPath(drop_path_rate) if drop_path_rate > 0 else nn.Identity()
+
+        self.activation = F.gelu
+
+    def forward(self, src: torch.Tensor, *args, **kwargs) -> torch.Tensor:
+        src = src + self.drop_path(self.self_attn(self.pre_norm(src)))
+        src = self.norm1(src)
+        src2 = self.linear2(self.dropout1(self.activation(self.linear1(src))))
+        src = src + self.drop_path(self.dropout2(src2))
+        return src
+
+
 class PositionalEncodingSin(nn.Module):
 
     def __init__(self, dim, dropout=0.1, max_tokens=5000):
@@ -191,13 +289,15 @@ class IDP_cct(nn.Module):
                  classes=1):
         super().__init__()
         self.embed = nn.Embedding(classes, dim)
-        self.conv = TextTokenizer(word_embedding_dim=dim, embedding_dim=dim, n_output_channels=dim, kernel_size=1,
+        self.conv = TextTokenizer(word_embedding_dim=dim, embedding_dim=dim, n_output_channels=dim, kernel_size=5,
                                   stride=1,
-                                  padding=0)
+                                  padding=2)
         self.pos_embed = PositionalEncodingSin(dim, dropout=0.1, max_tokens=2500)
-        self.block_list = [TransformerBlock(dim, heads, dim_head,
-                                            dim_linear_block, dropout, prenorm=prenorm) for _ in range(blocks)]
-        self.layers = nn.ModuleList(self.block_list)
+        self.layers = nn.ModuleList([
+            TransformerEncoderLayer(d_model=dim, nhead=heads,
+                                    dim_feedforward=dim_linear_block, dropout=dropout,
+                                    attention_dropout=dropout, drop_path_rate=0.1)
+            for i in range(blocks)])
         self.head = nn.Sequential(nn.LayerNorm(dim), nn.Linear(dim, classes))
 
         self.apply(weights_init)
@@ -210,7 +310,7 @@ class IDP_cct(nn.Module):
 
         x = self.pos_embed(x)  # self.embed(x))
         for layer in self.layers:
-            x = layer(x, mask)
+            x = layer(x)
         x = self.head(x).squeeze(-1)
         return x
 

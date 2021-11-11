@@ -8,7 +8,7 @@ trainer:
   save: True # save checkpoint
   batch_size: 1
   dim: 128
-  load: True # load pretrained checkpoint
+  load: False # load pretrained checkpoint
   gradient_accumulation: 128 # gradient accumulation steps
   pretrained_cpkt: /home/iliask/PycharmProjects/MScThesis/cpktsenwik8/30_10_2021_23.28.53/idpcct/bestmodel.pth
   log_interval: 1000 # print statistics every log_interval
@@ -42,7 +42,7 @@ trainer:
     input_data: data_dir
     name: DM # dataset name
     type: SSL # multi_target or clf
-    use_elmo: True
+    use_elmo: False
     train:
       augmentation: True # do augmentation to video
     val:
