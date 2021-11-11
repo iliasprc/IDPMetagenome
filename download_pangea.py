@@ -42,7 +42,7 @@
 from allennlp.commands.elmo import ElmoEmbedder
 from pathlib import Path
 
-model_dir = Path('/home/iliask/PycharmProjects/MScThesis/uniref50_v2')
+model_dir = Path('/config/uniref50_v2')
 weights = model_dir / 'weights.hdf5'
 options = model_dir / 'options.json'
 embedder = ElmoEmbedder(options,weights, cuda_device=0)

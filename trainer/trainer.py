@@ -1,14 +1,11 @@
 import os
 from allennlp.commands.elmo import ElmoEmbedder
 from pathlib import Path
-import numpy as np
 import torch
-import sklearn
 from trainer.basetrainer import BaseTrainer
 from trainer.util import MetricTracker, write_csv, save_model, make_dirs
-from trainer.metrics import *
 from idp_programs.utils import *
-from idp_programs.dnn.utils import Cosine_LR_Scheduler
+from models.utils import Cosine_LR_Scheduler
 class Trainer(BaseTrainer):
     """
     Trainer class
@@ -65,7 +62,7 @@ class Trainer(BaseTrainer):
         self.confusion_matrix = torch.zeros(2, 2)
         self.use_elmo = config.dataset.use_elmo
         if self.use_elmo:
-            model_dir = Path('/home/iliask/PycharmProjects/MScThesis/uniref50_v2')
+            model_dir = Path('/config/uniref50_v2')
             weights = model_dir / 'weights.hdf5'
             options = model_dir / 'options.json'
             self.embedder = ElmoEmbedder(options, weights, cuda_device=0)
@@ -126,7 +123,6 @@ class Trainer(BaseTrainer):
         k = 5
         # print(len(yhat),len(y))
         # print(yhat[:10],y[:10])
-        from idp_programs.utils import target_metrics
         pred = np.array(yhat)
         target = np.array(y)
 

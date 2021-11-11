@@ -8,7 +8,7 @@ from omegaconf import OmegaConf
 from torch.utils.tensorboard import SummaryWriter
 
 from dataloaders.dataset import loaders
-from idp_programs.dnn.fair_esm_model import IDP_ESM
+from models.fair_esm_model import IDP_esm1_t6_43M_UR50S,IDP_esm1_t12_85M_UR50S
 from trainer.logger import Logger
 from trainer.util import reproducibility, select_optimizer, get_arguments
 
@@ -85,7 +85,7 @@ def main():
 
     # if config.dataset.name == 'celeba':
     # n_classes = 1
-    model = IDP_ESM()
+    model = IDP_esm1_t12_85M_UR50S()
     # model.head = torch.nn.Linear(128,20)
     log.info(f"{model}")
 

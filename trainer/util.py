@@ -4,12 +4,12 @@ import json
 import os
 import time
 from collections import OrderedDict
-import torch
-import torch.nn as nn
-import torch.nn.functional as F
 
 import numpy as np
 import pandas as pd
+import torch
+import torch.nn as nn
+import torch.nn.functional as F
 import torch.optim as optim
 
 
@@ -505,26 +505,24 @@ def select_optimizer_pretrain(model, config, checkpoint=None):
 
 def select_model(config, n_classes, pretrained=False):
     if config.model.name == 'idptransformer':
-        from idp_programs.dnn.transformer import IDPTransformer
+        from models.transformer import IDPTransformer
         return IDPTransformer(config, dim=config.dim, blocks=2, heads=4, dim_head=None, dim_linear_block=config.dim * 2,
                               dropout=0.2,
                               prenorm=False, classes=n_classes)
     elif config.model.name == 'idpcct':
-        from idp_programs.dnn.transformer import IDP_cct
+        from models.transformer import IDP_cct
         return IDP_cct(dim=config.dim, blocks=3, heads=4, dim_head=None, dim_linear_block=config.dim * 2, dropout=0.2,
                        prenorm=False, classes=n_classes)
     elif config.model.name == 'idprnn':
-        from idp_programs.dnn.rnn import IDPrnn
+        from models import IDPrnn
         return IDPrnn(dropout=0.2, dim=config.dim, blocks=2, classes=n_classes)
     elif config.model.name == 'IDPseqvec':
-        from idp_programs.dnn.transformer import IDPseqvec
+        from models.transformer import IDPseqvec
 
         return IDPseqvec()
     elif config.model.name == 'lm':
-        from idp_programs.dnn.embed import LM
+        from models.embed import LM
         return LM(vocab=n_classes, dim=config.dim)
-
-
 
 
 class FocalLoss(nn.CrossEntropyLoss):

@@ -1,16 +1,17 @@
 import os
-import re
-import torch
-from torch.utils.data import Dataset
-from allennlp.commands.elmo import ElmoEmbedder
 from pathlib import Path
-from pathlib import Path
-from allennlp.commands.elmo import ElmoEmbedder
-from .utils import read_data_
 from random import randint
+
+import torch
+from allennlp.commands.elmo import ElmoEmbedder
+from torch.utils.data import Dataset
+
+from .utils import read_data_
+
 train_prefix = "train"
 dev_prefix = "val"
 test_prefix = "test"
+
 
 class DMLoader(Dataset):
     def __init__(self, config, mode):
@@ -25,7 +26,7 @@ class DMLoader(Dataset):
             self.augment = True
             self.mode = mode
         elif mode == dev_prefix:
-            self.names, self.annotations, self.proteins,_, _ = read_data_(
+            self.names, self.annotations, self.proteins, _, _ = read_data_(
                 os.path.join(cwd, dev_filepath))
             self.mode = mode
             self.augment = False
@@ -40,10 +41,10 @@ class DMLoader(Dataset):
         self.use_elmo = config.dataset.use_elmo
         if self.use_elmo:
             print('\n USE ELMO \n')
-            model_dir = Path('/home/iliask/PycharmProjects/MScThesis/uniref50_v2')
-            weights = model_dir / 'weights.hdf5'
-            options = model_dir / 'options.json'
-            self.embedder = ElmoEmbedder(options, weights, cuda_device=-1)
+            # model_dir = Path('/config/uniref50_v2')
+            # weights = model_dir / 'weights.hdf5'
+            # options = model_dir / 'options.json'
+            # self.embedder = ElmoEmbedder(options, weights, cuda_device=-1)
             if self.ssl:
                 print('\n SELF-SUPERVISED\n')
             else:
@@ -77,8 +78,8 @@ class DMLoader(Dataset):
             x = [self.w2i[amino] for amino in self.proteins[index]]  # [left:right]
             if self.use_elmo:
                 x = self.proteins[index]
-                #print(seq)
-                #x =  torch.FloatTensor(self.embedder.embed_sentence(list(seq))).sum(dim=0).cpu()
+                # print(seq)
+                # x =  torch.FloatTensor(self.embedder.embed_sentence(list(seq))).sum(dim=0).cpu()
             else:
                 x = torch.LongTensor(x)
             y = [int(i) for i in self.annotations[index]]  # [left:right]
@@ -104,7 +105,7 @@ class DMLoader(Dataset):
             x = torch.LongTensor(x)
         y = torch.LongTensor([int(i) for i in self.annotations[index]])  # .unsqueeze(-1)
         # print(x.shape,y.shape)
-        #assert x.shape == y.shape, print(self.names[index])
+        # assert x.shape == y.shape, print(self.names[index])
         y1 = torch.nn.functional.one_hot(y, num_classes=2)
         # x = torch.nn.functional.one_hot(x, num_classes=20).float()
         # print(y,y1)
@@ -130,7 +131,8 @@ class DMLoader(Dataset):
 #                 os.path.join(cwd, dev_filepath))
 #             self.mode = mode
 #
-#         self.classes = ['A', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'K', 'L', 'M', 'N', 'P', 'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X', 'Y']
+#         self.classes = ['A', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'K', 'L', 'M', 'N', 'P', 'Q', 'R', 'S', 'T', 'U',
+#         'V', 'W', 'X', 'Y']
 #         indixes = list(range(len(self.classes)))
 #         print(self.classes)
 #         self.w2i = dict(zip(self.classes,indixes))
@@ -162,7 +164,6 @@ class DMLoader(Dataset):
 #
 
 
-
 class MXD494Loader(Dataset):
     def __init__(self, config, mode):
         train_prefix = "train"
@@ -184,17 +185,18 @@ class MXD494Loader(Dataset):
                 os.path.join(cwd, dev_filepath))
             self.mode = mode
             self.augment = False
-        self.classes = ['A', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'K', 'L', 'M', 'N', 'P', 'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X', 'Y']
+        self.classes = ['A', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'K', 'L', 'M', 'N', 'P', 'Q', 'R', 'S', 'T', 'U', 'V',
+                        'W', 'X', 'Y']
 
         indixes = list(range(len(self.classes)))
         print(self.classes)
-        self.w2i = dict(zip(self.classes,indixes))
-        #print('classes\n\n', self.classes,len(self.classes))
+        self.w2i = dict(zip(self.classes, indixes))
+        # print('classes\n\n', self.classes,len(self.classes))
         self.ssl = config.dataset.type == 'SSL'
         self.use_elmo = config.dataset.use_elmo
-        if    self.use_elmo:
+        if self.use_elmo:
             print('\n USE ELMO \n')
-            model_dir = Path('/home/iliask/PycharmProjects/MScThesis/uniref50_v2')
+            model_dir = Path('/config/uniref50_v2')
             weights = model_dir / 'weights.hdf5'
             options = model_dir / 'options.json'
             embedder = ElmoEmbedder(options, weights, cuda_device=0)
@@ -226,41 +228,41 @@ class MXD494Loader(Dataset):
         if self.mode == 'train' and self.augment:
 
             L = len(self.proteins[index])
-            left = randint(0, L//4)
-            right = randint(L//2, L)
-            x = [self.w2i[amino] for amino in self.proteins[index]]#[left:right]
+            left = randint(0, L // 4)
+            right = randint(L // 2, L)
+            x = [self.w2i[amino] for amino in self.proteins[index]]  # [left:right]
             if self.use_elmo:
                 seq = self.proteins[index]
                 x = embedding = torch.FloatTensor(embedder.embed_sentence(list(seq))).sum(dim=0)
             else:
                 x = torch.LongTensor(x)
-            y = [int(i) for i in self.annotations[index]]#[left:right]
-            #x = torch.LongTensor(x)  # .unsqueeze(-1)
+            y = [int(i) for i in self.annotations[index]]  # [left:right]
+            # x = torch.LongTensor(x)  # .unsqueeze(-1)
             y = torch.LongTensor(y)  # .unsqueeze(-1)
-           # x = torch.nn.functional.one_hot(x, num_classes=20).float()
+            # x = torch.nn.functional.one_hot(x, num_classes=20).float()
 
-            #print(y.shape, y1.shape)
-            #print(x[:5] , y1[:5])
+            # print(y.shape, y1.shape)
+            # print(x[:5] , y1[:5])
             # print(x,y)
             if self.ssl:
-                return x,x
-            return x, y#1
+                return x, x
+            return x, y  # 1
 
         x = [self.w2i[amino] for amino in self.proteins[index]]
         y = [int(i) for i in self.annotations[index]]
-       # print(len(x),len(y),len(self.proteins[index]),len(self.annotations[index]))
+        # print(len(x),len(y),len(self.proteins[index]),len(self.annotations[index]))
         if self.use_elmo:
             seq = self.proteins[index]
             x = embedding = torch.FloatTensor(embedder.embed_sentence(list(seq))).sum(dim=0)
         else:
             x = torch.LongTensor(x)
-        y = torch.LongTensor([int(i) for i in self.annotations[index]])#.unsqueeze(-1)
-        #print(x.shape,y.shape)
-        assert x.shape==y.shape,print(self.names[index])
-        y1 = torch.nn.functional.one_hot(y,num_classes=2)
-        #x = torch.nn.functional.one_hot(x, num_classes=20).float()
-        #print(y,y1)
-        #print(x,y)
+        y = torch.LongTensor([int(i) for i in self.annotations[index]])  # .unsqueeze(-1)
+        # print(x.shape,y.shape)
+        assert x.shape == y.shape, print(self.names[index])
+        y1 = torch.nn.functional.one_hot(y, num_classes=2)
+        # x = torch.nn.functional.one_hot(x, num_classes=20).float()
+        # print(y,y1)
+        # print(x,y)
         if self.ssl:
             return x, x
-        return x, y#1
+        return x, y  # 1

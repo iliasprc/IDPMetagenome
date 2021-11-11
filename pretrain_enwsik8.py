@@ -95,12 +95,12 @@ def decode_tokens(tokens):
 def select_model(args, name, n_classes, pretrained=False):
     dim = args.emsize
     if name == 'idptransformer':
-        from idp_programs.dnn.transformer import IDPTransformer
+        from models.transformer import IDPTransformer
         return IDPTransformer(dim=dim, blocks=args.depth, heads=args.nhead, dim_head=None, dim_linear_block=dim * 2,
                               dropout=0.1,
                               prenorm=False, classes=n_classes)
     elif name == 'idpcct':
-        from idp_programs.dnn.transformer import IDP_cct
+        from models.transformer import IDP_cct
         return IDP_cct(dim=dim, blocks=args.depth, heads=args.nhead, dim_head=None, dim_linear_block=dim * 2,
                        dropout=0.2,
                        prenorm=False, classes=n_classes)
@@ -148,7 +148,7 @@ print(len(train_loader))
 # optimizer
 
 optim = torch.optim.Adam(model.parameters(), lr=LEARNING_RATE)
-from idp_programs.dnn.utils import Cosine_LR_Scheduler
+from models.utils import Cosine_LR_Scheduler
 scheduler = Cosine_LR_Scheduler(
         optim,
         warmup_epochs=3, warmup_lr=0,

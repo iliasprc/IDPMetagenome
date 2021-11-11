@@ -1,0 +1,299 @@
+************************
+* README (version 2.0) * 
+************************
+ 
+
+ fLPS version 2.0 annotates compositional biases in biological sequences 
+(protein or DNA). These biases are SINGLE residue, MULTIPLE residue or WHOLE sequence. 
+
+ There are 64-bit executable for MacOSX (Mojave 10.14.6) in the ./bin directory. 
+Also, there are 64-bit ones for linux (GNU Linux Gentoo Base System release 2.6). 
+
+ The source files are in the ./src directory. 
+To compile all the programs, please use the 'make' command in the src directory.  
+
+ To run: 
+	./fLPS2  ...options... ...input_database_file... > ...output_file... 
+
+Similarly, for the accessory programs (CompositionMaker and DomainFilter, see below). 
+The input and output formats for these accessory programs are explained below. 
+
+The help option for all programs is '-h'. 
+
+
+RECOMMENDED PARAMETERS
+====================== 
+
+IT IS RECOMMENDED TO USE THE DEFAULT VALUES, TO FIND MORE EXTENDED BIASED REGIONS MADE FROM A 
+COMBINATION OF MILD BIASES FOR SEVERAL RESIDUES, AS WELL AS SHORTER 'LOW-COMPLEXITY' TRACTS.
+THESE VALUES WILL, HOWEVER, OFTEN MERGE SHORT CONSECUTIVE LOW-COMPLEXITY REGIONS INTO ONE LONG 
+BIASED REGION.
+
+TO FOCUS ON SHORT LOW-COMPLEXITY REGION ANNOTATION OR MASKING, THE FOLLOWING OPTIONS ARE APPROPRIATE: 
+      ./fLPS2 -t1e-5 -m5 -M25 ...input_file... > ...output_file... 
+
+
+Options 
+======= 
+ The options are: 
+	-h	To run and get help. This also shows some examples. 
+
+	-v	For verbose runtime info. 
+
+	-d	To include optional header and footer information in output files. 
+
+	-s	calculate single-residue biases ONLY. 
+
+	-n	specifies DNA sequence(s) (the default is amino-acid sequences). 
+
+	-o	To choose the output format. This can be '-o short' (default), 
+		'-o long', '-o masked' or '-o oneline'. 
+
+	-m	To set the minimum window size. Must be in the range 5 to 1000. 
+		Default is 15. 
+
+	-M	To set the maximum window size. Must be in the range 5 to 1000, 
+		and greater than minimum window size. Default is 500. 
+
+	-t	The binomial p-value threshold for output (can be either decimal or exponential). 
+		Can be set lower than the default (1e-03 for default -z option). 
+		Can be <=1e-02 if '-z medium' is specified, and <=1e-01 if '-z thorough' (see below). 
+
+	-r	inputs restriction list of amino acids for bias calculation. 
+
+	-k	does not consider un-known residues (Xs for amino acids and Ns for nucleotides). 
+              (These are still included in calculations of total residue amounts.) 
+  
+	-O	...FILENAME_PREFIX... allows for output to be sent to a unique file prefixed with 
+		FILENAME_PREFIX.
+		The parameters that are specified are included in the generated filename.  
+
+	-D	indicates to read list of filtered domains from the name lines of the 
+		FASTA-format sequence input file; this is only allowed for output format options 
+		'-o short' and '-o long'; the domains should be in numeric order and not overlap. 
+		If '-D excised', then the domains have been excised from the sequences; 
+		if '-D masked', then the domains have been masked in the sequences. 
+
+	-z   specifies the baseline precision of the bias calculation; there are three possibilities: 
+		'fast' (the default, which specifies a baseline P-value threshold of 0.001, 
+                   and a windowing step size of 3) 
+		'medium' (the default, which specifies a baseline P-value threshold of 0.01, 
+                     and a windowing step size of 2) 
+		'thorough' (the default, which specifies a baseline P-value threshold of 0.1, 
+                       and a windowing step size of 1) 
+
+	-c	For specifying the name of an input background composition 
+		file. The file ./examples/input/YEAST.fasta.COMPOSITION is an 
+		example. To make such a file from a database: 
+			./CompositionMaker (-n) ...input_database_file... 
+                This program produces a composition file named after the input file, but with 
+		the suffix .COMPOSITION appended. The option -n specifies DNA sequence. 
+
+		There are two special values:
+		 '-c domains': for background amino-acid frequencies calculated 
+		 from a non-redundant set of protein domains (40% threshold for 
+		 redundancy) from the SCOP database. This is the DEFAULT. 
+		 '-c equal': for equal amino-acid frequencies as background 
+		 (=0.05). 
+
+
+Input and Output Files
+====================== 
+ Input files should be in FASTA format. Example input and output are in
+ ./examples. 
+
+ fLPS outputs information for LPSs (Low Probability Subsequences) for biases 
+from a single residue or from multiple residues. Also, fLPS calculates biases 
+for the WHOLE sequence. Very long sequences are curtailed to 100,000 residues 
+length.   
+
+ The 'short' output format (tab-delimited columns) is: 
+	SEQUENCE_NAME        Name of the sequence in the database 
+	SEQUENCE_LENGTH      Length of sequence in residues 
+	BIAS_TYPE            'SINGLE' for single-residue, 'MULTIPLE' for multiple-residue or 'WHOLE' for 
+                            whole-sequence. 	
+	LPS#                 Counter for the LPS.
+	START                Start residue position. 	
+	END                  End residue position.
+	RESIDUE_COUNT        Number of bias residues in the LPS. 
+	BINOMIALP            Binomial P-value for the LPS.		
+	SIGNATURE            List in curly brackets of the bias residues in 
+                            order of precedence. 
+	CLASS                The bias class. For proteins, the class labels that encompasses 
+                            the smallest subset of residues corresponding to the bias signature 
+                            is specified. These class labels are (in order of size):
+                              amide:        glutamine, asparagine 
+                              glx:          glutamine, glutamate 
+                              asx:          asparagine, aspartate 
+                              tiny_polar:   serine, cysteine
+                              tiny_hydrophobic: alanine, cysteine, glycine 
+                              polar_aromatic: tyrosine, tryptophan, histidine
+                              negative:	  glutamate, aspartate
+                              small_polar:  cysteine, aspartate, asparagine, serine, threonine 
+                              positive:     lysine, arginine, histidine
+                              small_hydrophobic: alanine, cysteine, glycine, threonine, valine 
+                              aliphatic:    isoleucine, leucine, valine
+                              aromatic:	  tyrosine, tryptophan, phenylalanine, histidine 
+                              charged:      glutamate, aspartate, histidine, arginine, lysine 
+                              tiny:         alanine, cysteine, glycine, serine 
+                              small:        alanine, cysteine, glycine, serine, aspartate, 
+                                            asparagine, proline, serine, threonine, valine 
+                              polar:        tyrosine, tryptophan, threonine, serine, arginine, glutamine, 
+                                            asparagine, lysine, histidine, glutamate, aspartate, cysteine 
+                              hydrophobic:  alanine, cysteine, phenylalanine, glycine, histidine, 
+                                            isoleucine, lysine, leucine, methionine, threonine, valine, 
+                                            tryptophan, tyrosine
+
+			       For DNA the bias class labels are: 
+                            {A}|{T}, {G}|{C}, {AT}, {GC}, {AC}|{GT}, {AG}|{CT}, {ATC}|{ATG} and {ACG}|{CGT}. 
+
+	ENRICHMENT           This is the proportion of the LPS made from biasing residues, divided by the 
+                            total expected frequencies of the biasing residues (taken from the background 
+                            composition). 
+
+				 
+ The 'long' output format is the short output format, plus the following
+tab-delimited columns: 
+	CORE_START        Start of a core region in the LPS that has the highest
+                         concentration of bias residues. Core length is set to 15,
+                         or to the minimum window size if it is smaller. 
+	CORE_END          End of core region. 
+	CORE_SEQUENCE     Sequence of core region. 
+	NTERM_CONTEXT     N-terminal sequence context for the LPS sequence tract. 
+                         This is up to 10 residues in length. Ends with '|' character.  
+	LPS_SEQUENCE      Sequence tract of the LPS. 
+	CTERM_CONTEXT     C-terminal sequence context for the LPS sequence tract. 
+                         This is up to 10 residues in length. Starts with '|' character. 
+
+ Optional header information that details the names of the columns, is displayed 
+in output files by using the '-d' option. If '-o long' is specified, the '-d' option 
+also causes display of footer information for each input sequence that summarizes the sequence length, 
+the number of single-residue compositionally biased domains (#SINGLE), the number 
+of multiple-residue compositionally biased domains (#MULTIPLE), and the number 
+of whole-sequence compositional biases (#WHOLE). 
+
+ The 'masked' output format is the FASTA format input file, but with the 
+bias residues in LPSs masked by Xs (for protein), and Ns (for DNA). Only the SINGLE and 
+MULTIPLE biases are masked. In the '>' name line, the LPSs are listed as: 
+ START,END,{SIGNATURE},BINOMIALP. 
+The default P-value threshold for masking can be set to any value ≤1e-05. 
+ 
+The 'oneline' output format is a single-line summary for each sequence of the SINGLE 
+and MULTIPLE biased regions detected. It is SEQUENCE_NAME and SEQUENCE_LENGTH followed by 
+the LPSs listed as: START,END,{SIGNATURE},BINOMIALP. 
+
+
+Further Examples
+================  
+
+./fLPS2 -vm 10 -M 1000 -c human.fasta.COMPOSITION human.fasta > ... 
+
+   This will output verbose runtime info, use a minimum window size =10, 
+   a maximum window size =1000, and background composition from the file 
+   human.fasta.COMPOSITION. The input is human.fasta. The output will be 
+   the short default. A larger M value enables detection of long multiple-residue 
+   mildly biased regions that are missed with a small M. However, short low-complexity
+   tracts may be merged into a longer biased region when a larger M is used. 
+
+./fLPS2 -st 1e-12 -rFYW -c equal -o long human.fasta > ... 
+
+   This will use a p-value threshold of 1e-12 and assume equal amino-acid 
+   frequencies as background. The output will be long format. Only single-residue 
+   biases will be output. The calculations are restricted to the aromatic residues
+   F, Y and W.  
+
+./fLPS2 -t1e-5 -m10 -M25 -o masked human.fasta > ... 
+ 
+   This will use a p-value threshold of 1e-5 and use the default 'domains'
+   amino-acid frequencies, with a minimum window size =10, and a maximum 
+   window size =25, with masked sequence output. These parameter values 
+   are suitable for annotating/masking short low-complexity sequences. 
+
+./fLPS2 -z thorough -O human -D excised -o long human.fasta > ... 
+
+   Here the file human.fasta will be analyzed using the most thorough baseline 
+   precision. The output will be directed to an output file prefixed 'human', and 
+   listing all of the command-line options. The program will read domains from the 
+   FASTA-format '>' name line, assuming that they are excised domains. 
+
+./fLPS2 -n -t0.000001 human.promoters.fasta > ... 
+
+   The input is analyzed as DNA sequence with a binomial P-value threshold 
+   of 0.000001 applied to the output. 
+
+
+Accessory programs
+================== 
+    There are two accessory programs included in the package: CompositionMaker 
+and DomainFilter. These are compiled when 'make' is invoked. 
+
+
+CompositionMaker: 
+----------------- 
+
+    CompositionMaker can be used to make a composition file for the -c option, 
+as shown above. 
+    The INPUT file is a FASTA-format text file of sequences. 
+    The OUTPUT file is in the standard composition file format for fLPS, with two columns:
+residue types, and corresponding residue frequencies. 
+    The OUTPUT file is named from the input file, but with the suffix 
+'.COMPOSITION'. 
+
+    The options for CompositionMaker are: 
+ -h   prints help
+ -v   prints runtime information
+ -s   use a sample of the file (applies only to very large files greater than the current 
+      size of the TrEMBL database, 2021);
+      the file size is sampled to reduce it to the maximum allowed for this option;
+      by default, the complete file is used.
+ -n   specifies DNA sequence (default is protein)
+
+
+DomainFilter: 
+------------- 
+
+    DomainFilter can be used to filter a database of sequences for domains. These 
+can either be excised from the sequences or masked (with Xs for protein and Ns for DNA). 
+
+    The INPUT file is the standard FASTA-format file, except that on the '>' name line, after
+the name, there are specified the number of domains followed by a list of domains, e.g.:
+    >sequence_name  3 50-75 domain1 104-184 domain2 211-233 domain3 
+This specifies three domains from residues 50 to 75, 104 to 184 and 211 to 233. The domain 
+names are 'domain1', 'domain2' and 'domain3' respectively. 
+
+    The domains should be in numerical order and not overlap each other. 
+
+    The OUTPUT file is a FASTA-format file. The domains on the '>' name line in the 
+OUTPUT file have the same format for the '-D masked' option. 
+ For the '-D excised' option, the output format is according to the following example: 
+    >sequence_name  2 45,38 domA 120,54 domB 
+Here, two domains have been excised from the sequence, namely domA and domB. In the shorter 
+output sequence, the position immediately after the excision of domA is 45 and 38 residues 
+have been excised. For domB, the position immediately after its excision is residue 120 
+and domB was 54 residues long.  
+    All fields in the '>' name line are separated by whitespace. 
+    The OUTPUT file from DomainFilter can be used as input for fLPS2. 
+The options for DomainFilter are: 
+ -h   prints help
+ -v   prints runtime information
+ -d   prints header information in the output files
+ -D   output specified with: 'excised' (default), or 'masked'
+ -O   ...FILENAME_PREFIX... allows for output to be sent to a unique file prefixed with FILENAME_PREFIX
+ -n   specifies DNA sequence (only necessary for the '-o masked' option, the default is protein)
+
+
+Further information can be found at: 
+------------------------------------ 
+CITATIONS:
+ *  Harrison, PM. 'fLPS: fast discovery of compositional biases for the protein universe', (2017) 
+BMC Bioinformatics, 18: 476. 
+ *  Harrison, PM. 'fLPS 2.0: rapid annotation of compositional biases in biological sequences', (2021) 
+submitted.
+
+URLs:
+ * http://biology.mcgill.ca/faculty/harrison/flps.html 
+ * https://github.com/pmharrison/flps 
+
+
+PMH. July 2021. 
+

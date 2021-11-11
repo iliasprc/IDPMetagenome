@@ -9,7 +9,6 @@ from torch.utils.tensorboard import SummaryWriter
 from dataloaders.dataset import loaders
 from trainer.logger import Logger
 from trainer.util import reproducibility, select_model, select_optimizer, load_checkpoint, get_arguments
-from idp_programs.dnn.transformer import TextTokenizer
 
 
 def main():

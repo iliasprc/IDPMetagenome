@@ -1,11 +1,8 @@
 import os
 
-import numpy as np
 import torch
-import sklearn
 from trainer.basetrainer import BaseTrainer
 from trainer.util import MetricTracker, write_csv, save_model, make_dirs
-from trainer.metrics import *
 from idp_programs.utils import *
 class SSLTrainer(BaseTrainer):
     """
@@ -38,7 +35,7 @@ class SSLTrainer(BaseTrainer):
         self.num_classes = len(class_dict)
         self.optimizer = optimizer
         self.gradient_accumulation = config.gradient_accumulation
-        from idp_programs.dnn.utils import Cosine_LR_Scheduler
+        from models.utils import Cosine_LR_Scheduler
         self.scheduler = Cosine_LR_Scheduler(
             self.optimizer,
             warmup_epochs=20, warmup_lr=0,
