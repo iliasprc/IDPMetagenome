@@ -1,16 +1,17 @@
 import datetime
 import os
 import shutil
-from trainer.util import reproducibility, select_model, select_optimizer, load_checkpoint, get_arguments
+
 import esm
-import torch.nn as nn
 import torch
+import torch.nn as nn
 from omegaconf import OmegaConf
 from torch.utils.tensorboard import SummaryWriter
 
 from dataloaders.dataset import loaders
-from models.fair_esm_model import IDP_esm1_t6_43M_UR50S
+from models.fair_esm_model import IDP_esm1_t6_43M_UR50S, IDP_esm1_t12_85M_UR50S
 from trainer.logger import Logger
+from trainer.util import load_checkpoint
 from trainer.util import reproducibility, select_optimizer, get_arguments
 
 #
@@ -93,7 +94,7 @@ def main():
     if (config.load):
 
         pth_file, _ = load_checkpoint(config.pretrained_cpkt, model, strict=True, load_seperate_layers=False)
-        model.fc = nn.Sequential(nn.LayerNorm(768),nn.Dropout(0.5), nn.Linear(768, 2))
+        model.fc = nn.Sequential(nn.LayerNorm(768), nn.Dropout(0.5), nn.Linear(768, 2))
     if (config.cuda and use_cuda):
         if torch.cuda.device_count() > 1:
             log.info(f"Let's use {torch.cuda.device_count()} GPUs!")

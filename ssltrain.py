@@ -64,8 +64,8 @@ def main():
     log.info(f"{model}")
     print(n_classes)
     if (config.load):
-        model.head = torch.nn.Linear(128, 256)
-        model.embed = nn.Embedding(256, 128)
+        # model.head = torch.nn.Linear(128, 256)
+        # model.embed = nn.Embedding(256, 128)
         # dim=256
         # model.embed = nn.Sequential(nn.Embedding(256, dim), TextTokenizer(word_embedding_dim=dim,
         #                                                                 embedding_dim=dim,

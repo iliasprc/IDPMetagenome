@@ -1,11 +1,13 @@
 import os
-from allennlp.commands.elmo import ElmoEmbedder
-from pathlib import Path
+
 import torch
-from trainer.basetrainer import BaseTrainer
-from trainer.util import MetricTracker, write_csv, save_model, make_dirs
+
 from idp_programs.utils import *
 from models.utils import Cosine_LR_Scheduler
+from trainer.basetrainer import BaseTrainer
+from trainer.util import MetricTracker, write_csv, save_model, make_dirs
+
+
 class Trainer(BaseTrainer):
     """
     Trainer class
@@ -38,9 +40,10 @@ class Trainer(BaseTrainer):
         self.optimizer = optimizer
 
         self.mnt_best = np.inf
-        #if self.config.dataset.type == 'multi_target':
+        # if self.config.dataset.type == 'multi_target':
         self.criterion = torch.nn.BCEWithLogitsLoss(reduction='mean')
-        self.criterion = torch.nn.CrossEntropyLoss(reduction='mean')
+        self.criterion = torch.nn.CrossEntropyLoss(reduction='mean',
+                                                   weight=torch.tensor([1.0, 2.0], dtype=torch.float32).to(self.device))
 
         self.checkpoint_dir = checkpoint_dir
         self.gradient_accumulation = config.gradient_accumulation
@@ -54,18 +57,18 @@ class Trainer(BaseTrainer):
         self.scheduler = Cosine_LR_Scheduler(
             self.optimizer,
             warmup_epochs=10, warmup_lr=0,
-            num_epochs=self.epochs, base_lr=  self.config['model']['optimizer']['lr'], final_lr=5e-5,
+            num_epochs=self.epochs + 2, base_lr=self.config['model']['optimizer']['lr'], final_lr=5e-5,
             iter_per_epoch=len(self.train_data_loader) // self.gradient_accumulation,
             constant_predictor_lr=True  # see the end of section 4.2 predictor
         )
 
         self.confusion_matrix = torch.zeros(2, 2)
         self.use_elmo = config.dataset.use_elmo
-        if self.use_elmo:
-            model_dir = Path('/config/uniref50_v2')
-            weights = model_dir / 'weights.hdf5'
-            options = model_dir / 'options.json'
-            self.embedder = ElmoEmbedder(options, weights, cuda_device=0)
+        # if self.use_elmo:
+        #     model_dir = Path('/config/uniref50_v2')
+        #     weights = model_dir / 'weights.hdf5'
+        #     options = model_dir / 'options.json'
+        #     self.embedder = ElmoEmbedder(options, weights, cuda_device=0)
 
     def _train_epoch(self, epoch):
         """
@@ -83,16 +86,16 @@ class Trainer(BaseTrainer):
 
         for batch_idx, (data, target) in enumerate(self.train_data_loader):
             if self.use_elmo:
-               # print(data)
+                # print(data)
                 data = torch.FloatTensor(self.embedder.embed_sentence(list(data[0]))).sum(dim=0).unsqueeze(0)
-           # print(data.shape)
+            # print(data.shape)
             data = data.to(self.device)
 
             target = target.to(self.device)
 
             output = self.model(data)
-            #print(target.shape,output.shape)
-            loss = self.criterion(output.squeeze(0), target.squeeze(0) )
+            # print(target.shape,output.shape)
+            loss = self.criterion(output.squeeze(0), target.squeeze(0))
             loss = loss.mean()
 
             (loss / gradient_accumulation).backward()
@@ -102,17 +105,16 @@ class Trainer(BaseTrainer):
                 self.optimizer.step()  # Now we can do an optimizer step
                 self.optimizer.zero_grad()  # Reset gradients tensors
 
-
-            output = torch.softmax(output,dim=-1).squeeze()
-            _,output = torch.max(output, 1)
-            #print(output)
-            #print(output.shape)
+            output = torch.softmax(output, dim=-1).squeeze()
+            _, output = torch.max(output, 1)
+            # print(output)
+            # print(output.shape)
             ol = output.detach().cpu().numpy().tolist()
-            #print(ol)
-            yhat_raw+=output.detach().cpu().numpy().tolist()
+            # print(ol)
+            yhat_raw += output.detach().cpu().numpy().tolist()
             output = output.detach().cpu().numpy()
-            y+=target.squeeze().detach().cpu().numpy().tolist()
-            yhat+=output.tolist()
+            y += target.squeeze().detach().cpu().numpy().tolist()
+            yhat += output.tolist()
             writer_step = (epoch - 1) * self.len_epoch + batch_idx
 
             self.train_metrics.update(key='loss', value=loss.item(), n=1, writer_step=writer_step)
@@ -126,10 +128,9 @@ class Trainer(BaseTrainer):
         pred = np.array(yhat)
         target = np.array(y)
 
-
-        metrics = metric(yhat , y)
+        metrics = metric(yhat, y)
         self.logger.info(metrics)
-       # print_metrics(metrics, self.logger)
+        # print_metrics(metrics, self.logger)
         self._progress(batch_idx, epoch, metrics=self.train_metrics, mode='train', print_summary=True)
 
     def _valid_epoch(self, epoch, mode, loader):
@@ -154,16 +155,15 @@ class Trainer(BaseTrainer):
                 # print(data.shape)
                 data = data.to(self.device)
 
-
                 target = target.to(self.device)
 
                 output = self.model(data)
-               # print(target.shape,output.shape)
-                loss = self.criterion(output.squeeze(0), target.squeeze(0) )
+                # print(target.shape,output.shape)
+                loss = self.criterion(output.squeeze(0), target.squeeze(0))
                 loss = loss.mean()
                 writer_step = (epoch - 1) * len(loader) + batch_idx
 
-               # prediction = torch.max(output, 1)
+                # prediction = torch.max(output, 1)
 
                 output = torch.softmax(output, dim=-1).squeeze()
                 _, output = torch.max(output, -1)
@@ -171,15 +171,14 @@ class Trainer(BaseTrainer):
                 ol = output.detach().cpu().numpy().tolist()
                 # print(ol)
                 yhat_raw += output.detach().cpu().numpy().tolist()
-                output =  output.detach().cpu().numpy()
+                output = output.detach().cpu().numpy()
                 y += target.squeeze().detach().cpu().numpy().tolist()
                 yhat += output.tolist()
                 self.valid_metrics.update(key='loss', value=loss.item(), n=1, writer_step=writer_step)
-        #pred = np.array(yhat)
-        #target = np.array(y)
+        # pred = np.array(yhat)
+        # target = np.array(y)
 
-
-        metrics = metric(yhat , y)
+        metrics = metric(yhat, y)
         self.logger.info(metrics)
         self._progress(batch_idx, epoch, metrics=self.valid_metrics, mode=mode, print_summary=True)
         k = 5
@@ -201,7 +200,7 @@ class Trainer(BaseTrainer):
             make_dirs(self.checkpoint_dir)
 
             self.checkpointer(epoch, validation_loss)
-            #self.lr_scheduler.step(validation_loss)
+            # self.lr_scheduler.step(validation_loss)
             if self.do_test:
                 self.logger.info(f"{'!' * 10}    TEST  , {'!' * 10}")
                 self._valid_epoch(epoch, 'test', self.test_data_loader)

@@ -1,9 +1,10 @@
 import numpy as np
 import torch
+import torch.nn.functional as F
 from einops import rearrange
 from einops import repeat
 from torch import nn
-import torch.nn.functional as F
+
 from models.utils import weights_init
 
 
@@ -23,7 +24,7 @@ class TextTokenizer(nn.Module):
 
     def forward(self, x, mask=None):
         x = x.unsqueeze(1)
-        #print(x.shape)
+        # print(x.shape)
         x = self.conv_layers(x)
         x = x.transpose(1, 3).squeeze(1)
 
@@ -164,12 +165,6 @@ def expand_to_batch(tensor, desired_size):
     return repeat(tensor, 'b ... -> (b tile) ...', tile=tile)
 
 
-
-
-
-
-
-
 def drop_path(x, drop_prob: float = 0., training: bool = False):
     """
     Obtained from: github.com:rwightman/pytorch-image-models
@@ -203,6 +198,7 @@ class DropPath(nn.Module):
     def forward(self, x):
         return drop_path(x, self.drop_prob, self.training)
 
+
 class Attention(nn.Module):
     """
     Obtained from timm: github.com:rwightman/pytorch-image-models
@@ -232,6 +228,8 @@ class Attention(nn.Module):
         x = self.proj(x)
         x = self.proj_drop(x)
         return x
+
+
 class TransformerEncoderLayer(nn.Module):
     """
     Inspired by torch.nn.TransformerEncoderLayer and timm.

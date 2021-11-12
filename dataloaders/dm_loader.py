@@ -1,9 +1,7 @@
 import os
-from pathlib import Path
 from random import randint
 
 import torch
-from allennlp.commands.elmo import ElmoEmbedder
 from torch.utils.data import Dataset
 
 from .utils import read_data_
@@ -258,7 +256,7 @@ class MXD494Loader(Dataset):
             x = torch.LongTensor(x)
         y = torch.LongTensor([int(i) for i in self.annotations[index]])  # .unsqueeze(-1)
         # print(x.shape,y.shape)
-#        assert x.shape == y.shape, print(self.names[index])
+        #        assert x.shape == y.shape, print(self.names[index])
         y1 = torch.nn.functional.one_hot(y, num_classes=2)
         # x = torch.nn.functional.one_hot(x, num_classes=20).float()
         # print(y,y1)

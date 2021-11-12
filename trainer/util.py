@@ -511,7 +511,7 @@ def select_model(config, n_classes, pretrained=False):
                               prenorm=False, classes=n_classes)
     elif config.model.name == 'idpcct':
         from models.transformer import IDP_cct
-        return IDP_cct(dim=config.dim, blocks=3, heads=4, dim_head=None, dim_linear_block=config.dim * 2, dropout=0.2,
+        return IDP_cct(dim=config.dim, blocks=config.layers, heads=config.heads, dim_head=None, dim_linear_block=config.dim  , dropout=0.2,
                        prenorm=False, classes=n_classes)
     elif config.model.name == 'idprnn':
         from models import IDPrnn

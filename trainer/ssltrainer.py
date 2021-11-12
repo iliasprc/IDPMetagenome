@@ -1,9 +1,12 @@
 import os
 
 import torch
+
+from idp_programs.utils import *
 from trainer.basetrainer import BaseTrainer
 from trainer.util import MetricTracker, write_csv, save_model, make_dirs
-from idp_programs.utils import *
+
+
 class SSLTrainer(BaseTrainer):
     """
     Trainer class
@@ -12,8 +15,8 @@ class SSLTrainer(BaseTrainer):
     def __init__(self, config, model, optimizer, data_loader, writer, checkpoint_dir, logger, class_dict,
                  valid_data_loader=None, test_data_loader=None, lr_scheduler=None, metric_ftns=None):
         super(SSLTrainer, self).__init__(config, data_loader, writer, checkpoint_dir, logger,
-                                      valid_data_loader=valid_data_loader,
-                                      test_data_loader=test_data_loader, metric_ftns=metric_ftns)
+                                         valid_data_loader=valid_data_loader,
+                                         test_data_loader=test_data_loader, metric_ftns=metric_ftns)
 
         if (self.config.cuda):
             use_cuda = torch.cuda.is_available()
@@ -39,12 +42,12 @@ class SSLTrainer(BaseTrainer):
         self.scheduler = Cosine_LR_Scheduler(
             self.optimizer,
             warmup_epochs=20, warmup_lr=0,
-            num_epochs=self.epochs, base_lr=  self.config['model']['optimizer']['lr'], final_lr=1e-5,
+            num_epochs=self.epochs + 2, base_lr=self.config['model']['optimizer']['lr'], final_lr=1e-5,
             iter_per_epoch=len(self.train_data_loader) // self.gradient_accumulation,
             constant_predictor_lr=True  # see the end of section 4.2 predictor
         )
         self.mnt_best = np.inf
-        #if self.config.dataset.type == 'multi_target':
+        # if self.config.dataset.type == 'multi_target':
         self.criterion = torch.nn.BCEWithLogitsLoss(reduction='mean')
         self.criterion = torch.nn.CrossEntropyLoss(reduction='mean')
 
@@ -72,11 +75,9 @@ class SSLTrainer(BaseTrainer):
 
         gradient_accumulation = self.gradient_accumulation
         for batch_idx, (data, target) in enumerate(self.train_data_loader):
-           # print(data.shape,data[:,0:-1].shape)
-            target = data[:,1:].to(self.device)
-            data = data[:,0:-1].to(self.device)
-
-
+            # print(data.shape,data[:,0:-1].shape)
+            target = data[:, 1:].to(self.device)
+            data = data[:, 0:-1].to(self.device)
 
             output = self.model(data)
             ###########################print(target.shape,output.shape)
@@ -92,7 +93,7 @@ class SSLTrainer(BaseTrainer):
 
             prediction = torch.max(output, 1)
 
-            #print(output.shape)
+            # print(output.shape)
             ol = output.detach().cpu().numpy().tolist()
 
             writer_step = (epoch - 1) * self.len_epoch + batch_idx
@@ -103,7 +104,7 @@ class SSLTrainer(BaseTrainer):
             #     self.confusion_matrix[t.long(), p.long()] += 1
             self._progress(batch_idx, epoch, metrics=self.train_metrics, mode='train')
 
-       # print_metrics(metrics, self.logger)
+        # print_metrics(metrics, self.logger)
         self._progress(batch_idx, epoch, metrics=self.train_metrics, mode='train', print_summary=True)
 
     def _valid_epoch(self, epoch, mode, loader):
@@ -130,11 +131,8 @@ class SSLTrainer(BaseTrainer):
                 prediction = torch.max(output, 1)
 
                 self.valid_metrics.update(key='loss', value=loss.item(), n=1, writer_step=writer_step)
-        #pred = np.array(yhat)
-        #target = np.array(y)
-
-
-
+        # pred = np.array(yhat)
+        # target = np.array(y)
 
         self._progress(batch_idx, epoch, metrics=self.valid_metrics, mode=mode, print_summary=True)
         k = 5
@@ -156,7 +154,7 @@ class SSLTrainer(BaseTrainer):
             make_dirs(self.checkpoint_dir)
 
             self.checkpointer(epoch, validation_loss)
-            #self.lr_scheduler.step(validation_loss)
+            # self.lr_scheduler.step(validation_loss)
             if self.do_test:
                 self.logger.info(f"{'!' * 10}    TEST  , {'!' * 10}")
                 self._valid_epoch(epoch, 'test', self.test_data_loader)

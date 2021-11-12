@@ -3,6 +3,7 @@ import os
 import shutil
 
 import torch
+import torch.nn as nn
 from omegaconf import OmegaConf
 from torch.utils.tensorboard import SummaryWriter
 
@@ -89,9 +90,10 @@ def main():
     if (config.load):
        # model.head = torch.nn.Linear(512, n_classes)
         model.embed = torch.nn.Embedding(22, 128)
-        model.head = torch.nn.Linear(128, 22)
+        #model.head = torch.nn.Linear(128, 22)
+        model.head = torch.nn.Sequential(nn.LayerNorm(128), nn.Linear(128, 22))
         pth_file, _ = load_checkpoint(config.pretrained_cpkt, model, strict=True, load_seperate_layers=False)
-        model.head = torch.nn.Linear(128, 2)
+        model.head = torch.nn.Sequential(nn.LayerNorm(128),nn.Linear(128, 2))
 
 
 

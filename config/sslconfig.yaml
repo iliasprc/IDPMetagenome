@@ -1,13 +1,15 @@
 trainer:
   cwd: /home/ # working directory
   logger: IDP # logger name
-  epochs: 1000 # number of training epochs
+  epochs: 201 # number of training epochs
   seed: 123 # randomness seed
   cuda: True # use nvidia gpu
   gpu: 0 # id of gpu
   save: True # save checkpoint
   batch_size: 1
   dim: 128
+  layers: 2
+  heads: 2
   load: False # load pretrained checkpoint
   gradient_accumulation: 128 # gradient accumulation steps
   pretrained_cpkt: /home/iliask/PycharmProjects/MScThesis/cpktsenwik8/30_10_2021_23.28.53/idpcct/bestmodel.pth
@@ -18,7 +20,7 @@ trainer:
     optimizer: # optimizer configuration
       type: Adam # optimizer type
       lr: 1e-4 # learning rate
-      weight_decay: 0.00001 # weight decay
+      weight_decay: 0.0001 # weight decay
     scheduler: # learning rate scheduler
       type: ReduceLRonPlateau # type of scheduler
       scheduler_factor: 0.8 # learning rate change ratio
