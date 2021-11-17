@@ -42,7 +42,7 @@ class ESMTrainer(BaseTrainer):
         self.mnt_best = np.inf
         # if self.config.dataset.type == 'multi_target':
        # self.criterion = torch.nn.BCEWithLogitsLoss(reduction='mean')
-        self.criterion = torch.nn.CrossEntropyLoss(reduction='mean')
+        self.criterion = torch.nn.CrossEntropyLoss(reduction='mean',label_smoothing=0.1,weight=torch.tensor([1.0,2.0]).to(self.device))
         #from trainer.util import FocalLoss
         #self.criterion = FocalLoss(gamma=2.0)
         self.checkpoint_dir = checkpoint_dir

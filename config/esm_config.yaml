@@ -1,7 +1,7 @@
 trainer:
   cwd: /home/ # working directory
   logger: IDP # logger name
-  epochs: 50 # number of training epochs
+  epochs: 100 # number of training epochs
   seed: 123 # randomness seed
   cuda: True # use nvidia gpu
   gpu: 0 # id of gpu
@@ -9,16 +9,16 @@ trainer:
   batch_size: 1
   dim: 256
   load: True # load pretrained checkpoint
-  gradient_accumulation: 256 # gradient accumulation steps
-  pretrained_cpkt: /home/iliask/PycharmProjects/MScThesis/checkpoints/dataset_DM/model_esm1_t12_85M_UR50S/date_08_11_2021_22.08.09/_model_best_checkpoint.pth.tar
+  gradient_accumulation: 128 # gradient accumulation steps
+  pretrained_cpkt: /home/papastrat/Desktop/MscThesis/checkpoints/dataset_DM/model_IDP_esm1_t12_85M_UR50S/date_13_11_2021_14.30.51/_model_best_checkpoint.pth.tar
   log_interval: 1000 # print statistics every log_interval
   model:
-    name: IDP_esm1_t6_43M_UR50S # model name  [mobilenet_v2,COVIDNet_small]
+    name: IDP_esm1_t12_85M_UR50S # model name  [mobilenet_v2,COVIDNet_small]
     pretrained: False
     optimizer: # optimizer configuration
       type: Adam # optimizer type
-      lr: 1e-5 # learning rate
-      weight_decay: 0.000001 # weight decay
+      lr: 1e-4 # learning rate
+      weight_decay: 0.1 # weight decay
     scheduler: # learning rate scheduler
       type: ReduceLRonPlateau # type of scheduler
       scheduler_factor: 0.8 # learning rate change ratio
@@ -40,7 +40,7 @@ trainer:
       num_workers: 2
   dataset:
     input_data: data_dir
-    name: MXD494 # dataset name
+    name: CAID2018 # dataset name
     type: bce # multi_target or clf
     use_elmo: True
     train:

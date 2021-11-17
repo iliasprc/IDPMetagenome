@@ -5,7 +5,7 @@ def has_numbers(inputString):
 def remove_blanks(path):
     with open(path, 'r') as f:
         data = f.read().splitlines()
-    with open('/home/iliask/PycharmProjects/MScThesis/scratch.txt', 'w') as f1:
+    with open('/home/papastrat/Desktop/MscThesis/s.txt', 'w') as f1:
         proteins = []
         names = []
         annotations = []
@@ -105,5 +105,5 @@ def read_data_(path):
 # #     y = torch.FloatTensor([int(k) for k in annotations[i]])
 # #     print(y)
 # #
-# #remove_blanks('/home/iliask/PycharmProjects/MScThesis/data/idp_seq_2_seq/disorder723/disorder723.txt')
+#remove_blanks('/home/papastrat/Desktop/MscThesis/data/idp_seq_2_seq/disorder723/retrain_sdr_disorder723.txt')
 # create_annot_fasta('/home/iliask/PycharmProjects/MScThesis/data/idp_seq_2_seq/validation/all_valid.txt')

@@ -1,21 +1,19 @@
 trainer:
   cwd: /home/ # working directory
   logger: IDP # logger name
-  epochs: 301 # number of training epochs
+  epochs: 1000 # number of training epochs
   seed: 123 # randomness seed
   cuda: True # use nvidia gpu
   gpu: 0 # id of gpu
   save: True # save checkpoint
   batch_size: 1
-  dim: 128
-  layers: 2
-  heads: 2
-  load: True # load pretrained checkpoint
-  gradient_accumulation: 64 # gradient accumulation steps
-  pretrained_cpkt: /home/iliask/PycharmProjects/MScThesis/checkpoints/SSL/dataset_DM/model_idpcct/date_11_11_2021_19.18.33/_model_best_checkpoint.pth.tar
+  dim: 256
+  load: False # load pretrained checkpoint
+  gradient_accumulation: 128 # gradient accumulation steps
+  pretrained_cpkt: /home/iliask/PycharmProjects/MScThesis/checkpoints/SSL/dataset_DM/model_idpcct/date_31_10_2021_10.58.06/_model_best_checkpoint.pth.tar
   log_interval: 1000 # print statistics every log_interval
   model:
-    name: idpcct # model name  [mobilenet_v2,COVIDNet_small]
+    name: idptransformer # model name  [mobilenet_v2,COVIDNet_small]
     pretrained: False
     optimizer: # optimizer configuration
       type: Adam # optimizer type
@@ -44,7 +42,7 @@ trainer:
     input_data: data_dir
     name: DM # dataset name
     type: bce # multi_target or clf
-    use_elmo: False
+    use_elmo: True
     train:
       augmentation: True # do augmentation to video
     val:
