@@ -329,7 +329,7 @@ class IDPTransformer(nn.Module):
     def __init__(self, config, dim, blocks=6, heads=8, dim_head=None, dim_linear_block=1024, dropout=0, prenorm=False,
                  classes=1):
         super().__init__()
-        self.embed = nn.Embedding(classes, dim)
+        self.embed = nn.Embedding(22, dim)
         self.use_elmo = config.dataset.use_elmo
         if self.use_elmo:
             self.embed = nn.Linear(1024, dim)

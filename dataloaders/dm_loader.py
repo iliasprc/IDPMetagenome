@@ -330,13 +330,13 @@ class MXD494Loader(Dataset):
             L = len(self.proteins[index])
             left = randint(0, L // 4)
             right = randint(L // 2, L)
-            x = [self.w2i[amino] for amino in self.proteins[index]][left:right]
+            x = [self.w2i[amino] for amino in self.proteins[index]]#[left:right]
             if self.use_elmo:
-                x = self.proteins[index][left:right]
+                x = self.proteins[index]#[left:right]
 
             else:
                 x = torch.LongTensor(x)
-            y = [int(i) for i in self.annotations[index]][left:right]
+            y = [int(i) for i in self.annotations[index]]#[left:right]
             # x = torch.LongTensor(x)  # .unsqueeze(-1)
             y = torch.LongTensor(y)  # .unsqueeze(-1)
             # x = torch.nn.functional.one_hot(x, num_classes=20).float()

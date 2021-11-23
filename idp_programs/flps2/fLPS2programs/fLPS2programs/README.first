@@ -107,12 +107,16 @@ from a single residue or from multiple residues. Also, fLPS calculates biases
 for the WHOLE sequence. Very long sequences are curtailed to 100,000 residues 
 length.   
 
+
+
+	SEQUENCE_NAME        SEQUENCE_LENGTH      BIAS_TYPE       LPS_count    START    END      RESIDUE_COUNT       BINOMIAL P-value   SIGNATURE   CLASS
+
  The 'short' output format (tab-delimited columns) is: 
 	SEQUENCE_NAME        Name of the sequence in the database 
 	SEQUENCE_LENGTH      Length of sequence in residues 
 	BIAS_TYPE            'SINGLE' for single-residue, 'MULTIPLE' for multiple-residue or 'WHOLE' for 
                             whole-sequence. 	
-	LPS#                 Counter for the LPS.
+	LPS_count                 Counter for the LPS.
 	START                Start residue position. 	
 	END                  End residue position.
 	RESIDUE_COUNT        Number of bias residues in the LPS. 

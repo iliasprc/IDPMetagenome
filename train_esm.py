@@ -9,34 +9,12 @@ from omegaconf import OmegaConf
 from torch.utils.tensorboard import SummaryWriter
 
 from dataloaders.dataset import loaders
-from models.fair_esm_model import IDP_esm1_t6_43M_UR50S, IDP_esm1_t12_85M_UR50S
+from models.fair_esm_model import IDP_esm1_t6_43M_UR50S, IDP_esm1_t12_85M_UR50S,IDP_esm1_msa
 from trainer.logger import Logger
 from trainer.util import load_checkpoint
 from trainer.util import reproducibility, select_optimizer, get_arguments
 
-#
-# Load ESM-1b model
-model, alphabet = esm.pretrained.esm1_t6_43M_UR50S()
-batch_converter = alphabet.get_batch_converter()
 
-
-# ("protein2", "KALTARQQEVFDLIRDHISQTGMPPTRAEIAQRLGFRSPNAAEEHLKALARKGVIEIVSGASRGIRLLQEE"),
-# ("protein2 with mask","KALTARQQEVFDLIRD<mask>ISQTGMPPTRAEIAQRLGFRSPNAAEEHLKALARKGVIEIVSGASRGIRLLQEE"),
-# ("protein3",  "K A <mask> I S Q"),
-# data = [
-#     ("protein1", "MKTVRQERLKSIVRILERSKEPVSGAQLAEELSVSRQVIVQDIAYLRSLGYNIVATPRGYVLAGG"),
-#
-# ]
-# batch_labels, batch_strs, batch_tokens = batch_converter(data)
-# print(batch_tokens)
-# # Extract per-residue representations (on CPU)
-# with torch.no_grad():
-#     results = model(batch_tokens, repr_layers=[6], return_contacts=True)
-# print(results.keys())
-# #print(model)
-# token_representations = results["representations"][6]
-# print(len(results["representations"]),token_representations.shape)
-# exit()
 def main():
     args = get_arguments()
     myargs = []  # getopts(sys.argv)
@@ -89,12 +67,14 @@ def main():
         model = IDP_esm1_t12_85M_UR50S()
     elif config.model.name == 'IDP_esm1_t6_43M_UR50S':
         model = IDP_esm1_t6_43M_UR50S()
+    elif config.model.name == 'IDP_esm1_msa':
+        model =IDP_esm1_msa()
+
     # model.head = torch.nn.Linear(128,20)
     log.info(f"{model}")
     if (config.load):
-
         pth_file, _ = load_checkpoint(config.pretrained_cpkt, model, strict=True, load_seperate_layers=False)
-        model.fc = nn.Sequential(nn.LayerNorm(768), nn.Dropout(0.5), nn.Linear(768, 2))
+        #model.fc = nn.Sequential(nn.LayerNorm(768), nn.Dropout(0.5), nn.Linear(768, 2))
     if (config.cuda and use_cuda):
         if torch.cuda.device_count() > 1:
             log.info(f"Let's use {torch.cuda.device_count()} GPUs!")

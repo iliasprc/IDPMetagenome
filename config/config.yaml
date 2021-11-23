@@ -1,13 +1,15 @@
 trainer:
   cwd: /home/ # working directory
   logger: IDP # logger name
-  epochs: 1000 # number of training epochs
+  epochs: 100 # number of training epochs
   seed: 123 # randomness seed
   cuda: True # use nvidia gpu
   gpu: 0 # id of gpu
   save: True # save checkpoint
   batch_size: 1
-  dim: 256
+  dim: 128
+  layers: 2
+  heads: 2
   load: False # load pretrained checkpoint
   gradient_accumulation: 128 # gradient accumulation steps
   pretrained_cpkt: /home/iliask/PycharmProjects/MScThesis/checkpoints/SSL/dataset_DM/model_idpcct/date_31_10_2021_10.58.06/_model_best_checkpoint.pth.tar
@@ -42,7 +44,7 @@ trainer:
     input_data: data_dir
     name: DM # dataset name
     type: bce # multi_target or clf
-    use_elmo: True
+    use_elmo: False
     train:
       augmentation: True # do augmentation to video
     val:

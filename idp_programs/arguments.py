@@ -112,8 +112,8 @@ def select_method(method: str):
         method_args_list = [seg]
         cargs = seg_args()
 
-        if cargs.x:
-            method_args_list.append('-x')
+        # if cargs.x:
+        #     method_args_list.append('-x')
 
     elif method == 'flps':
         method_args_list = [flps]

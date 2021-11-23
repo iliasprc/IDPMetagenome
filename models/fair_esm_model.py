@@ -1,4 +1,5 @@
 import esm
+import torch
 import torch.nn as nn
 
 
@@ -61,17 +62,26 @@ class IDP_esm1_msa(nn.Module):
 
     def forward(self, x):
         #print(x)
-        n = 1024 # chunk length
+        n = 512 # chunk length
         chunks = [(str(i),x[i:i + n]) for i in range(0, len(x), n)]
         #print(chunks)
+        # if len(x)>n:
+        #     print(x)
+        #     print(chunks)
+        out = torch.FloatTensor().cuda()
+        for ch in chunks:
 
-        batch_labels, batch_strs, batch_tokens = self.batch_converter(chunks)
+            batch_labels, batch_strs, batch_tokens = self.batch_converter([ch])
 
-        if len(x)>1024:
-            print(chunks,batch_tokens)
-        results = self.feature_extractor(batch_tokens.cuda(), repr_layers=[12])
 
-        token_representations = results["representations"][12].squeeze(0) #+  0.3*results["representations"][6] + 0.2* results["representations"][1]     # .squeeze(0)#[1:len(x) ]
+            results = self.feature_extractor(batch_tokens.cuda(), repr_layers=[12])
+
+            token_representations = results["representations"][12].squeeze(0)[:, 1:, :]
+            out = torch.cat((out,token_representations),dim=1)
+            # if len(x)>n:
+            #     print(token_representations.shape)
+            #+  0.3*results["representations"][6] + 0.2* results["representations"][1]     # .squeeze(0)#[1:len(x) ]
         #token_representations = results["representations"][1]
         #print(token_representations.shape)
-        return self.fc(token_representations[:, 1:, :])
+        #print(out.shape)
+        return self.fc(out)
