@@ -6,10 +6,10 @@ import numpy as np
 import sklearn.metrics
 
 # paths to idp programs
-cast = 'idp_programs/cast-linux/cast'
-seg = 'idp_programs/ncbi-seg_0.0.20000620.orig/seg'
-flps = 'idp_programs/fLPS/bin/linux/fLPS'
-iupred2a = 'idp_programs/iupred2a/main.py'
+cast = 'idp_methods/cast-linux/cast'
+seg = 'idp_methods/ncbi-seg_0.0.20000620.orig/seg'
+flps = 'idp_methods/fLPS/bin/linux/fLPS'
+iupred2a = 'idp_methods/iupred2a/main.py'
 
 def arguments():
     parser = argparse.ArgumentParser()

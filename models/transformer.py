@@ -330,7 +330,7 @@ class IDPTransformer(nn.Module):
                  classes=1):
         super().__init__()
         self.embed = nn.Embedding(22, dim)
-        self.use_elmo = config.dataset.use_elmo
+        self.use_elmo = config.dataset.use_strings
         if self.use_elmo:
             self.embed = nn.Linear(1024, dim)
         # self.embed = nn.Sequential(nn.Linear(20, dim,bias=False), nn.LeakyReLU(0.1))

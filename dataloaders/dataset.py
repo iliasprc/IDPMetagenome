@@ -58,11 +58,13 @@ def loaders(args, dataset_name=''):
         val_generator = data.DataLoader(val_set, **val_params)
 
         return training_generator, val_generator,classes
-    # elif dataset_name == 'SSLDM':
-    #     from dataloaders.dm_loader import SSLDM
-    #     training_set = SSLDM(args, 'train')
-    #     training_generator = data.DataLoader(training_set, **train_params)
-    #     classes = training_set.classes
-    #     val_set = SSLDM(args, 'val')
-    #     val_generator = data.DataLoader(val_set, **val_params)
-    #     return training_generator, val_generator, classes
+    elif dataset_name == 'fidpnn':
+        from dataloaders.dm_loader import FidpnnLoader
+        training_set = FidpnnLoader(args, 'train')
+        training_generator = data.DataLoader(training_set, **train_params)
+        classes = training_set.classes
+        val_set = FidpnnLoader(args, 'val')
+        val_generator = data.DataLoader(val_set, **val_params)
+
+
+        return training_generator, val_generator, classes

@@ -52,6 +52,20 @@ def create_annot_fasta(path):
             f.write(f"{names[i]}\n{proteins[i]}\n")
 
 
+
+def read_fidpnn_dataset(path):
+    with open(path, 'r') as f:
+        data = f.read().splitlines()
+        proteins = data[::7]
+        aminos = data[1::7]
+
+        annot = data[2::7]
+
+    return proteins,aminos,annot
+
+
+
+
 def read_data_(path):
     classes = []
     with open(path, 'r') as f:

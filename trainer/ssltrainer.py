@@ -2,7 +2,7 @@ import os
 
 import torch
 
-from idp_programs.utils import *
+from idp_methods.utils import *
 from trainer.basetrainer import BaseTrainer
 from trainer.util import MetricTracker, write_csv, save_model, make_dirs
 

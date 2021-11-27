@@ -3,7 +3,7 @@ import os
 import torch
 
 from models.utils import Cosine_LR_Scheduler
-from idp_programs.utils import *
+from idp_methods.utils import *
 from trainer.basetrainer import BaseTrainer
 from trainer.util import MetricTracker, write_csv, save_model, make_dirs
 
@@ -41,10 +41,12 @@ class ESMTrainer(BaseTrainer):
 
         self.mnt_best = np.inf
         # if self.config.dataset.type == 'multi_target':
-       # self.criterion = torch.nn.BCEWithLogitsLoss(reduction='mean')
-        self.criterion = torch.nn.CrossEntropyLoss(reduction='mean',label_smoothing=0.1,weight=torch.tensor([1.0,2.0]).to(self.device))
-        #from trainer.util import FocalLoss
-        #self.criterion = FocalLoss(gamma=2.0)
+        # self.criterion = torch.nn.BCEWithLogitsLoss(reduction='mean')
+        self.criterion = torch.nn.CrossEntropyLoss(reduction='mean', label_smoothing=0.1,
+                                                   weight=torch.tensor([1.0, 2.0]).to(self.device))
+
+        # from trainer.util import FocalLoss
+        # self.criterion = FocalLoss(gamma=2.0)
         self.checkpoint_dir = checkpoint_dir
         self.gradient_accumulation = config.gradient_accumulation
         self.writer = writer
@@ -63,7 +65,7 @@ class ESMTrainer(BaseTrainer):
         )
 
         self.confusion_matrix = torch.zeros(2, 2)
-        self.use_elmo = config.dataset.use_elmo
+        self.use_elmo = config.dataset.use_strings
 
     def _train_epoch(self, epoch):
         """
@@ -95,7 +97,7 @@ class ESMTrainer(BaseTrainer):
 
             (loss / gradient_accumulation).backward()
             if (batch_idx % gradient_accumulation == 0):
-                #torch.nn.utils.clip_grad_norm_(self.model.parameters(), 1.0)
+                # torch.nn.utils.clip_grad_norm_(self.model.parameters(), 1.0)
                 self.scheduler.step()
                 self.optimizer.step()  # Now we can do an optimizer step
                 self.optimizer.zero_grad()  # Reset gradients tensors

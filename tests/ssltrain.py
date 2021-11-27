@@ -20,7 +20,7 @@ def main():
         if 'c' in myargs:
             config_file = myargs['c']
     else:
-        config_file = 'config/sslconfig.yaml'
+        config_file = '../config/sslconfig.yaml'
 
     config = OmegaConf.load(os.path.join(cwd, config_file))['trainer']
     config.cwd = str(cwd)

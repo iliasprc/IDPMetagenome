@@ -2,7 +2,7 @@ import os
 
 import torch
 
-from idp_programs.utils import *
+from idp_methods.utils import *
 from models.utils import Cosine_LR_Scheduler
 from trainer.basetrainer import BaseTrainer
 from trainer.util import MetricTracker, write_csv, save_model, make_dirs
@@ -63,7 +63,7 @@ class Trainer(BaseTrainer):
         )
 
         self.confusion_matrix = torch.zeros(2, 2)
-        self.use_elmo = config.dataset.use_elmo
+        self.use_elmo = config.dataset.use_strings
         # if self.use_elmo:
         #     model_dir = Path('/config/uniref50_v2')
         #     weights = model_dir / 'weights.hdf5'

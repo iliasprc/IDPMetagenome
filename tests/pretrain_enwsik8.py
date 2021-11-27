@@ -105,6 +105,7 @@ def select_model(args, name, n_classes, pretrained=False):
                        dropout=0.2,
                        prenorm=False, classes=n_classes)
 
+
 name = 'idpcct'
 model = select_model(args, 'idpcct', 256)
 if use_cuda:
@@ -112,7 +113,7 @@ if use_cuda:
 
 time_string = datetime.datetime.now().strftime("%d_%m_%Y_%H.%M.%S")
 
-pathdir = os.path.join(args.cpkt_dir, time_string,name)
+pathdir = os.path.join(args.cpkt_dir, time_string, name)
 # prepare enwik8 data
 writer = SummaryWriter(pathdir + '/runs')
 
@@ -149,13 +150,14 @@ print(len(train_loader))
 
 optim = torch.optim.Adam(model.parameters(), lr=LEARNING_RATE)
 from models.utils import Cosine_LR_Scheduler
+
 scheduler = Cosine_LR_Scheduler(
-        optim,
-        warmup_epochs=3, warmup_lr=0,
-        num_epochs=EPOCHS, base_lr=LEARNING_RATE, final_lr=1e-5,
-        iter_per_epoch=len(train_loader)//GRADIENT_ACCUMULATE_EVERY,
-        constant_predictor_lr=True # see the end of section 4.2 predictor
-    )
+    optim,
+    warmup_epochs=3, warmup_lr=0,
+    num_epochs=EPOCHS, base_lr=LEARNING_RATE, final_lr=1e-5,
+    iter_per_epoch=len(train_loader) // GRADIENT_ACCUMULATE_EVERY,
+    constant_predictor_lr=True  # see the end of section 4.2 predictor
+)
 
 print(model)
 # training
