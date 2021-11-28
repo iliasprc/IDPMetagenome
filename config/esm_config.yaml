@@ -40,7 +40,7 @@ trainer:
       num_workers: 2
   dataset:
     input_data: data_dir
-    name: MXD494 # dataset name
+    name: fidpnn # dataset name
     type: bce # multi_target or clf
     use_elmo: True
     train:

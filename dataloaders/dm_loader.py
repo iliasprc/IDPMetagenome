@@ -482,12 +482,12 @@ class FidpnnLoader(Dataset):
 
         cwd = config.cwd
         if mode == train_prefix:
-            self.names, self.annotations, self.proteins = read_data_(
+            self.names,  self.proteins,self.annotations = read_fidpnn_dataset(
                 os.path.join(cwd, train_filepath))
             self.augment = True
             self.mode = mode
         elif mode == dev_prefix:
-            self.names, self.annotations, self.proteins = read_data_(
+            self.names, self.proteins, self.annotations= read_fidpnn_dataset(
                 os.path.join(cwd, dev_filepath))
             self.mode = mode
             self.augment = False
