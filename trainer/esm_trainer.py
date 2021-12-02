@@ -85,9 +85,7 @@ class ESMTrainer(BaseTrainer):
             target = target.to(self.device)
 
             output = self.model(data[0])
-            # print(target.shape,output.shape)
-            ignore_ = target == -1
-            print(ignore_)
+ 
             loss = self.criterion(output.squeeze(0), target.squeeze(0))
             loss = loss.mean()
 
@@ -141,12 +139,7 @@ class ESMTrainer(BaseTrainer):
         self.confusion_matrix = 0 * self.confusion_matrix
         with torch.no_grad():
             for batch_idx, (data, target) in enumerate(loader):
-                # if self.use_elmo:
-                #
-                #     # print(data)
-                #     data = torch.FloatTensor(self.embedder.embed_sentence(list(data[0]))).sum(dim=0).unsqueeze(0)
-                # # print(data.shape)
-                # data = data.to(self.device)
+
 
                 target = target.to(self.device)
 
