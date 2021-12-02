@@ -2,8 +2,8 @@ import os
 
 import torch
 
+from idp_methods.utils import *
 from models.utils import Cosine_LR_Scheduler
-from idp_programs.utils import *
 from trainer.basetrainer import BaseTrainer
 from trainer.util import MetricTracker, write_csv, save_model, make_dirs
 
@@ -66,7 +66,6 @@ class ESMTrainer(BaseTrainer):
 
         self.confusion_matrix = torch.zeros(2, 2)
 
-
     def _train_epoch(self, epoch):
         """
         Training logic for an epoch
@@ -82,17 +81,12 @@ class ESMTrainer(BaseTrainer):
         gradient_accumulation = self.gradient_accumulation
 
         for batch_idx, (data, target) in enumerate(self.train_data_loader):
-            #  if self.use_elmo:
-            #     # print(data)
-            #      data = torch.FloatTensor(self.embedder.embed_sentence(list(data[0]))).sum(dim=0).unsqueeze(0)
-            # # print(data.shape)
-            #  data = data.to(self.device)
 
             target = target.to(self.device)
 
             output = self.model(data[0])
-            #print(target.shape,output.shape)
-            ignore_ = target ==-1
+            # print(target.shape,output.shape)
+            ignore_ = target == -1
             print(ignore_)
             loss = self.criterion(output.squeeze(0), target.squeeze(0))
             loss = loss.mean()

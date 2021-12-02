@@ -11,7 +11,7 @@ class IDP_ProteinBert(nn.Module):
         self.fc = nn.Sequential(nn.Dropout(0.2),nn.Linear(768, 2))
 
     def forward(self, input_ids, input_mask=None):
-        #with  torch.no_grad():
+
         outputs = self.model(input_ids,
                              input_mask)
         sequence_output = outputs[0]

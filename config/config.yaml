@@ -43,7 +43,7 @@ trainer:
       num_workers: 2
   dataset:
     input_data: data_dir
-    name: DM # dataset name
+    name: MXD494 # dataset name
     type: bce # multi_target or clf
     use_elmo: False
     train:

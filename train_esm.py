@@ -45,8 +45,6 @@ def main():
 
     if args.tensorboard:
 
-
-
         writer = SummaryWriter(cpkt_fol_name + '/runs/')
     else:
         writer = None
@@ -56,7 +54,7 @@ def main():
     device = torch.device("cuda:0" if use_cuda else "cpu")
     log.info(f'device: {device}')
 
-    training_generator, val_generator,test_gen, classes = loaders(args=config, dataset_name=config.dataset.name)
+    training_generator, val_generator, test_gen, classes = loaders(args=config, dataset_name=config.dataset.name)
     n_classes = len(classes)
     log.info(f'train {len(training_generator)} dev {len(val_generator)} test ')
 
@@ -66,7 +64,6 @@ def main():
         model = IDP_esm1_t6_43M_UR50S()
     elif config.model.name == 'IDP_esm1_msa':
         model = IDP_esm1_msa()
-
 
     log.info(f"{model}")
     if (config.load):
@@ -87,7 +84,7 @@ def main():
     from trainer.esm_trainer import ESMTrainer
     trainer = ESMTrainer(config, model=model, optimizer=optimizer,
                          data_loader=training_generator, writer=writer, logger=log,
-                         valid_data_loader=val_generator, test_data_loader=test_gen,class_dict=classes,
+                         valid_data_loader=val_generator, test_data_loader=test_gen, class_dict=classes,
                          lr_scheduler=scheduler,
                          checkpoint_dir=cpkt_fol_name)
     trainer.train()
