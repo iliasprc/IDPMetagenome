@@ -432,6 +432,10 @@ def select_optimizer(model, config, checkpoint=None):
         print(" use optimizer Adam lr ", lr)
         optimizer = optim.Adam(model.parameters(), lr=float(config['optimizer']['lr']),
                                weight_decay=float(config['optimizer']['weight_decay']))
+    elif (opt == 'AdamW'):
+        print(" use optimizer Adam lr ", lr)
+        optimizer = optim.Adam(model.parameters(), lr=float(config['optimizer']['lr']),
+                               weight_decay=float(config['optimizer']['weight_decay']))
     elif (opt == 'SGD'):
         print(" use optimizer SGD lr ", lr)
         optimizer = optim.SGD(model.parameters(), lr=float(config['optimizer']['lr']), momentum=0.9,
@@ -440,21 +444,21 @@ def select_optimizer(model, config, checkpoint=None):
         print(" use RMS  lr", lr)
         optimizer = optim.RMSprop(model.parameters(), lr=float(config['optimizer']['lr']),
                                   weight_decay=float(config['optimizer']['weight_decay']))
-    if (checkpoint != None):
-        # print('load opt cpkt')
-        optimizer.load_state_dict(checkpoint['optimizer_dict'])
-        for g in optimizer.param_groups:
-            g['lr'] = 0.005
-        print(optimizer.state_dict()['state'].keys())
+    # if (checkpoint != None):
+    #     # print('load opt cpkt')
+    #     optimizer.load_state_dict(checkpoint['optimizer_dict'])
+    #     for g in optimizer.param_groups:
+    #         g['lr'] = 0.005
+    #     print(optimizer.state_dict()['state'].keys())
 
-    if config['scheduler']['type'] == 'ReduceLRonPlateau':
-        from torch.optim.lr_scheduler import ReduceLROnPlateau
-        scheduler = ReduceLROnPlateau(optimizer, factor=config['scheduler']['scheduler_factor'],
-                                      patience=config['scheduler']['scheduler_patience'],
-                                      min_lr=config['scheduler']['scheduler_min_lr'],
-                                      verbose=config['scheduler']['scheduler_verbose'])
-
-        return optimizer, scheduler
+    # if config['scheduler']['type'] == 'ReduceLRonPlateau':
+    #     from torch.optim.lr_scheduler import ReduceLROnPlateau
+    #     scheduler = ReduceLROnPlateau(optimizer, factor=config['scheduler']['scheduler_factor'],
+    #                                   patience=config['scheduler']['scheduler_patience'],
+    #                                   min_lr=config['scheduler']['scheduler_min_lr'],
+    #                                   verbose=config['scheduler']['scheduler_verbose'])
+    #
+    #     return optimizer, scheduler
 
     return optimizer, None
 
@@ -506,7 +510,7 @@ def select_optimizer_pretrain(model, config, checkpoint=None):
 def select_model(config, n_classes, pretrained=False):
     if config.model.name == 'idptransformer':
         from models.transformer import IDPTransformer
-        return IDPTransformer(config, dim=config.dim, blocks=2, heads=4, dim_head=None, dim_linear_block=config.dim * 2,
+        return IDPTransformer(config, dim=config.dim, blocks=config.layers, heads=config.heads, dim_head=None, dim_linear_block=config.dim * 2,
                               dropout=0.2,
                               prenorm=False, classes=n_classes)
     elif config.model.name == 'idpcct':
@@ -514,8 +518,8 @@ def select_model(config, n_classes, pretrained=False):
         return IDP_cct(dim=config.dim, blocks=config.layers, heads=config.heads, dim_head=None, dim_linear_block=config.dim  , dropout=0.2,
                        prenorm=False, classes=n_classes)
     elif config.model.name == 'idprnn':
-        from models import IDPrnn
-        return IDPrnn(dropout=0.2, dim=config.dim, blocks=2, classes=n_classes)
+        from models.rnn import IDPrnn
+        return IDPrnn(dropout=0.2, dim=config.dim, blocks=config.layers, classes=n_classes)
     elif config.model.name == 'IDPseqvec':
         from models.transformer import IDPseqvec
 
@@ -523,6 +527,10 @@ def select_model(config, n_classes, pretrained=False):
     elif config.model.name == 'lm':
         from models.embed import LM
         return LM(vocab=n_classes, dim=config.dim)
+    elif config.model.name == 'proteinbert':
+        from models.protein_bert import IDP_ProteinBert
+        return IDP_ProteinBert()
+
 
 
 class FocalLoss(nn.CrossEntropyLoss):

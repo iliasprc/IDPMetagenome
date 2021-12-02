@@ -327,15 +327,12 @@ class IDPseqvec(nn.Module):
 
 class IDPTransformer(nn.Module):
     def __init__(self, config, dim, blocks=6, heads=8, dim_head=None, dim_linear_block=1024, dropout=0, prenorm=False,
+                 embed_dim=30,
                  classes=1):
         super().__init__()
-        self.embed = nn.Embedding(22, dim)
+        self.embed = nn.Embedding(embed_dim, dim)
         self.use_elmo = config.dataset.use_strings
-        if self.use_elmo:
-            self.embed = nn.Linear(1024, dim)
-        # self.embed = nn.Sequential(nn.Linear(20, dim,bias=False), nn.LeakyReLU(0.1))
-        # self.tcn = TemporalConvNet(num_inputs=dim, num_channels=[dim, dim // 2, dim // 2, dim], kernel_size=2,
-        #                            dropout=0.2)
+
         self.pos_embed = PositionalEncodingSin(dim, dropout=0.1, max_tokens=2000)
         encoder_layer = nn.TransformerEncoderLayer(d_model=dim, dim_feedforward=dim_linear_block, nhead=heads,
                                                    activation='gelu', dropout=dropout, batch_first=True)

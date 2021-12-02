@@ -21,7 +21,7 @@ def loaders(args, dataset_name=''):
         val_set = DMLoader(args, 'val')
         val_generator = data.DataLoader(val_set, **val_params)
 
-        return training_generator, val_generator,classes
+        return training_generator, val_generator,None,classes
     elif dataset_name == 'DMshort':
         from dataloaders.dm_loader import DMshort
         training_set = DMshort(args, 'train')
@@ -30,7 +30,7 @@ def loaders(args, dataset_name=''):
         val_set = DMshort(args, 'val')
         val_generator = data.DataLoader(val_set, **val_params)
 
-        return training_generator, val_generator,classes
+        return training_generator, val_generator,None,classes
     elif dataset_name == 'CAID2018':
         from dataloaders.dm_loader import CAID2018_Disprot
 
@@ -38,7 +38,7 @@ def loaders(args, dataset_name=''):
         classes = val_set.classes
         val_generator = data.DataLoader(val_set, **val_params)
 
-        return None, val_generator, classes
+        return None, val_generator, None,classes
     elif dataset_name == 'MXD494':
         from dataloaders.dm_loader import MXD494Loader
         training_set = MXD494Loader(args, 'train')
@@ -48,7 +48,7 @@ def loaders(args, dataset_name=''):
         val_generator = data.DataLoader(val_set, **val_params)
 
 
-        return training_generator, val_generator, classes
+        return training_generator, val_generator,None, classes
     elif dataset_name == 'Disorder723':
         from dataloaders.dm_loader import Disorder723
         training_set = Disorder723(args, 'train')
@@ -67,4 +67,4 @@ def loaders(args, dataset_name=''):
         val_generator = data.DataLoader(val_set, **val_params)
 
 
-        return training_generator, val_generator, classes
+        return training_generator, val_generator, None,classes

@@ -1,23 +1,24 @@
 import os
 
+import numpy as np
 import torch
 
+from idp_programs.utils import metric
 from models.utils import Cosine_LR_Scheduler
-from idp_programs.utils import *
 from trainer.basetrainer import BaseTrainer
 from trainer.util import MetricTracker, write_csv, save_model, make_dirs
 
 
-class ESMTrainer(BaseTrainer):
+class Trainer(BaseTrainer):
     """
     Trainer class
     """
 
     def __init__(self, config, model, optimizer, data_loader, writer, checkpoint_dir, logger, class_dict,
                  valid_data_loader=None, test_data_loader=None, lr_scheduler=None, metric_ftns=None):
-        super(ESMTrainer, self).__init__(config, data_loader, writer, checkpoint_dir, logger,
-                                         valid_data_loader=valid_data_loader,
-                                         test_data_loader=test_data_loader, metric_ftns=metric_ftns)
+        super(Trainer, self).__init__(config, data_loader, writer, checkpoint_dir, logger,
+                                      valid_data_loader=valid_data_loader,
+                                      test_data_loader=test_data_loader, metric_ftns=metric_ftns)
 
         if (self.config.cuda):
             use_cuda = torch.cuda.is_available()
@@ -40,32 +41,34 @@ class ESMTrainer(BaseTrainer):
         self.optimizer = optimizer
 
         self.mnt_best = np.inf
-        # if self.config.dataset.type == 'multi_target':
-        # self.criterion = torch.nn.BCEWithLogitsLoss(reduction='mean')
-        self.criterion = torch.nn.CrossEntropyLoss(reduction='mean', label_smoothing=0.1,
-                                                   weight=torch.tensor([1.0, 2.0]).to(self.device))
+        self.dataset_metrics = True
+        self.criterion = torch.nn.CrossEntropyLoss(reduction='mean', ignore_index=-1,
+                                                   weight=torch.tensor([1.0, 1.0], dtype=torch.float32).to(self.device))
 
-        # from trainer.util import FocalLoss
-        # self.criterion = FocalLoss(gamma=2.0)
         self.checkpoint_dir = checkpoint_dir
         self.gradient_accumulation = config.gradient_accumulation
         self.writer = writer
-        self.metric_ftns = ['loss', 'acc']
+        self.metric_ftns = ['loss', 'F1', 'MCC', 'TPR', 'TNR', 'PPV', 'NPV', 'FPR', 'FNR', 'BAC', 'AUC']
         self.train_metrics = MetricTracker(*[m for m in self.metric_ftns], writer=self.writer, mode='train')
-        self.metric_ftns = ['loss', 'acc']
+        self.metric_ftns = ['loss', 'F1', 'MCC', 'TPR', 'TNR', 'PPV', 'NPV', 'FPR', 'FNR', 'BAC', 'AUC']
         self.valid_metrics = MetricTracker(*[m for m in self.metric_ftns], writer=self.writer, mode='validation')
         self.logger = logger
 
         self.scheduler = Cosine_LR_Scheduler(
             self.optimizer,
             warmup_epochs=10, warmup_lr=0,
-            num_epochs=self.epochs, base_lr=self.config['model']['optimizer']['lr'], final_lr=1e-5,
+            num_epochs=self.epochs + 2, base_lr=self.config['model']['optimizer']['lr'], final_lr=5e-5,
             iter_per_epoch=len(self.train_data_loader) // self.gradient_accumulation,
             constant_predictor_lr=True  # see the end of section 4.2 predictor
         )
 
         self.confusion_matrix = torch.zeros(2, 2)
 
+        # if self.use_elmo:
+        #     model_dir = Path('/config/uniref50_v2')
+        #     weights = model_dir / 'weights.hdf5'
+        #     options = model_dir / 'options.json'
+        #     self.embedder = ElmoEmbedder(options, weights, cuda_device=0)
 
     def _train_epoch(self, epoch):
         """
@@ -81,55 +84,67 @@ class ESMTrainer(BaseTrainer):
         self.confusion_matrix = 0. * self.confusion_matrix
         gradient_accumulation = self.gradient_accumulation
 
-        for batch_idx, (data, target) in enumerate(self.train_data_loader):
-            #  if self.use_elmo:
-            #     # print(data)
-            #      data = torch.FloatTensor(self.embedder.embed_sentence(list(data[0]))).sum(dim=0).unsqueeze(0)
-            # # print(data.shape)
-            #  data = data.to(self.device)
+        for batch_idx, batch in enumerate(self.train_data_loader):
+
+            input_d = batch['input_ids'].to(self.device)
+
+            mask = batch['input_mask'].to(self.device)
+            target = batch['targets'].to(self.device)
 
             target = target.to(self.device)
 
-            output = self.model(data[0])
-            #print(target.shape,output.shape)
-            ignore_ = target ==-1
-            print(ignore_)
+            output = self.model(input_d, mask)
+            # print(target)
+
+            # print(ignore_)
+
+            writer_step = (epoch - 1) * self.len_epoch + batch_idx
+
+            for i in range(target.shape[0]):
+                sample_out = output[i]
+                sample_target = target[i]
+                ignore_ = sample_target != -1
+                sample_target = sample_target[ignore_]
+                sample_out = sample_out[ignore_]
+                y += sample_target.squeeze().detach().cpu().numpy().tolist()
+                _, prediction = torch.max(torch.softmax(sample_out, dim=-1).squeeze(), 1)
+                yhat += prediction.detach().cpu().numpy().tolist()
+                if not self.dataset_metrics:
+                    metrics, metrics_dictionary = metric(prediction.detach().cpu().numpy(),
+                                                         sample_target.cpu().detach().numpy())
+                    for key in metrics_dictionary.keys():
+                        val = 0.0 if np.isnan(metrics_dictionary[key]) else metrics_dictionary[key]
+                        # print(val,metrics_dictionary[key])
+                        self.train_metrics.update(key=key, value=val, n=1, writer_step=writer_step)
+                # print(metrics)
+            output = output.reshape(1, -1, 2)
+
+            # ignore_ = target != -1
+            target = target.view(1, -1)
+
+            # print(target.shape,output.shape)
             loss = self.criterion(output.squeeze(0), target.squeeze(0))
             loss = loss.mean()
 
             (loss / gradient_accumulation).backward()
             if (batch_idx % gradient_accumulation == 0):
-                # torch.nn.utils.clip_grad_norm_(self.model.parameters(), 1.0)
+                torch.nn.utils.clip_grad_norm_(self.model.parameters(), 1.0)
                 self.scheduler.step()
                 self.optimizer.step()  # Now we can do an optimizer step
                 self.optimizer.zero_grad()  # Reset gradients tensors
 
-            output = torch.softmax(output, dim=-1).squeeze()
-            _, output = torch.max(output, 1)
-            # print(output)
-            # print(output.shape)
-            ol = output.detach().cpu().numpy().tolist()
-            # print(ol)
-            yhat_raw += output.detach().cpu().numpy().tolist()
-            output = output.detach().cpu().numpy()
-            y += target.squeeze().detach().cpu().numpy().tolist()
-            yhat += output.tolist()
-            writer_step = (epoch - 1) * self.len_epoch + batch_idx
-
             self.train_metrics.update(key='loss', value=loss.item(), n=1, writer_step=writer_step)
 
-            # for t, p in zip(target.cpu().view(-1), prediction[1].cpu().view(-1)):
-            #     self.confusion_matrix[t.long(), p.long()] += 1
             self._progress(batch_idx, epoch, metrics=self.train_metrics, mode='train')
-        k = 5
-        # print(len(yhat),len(y))
-        # print(yhat[:10],y[:10])
-        pred = np.array(yhat)
-        target = np.array(y)
 
-        metrics_ = metric(yhat, y)
-        self.logger.info(metrics_)
-        # print_metrics(metrics, self.logger)
+        if self.dataset_metrics:
+            metrics, metrics_dictionary = metric(np.array(yhat), np.array(y))
+            for key in metrics_dictionary.keys():
+                val = 0.0 if np.isnan(metrics_dictionary[key]) else metrics_dictionary[key]
+                # print(val,metrics_dictionary[key])
+                self.train_metrics.update(key=key, value=val, n=1, writer_step=writer_step)
+        self.logger.info(metrics)
+
         self._progress(batch_idx, epoch, metrics=self.train_metrics, mode='train', print_summary=True)
 
     def _valid_epoch(self, epoch, mode, loader):
@@ -146,41 +161,52 @@ class ESMTrainer(BaseTrainer):
         y, yhat, yhat_raw, hids, losses = [], [], [], [], []
         self.confusion_matrix = 0 * self.confusion_matrix
         with torch.no_grad():
-            for batch_idx, (data, target) in enumerate(loader):
-                # if self.use_elmo:
-                #
-                #     # print(data)
-                #     data = torch.FloatTensor(self.embedder.embed_sentence(list(data[0]))).sum(dim=0).unsqueeze(0)
-                # # print(data.shape)
-                # data = data.to(self.device)
+            for batch_idx, batch in enumerate(self.valid_data_loader):
+                # print(data.shape)
+                input_d = batch['input_ids'].to(self.device)
+
+                mask = batch['input_mask'].to(self.device)
+                target = batch['targets'].to(self.device)
 
                 target = target.to(self.device)
 
-                output = self.model(data[0])
-                # print(target.shape,output.shape)
+                output = self.model(input_d, mask)
+                # print(target)
+                writer_step = (epoch - 1) * len(loader) + batch_idx
+                for i in range(target.shape[0]):
+                    sample_out = output[i].detach()
+                    sample_target = target[i].detach()
+                    ignore_ = sample_target != -1
+                    sample_target = sample_target[ignore_]
+                    sample_out = sample_out[ignore_]
+                    y += sample_target.squeeze().detach().cpu().numpy().tolist()
+                    _, prediction = torch.max(torch.softmax(sample_out, dim=-1).squeeze(), 1)
+                    yhat += prediction.detach().cpu().numpy().tolist()
+                    metrics, metrics_dictionary = metric(prediction.detach().cpu().numpy(),
+                                                         sample_target.cpu().detach().numpy())
+                    for key in metrics_dictionary.keys():
+                        val = 0.0 if np.isnan(metrics_dictionary[key]) else metrics_dictionary[key]
+                        # print(val,metrics_dictionary[key])
+                        self.valid_metrics.update(key=key, value=val, n=1, writer_step=writer_step)
+                output = output.reshape(1, -1, 2)
+
+                target = target.view(1, -1)
+
+                ignore_ = target != -1
+                output = output[ignore_]
+                target = target[ignore_]
                 loss = self.criterion(output.squeeze(0), target.squeeze(0))
                 loss = loss.mean()
-                writer_step = (epoch - 1) * len(loader) + batch_idx
 
-                # prediction = torch.max(output, 1)
-
-                output = torch.softmax(output, dim=-1).squeeze()
-                _, output = torch.max(output, -1)
-                # print(output.shape)
-                ol = output.detach().cpu().numpy().tolist()
-                # print(ol)
-                yhat_raw += output.detach().cpu().numpy().tolist()
-                output = output.detach().cpu().numpy()
-                y += target.squeeze().detach().cpu().numpy().tolist()
-                yhat += output.tolist()
                 self.valid_metrics.update(key='loss', value=loss.item(), n=1, writer_step=writer_step)
-        # pred = np.array(yhat)
-        # target = np.array(y)
-
-        metrics = metric(yhat, y)
+        if self.dataset_metrics:
+            metrics, metrics_dictionary = metric(np.array(yhat), np.array(y))
+            for key in metrics_dictionary.keys():
+                val = 0.0 if np.isnan(metrics_dictionary[key]) else metrics_dictionary[key]
+                # print(val,metrics_dictionary[key])
+                self.valid_metrics.update(key=key, value=val, n=1, writer_step=writer_step)
         self.logger.info(metrics)
         self._progress(batch_idx, epoch, metrics=self.valid_metrics, mode=mode, print_summary=True)
-        k = 5
 
         val_loss = self.valid_metrics.avg('loss')
 

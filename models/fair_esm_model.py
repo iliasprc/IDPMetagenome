@@ -21,8 +21,8 @@ class IDP_esm1_t6_43M_UR50S(nn.Module):
         #     x1 = x[:1023]
         batch_labels, batch_strs, batch_tokens = self.batch_converter([('1', x)])
 
-        # with torch.no_grad():
-        results = self.feature_extractor(batch_tokens.cuda(), repr_layers=[6])
+        with torch.no_grad():
+            results = self.feature_extractor(batch_tokens.cuda(), repr_layers=[6])
 
         token_representations = results["representations"][6]  # .squeeze(0)#[1:len(x) ]
         # print(token_representations.shape)

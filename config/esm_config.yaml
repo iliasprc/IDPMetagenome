@@ -10,13 +10,13 @@ trainer:
   dim: 256
   load: False # load pretrained checkpoint
   gradient_accumulation: 1 # gradient accumulation steps
-  pretrained_cpkt: /home/papastrat/Desktop/MscThesis/checkpoints/dataset_DM/model_IDP_esm1_t12_85M_UR50S/date_13_11_2021_14.30.51/_model_best_checkpoint.pth.tar
+  pretrained_cpkt: /home/papastrat/Desktop/MscThesis/checkpoints/dataset_fidpnn/model_IDP_esm1_t6_43M_UR50S/date_28_11_2021_17.15.09/_model_last_checkpoint.pth.tar
   log_interval: 1000 # print statistics every log_interval
   model:
-    name: IDP_esm1_msa # model name  [mobilenet_v2,COVIDNet_small]
+    name: IDP_esm1_t6_43M_UR50S # model name  [mobilenet_v2,COVIDNet_small]
     pretrained: False
     optimizer: # optimizer configuration
-      type: AdamW # optimizer type
+      type: Adam # optimizer type
       lr: 0.5e-5 # learning rate
       weight_decay: 0.0001 # weight decay
     scheduler: # learning rate scheduler
@@ -26,6 +26,7 @@ trainer:
       scheduler_min_lr: 1e-5 # minimum learning rate value
       scheduler_verbose: 5e-6 # print if learning rate is changed
   dataloader:
+    num_workers: 2
     train:
       batch_size: 128 # batch size
       shuffle: True # shuffle samples after every epoch

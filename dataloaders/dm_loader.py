@@ -5,11 +5,12 @@ from random import randint
 import torch
 from torch.utils.data import Dataset
 
-from .utils import read_data_,read_fidpnn_dataset
+from .utils.utils import read_data_, read_fidpnn_dataset
 
 train_prefix = "train"
 dev_prefix = "val"
 test_prefix = "test"
+
 
 class DMshort(Dataset):
     def __init__(self, config, mode):
@@ -103,7 +104,7 @@ class DMshort(Dataset):
             x = torch.LongTensor(x)
         y = torch.LongTensor([int(i) for i in self.annotations[index]][:1022])  # .unsqueeze(-1)
         # print(x.shape,y.shape)
-#        assert x.shape == y.shape, print(self.names[index])
+        #        assert x.shape == y.shape, print(self.names[index])
         y1 = torch.nn.functional.one_hot(y, num_classes=2)
         # x = torch.nn.functional.one_hot(x, num_classes=20).float()
         # print(y,y1)
@@ -205,7 +206,7 @@ class DMLoader(Dataset):
             x = torch.LongTensor(x)
         y = torch.LongTensor([int(i) for i in self.annotations[index]])  # .unsqueeze(-1)
         # print(x.shape,y.shape)
-#        assert x.shape == y.shape, print(self.names[index])
+        #        assert x.shape == y.shape, print(self.names[index])
         y1 = torch.nn.functional.one_hot(y, num_classes=2)
         # x = torch.nn.functional.one_hot(x, num_classes=20).float()
         # print(y,y1)
@@ -276,18 +277,18 @@ class MXD494Loader(Dataset):
         #         # print(x,y)
         #         return x, y#1
 
-        if self.mode == 'train' and random.uniform(0,1)>0.7:
+        if self.mode == 'train' and random.uniform(0, 1) > 0.7:
 
             L = len(self.proteins[index])
             left = randint(0, L // 4)
             right = randint(L // 2, L)
-            x = [self.w2i[amino] for amino in self.proteins[index]]#[left:right]
+            x = [self.w2i[amino] for amino in self.proteins[index]]  # [left:right]
             if self.use_elmo:
-                x = self.proteins[index]#[left:right]
+                x = self.proteins[index]  # [left:right]
 
             else:
                 x = torch.LongTensor(x)
-            y = [int(i) for i in self.annotations[index]]#[left:right]
+            y = [int(i) for i in self.annotations[index]]  # [left:right]
             # x = torch.LongTensor(x)  # .unsqueeze(-1)
             y = torch.LongTensor(y)  # .unsqueeze(-1)
             # x = torch.nn.functional.one_hot(x, num_classes=20).float()
@@ -317,6 +318,7 @@ class MXD494Loader(Dataset):
         if self.ssl:
             return x, x
         return x, y  # 1
+
 
 class Disorder723(Dataset):
     def __init__(self, config, mode):
@@ -410,7 +412,7 @@ class Disorder723(Dataset):
             x = torch.LongTensor(x)
         y = torch.LongTensor([int(i) for i in self.annotations[index]])  # .unsqueeze(-1)
         # print(x.shape,y.shape)
-#        assert x.shape == y.shape, print(self.names[index])
+        #        assert x.shape == y.shape, print(self.names[index])
         y1 = torch.nn.functional.one_hot(y, num_classes=2)
         # x = torch.nn.functional.one_hot(x, num_classes=20).float()
         # print(y,y1)
@@ -423,11 +425,10 @@ class Disorder723(Dataset):
 class CAID2018_Disprot(Dataset):
     def __init__(self, config, mode):
 
-        dev_filepath = "data/CAID_data_2018/disprot-binding-all.txt"
+        dev_filepath = "data/CAID_data_2018/disprot-disorder.txt"
         test_filepath = ""
 
         cwd = config.cwd
-
 
         self.names, self.annotations, self.proteins, _, _ = read_data_(
             os.path.join(cwd, dev_filepath))
@@ -441,7 +442,7 @@ class CAID2018_Disprot(Dataset):
         self.w2i = dict(zip(self.classes, indixes))
         # print('classes\n\n', self.classes,len(self.classes))
         self.ssl = config.dataset.type == 'SSL'
-        self.use_elmo = config.dataset.use_strings
+        self.use_elmo = config.dataset.use_elmo
         if self.use_elmo:
             print('\n USE ELMO \n')
             # model_dir = Path('/config/uniref50_v2')
@@ -458,7 +459,6 @@ class CAID2018_Disprot(Dataset):
 
     def __getitem__(self, index):
 
-
         x = [self.w2i[amino] for amino in self.proteins[index]]
         y = [int(i) for i in self.annotations[index]]
         # print(len(x),len(y),len(self.proteins[index]),len(self.annotations[index]))
@@ -473,7 +473,6 @@ class CAID2018_Disprot(Dataset):
         return x, y  # 1
 
 
-
 class FidpnnLoader(Dataset):
     def __init__(self, config, mode):
         train_filepath = "data/fidpnn_data/flDPnn_Training_Annotation.txt"
@@ -482,12 +481,17 @@ class FidpnnLoader(Dataset):
 
         cwd = config.cwd
         if mode == train_prefix:
-            self.names,  self.proteins,self.annotations = read_fidpnn_dataset(
+            self.names, self.proteins, self.annotations = read_fidpnn_dataset(
                 os.path.join(cwd, train_filepath))
             self.augment = True
             self.mode = mode
         elif mode == dev_prefix:
-            self.names, self.proteins, self.annotations= read_fidpnn_dataset(
+            self.names, self.proteins, self.annotations = read_fidpnn_dataset(
+                os.path.join(cwd, dev_filepath))
+            self.mode = mode
+            self.augment = False
+        elif mode == test_prefix:
+            self.names, self.proteins, self.annotations = read_fidpnn_dataset(
                 os.path.join(cwd, dev_filepath))
             self.mode = mode
             self.augment = False
@@ -512,7 +516,6 @@ class FidpnnLoader(Dataset):
         return len(self.proteins)
 
     def __getitem__(self, index):
-
 
         if self.mode == 'train' and self.augment:
 
