@@ -37,7 +37,7 @@ class DMshort(Dataset):
         self.w2i = dict(zip(self.classes, indixes))
         # print('classes\n\n', self.classes,len(self.classes))
         self.ssl = config.dataset.type == 'SSL'
-        self.use_elmo = config.dataset.use_strings
+        self.use_elmo = True
         if self.use_elmo:
             print('\n USE ELMO \n')
             # model_dir = Path('/config/uniref50_v2')
@@ -139,7 +139,7 @@ class DMLoader(Dataset):
         self.w2i = dict(zip(self.classes, indixes))
         # print('classes\n\n', self.classes,len(self.classes))
         self.ssl = config.dataset.type == 'SSL'
-        self.use_elmo = config.dataset.use_strings
+        self.use_elmo = True
         if self.use_elmo:
             print('\n USE ELMO \n')
             # model_dir = Path('/config/uniref50_v2')
@@ -245,7 +245,7 @@ class MXD494Loader(Dataset):
         self.w2i = dict(zip(self.classes, indixes))
         # print('classes\n\n', self.classes,len(self.classes))
         self.ssl = config.dataset.type == 'SSL'
-        self.use_elmo = config.dataset.use_strings
+        self.use_elmo = True
         if self.use_elmo:
             print('\n USE ELMO \n')
             # model_dir = Path('/config/uniref50_v2')
@@ -345,7 +345,7 @@ class Disorder723(Dataset):
         self.w2i = dict(zip(self.classes, indixes))
         # print('classes\n\n', self.classes,len(self.classes))
         self.ssl = config.dataset.type == 'SSL'
-        self.use_elmo = config.dataset.use_strings
+        self.use_elmo = True
         if self.use_elmo:
             print('\n USE ELMO \n')
             # model_dir = Path('/config/uniref50_v2')
@@ -503,7 +503,7 @@ class FidpnnLoader(Dataset):
         self.w2i = dict(zip(self.classes, indixes))
 
         self.ssl = config.dataset.type == 'SSL'
-        self.use_strings = config.dataset.use_elmo
+        self.use_strings =True
         if self.use_strings:
             print('\n USE ELMO \n')
 
@@ -520,15 +520,18 @@ class FidpnnLoader(Dataset):
         if self.mode == 'train' and self.augment:
 
             L = len(self.proteins[index])
-            left = randint(0, L // 4)
-            right = randint(L // 2, L)
-            x = [self.w2i[amino] for amino in self.proteins[index]]  # [left:right]
+            if L>2048:
+                right = 2048
+            else:
+                right = -1
+            x = [self.w2i[amino] for amino in self.proteins[index]]
             if self.use_strings:
                 x = self.proteins[index]
 
             else:
                 x = torch.LongTensor(x)
-            y = [int(i) for i in self.annotations[index]]  # [left:right]
+            x = x[:right]
+            y = [int(i) for i in self.annotations[index]][:right]  # [left:right]
 
             y = torch.LongTensor(y)  # .unsqueeze(-1)
 

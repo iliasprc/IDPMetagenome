@@ -13,11 +13,11 @@ trainer:
   pretrained_cpkt: /home/papastrat/Desktop/MscThesis/checkpoints/dataset_fidpnn/model_IDP_esm1_t6_43M_UR50S/date_28_11_2021_17.15.09/_model_last_checkpoint.pth.tar
   log_interval: 1000 # print statistics every log_interval
   model:
-    name: IDP_esm1_t6_43M_UR50S # model name  [mobilenet_v2,COVIDNet_small]
+    name: IDP_esm1_t12_85M_UR50S # model name  [mobilenet_v2,COVIDNet_small]
     pretrained: False
     optimizer: # optimizer configuration
       type: Adam # optimizer type
-      lr: 0.5e-5 # learning rate
+      lr: 1e-5 # learning rate
       weight_decay: 0.0001 # weight decay
     scheduler: # learning rate scheduler
       type: ReduceLRonPlateau # type of scheduler
@@ -41,7 +41,7 @@ trainer:
       num_workers: 2
   dataset:
     input_data: data_dir
-    name: fidpnn # dataset name
+    name: Disorder723 # dataset name
     type: bce # multi_target or clf
     use_elmo: True
     train:
