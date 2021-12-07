@@ -1,12 +1,8 @@
-
 import json
 import re
 
 import numpy as np
 import sklearn.metrics
-
-
-
 
 
 def read_swissprot(path):
@@ -36,7 +32,7 @@ def read_disprot(path):
         # print(gt)
     s = ''
     for i in gt:
-        #print(i)
+        # print(i)
         if not '>' in i:
             s += re.sub('\D', '1', i)
 
@@ -45,7 +41,7 @@ def read_disprot(path):
             s = ''
     annotations.pop(0)
     annotations.append(s)
-   # print(len(annotations), (annotations[-1]))
+    # print(len(annotations), (annotations[-1]))
     return annotations
 
 
@@ -102,25 +98,27 @@ def post_process_seg_output(path):
     return count
 
 
-def metrics_seg(path, annotations):
+def metrics_seg(path, annotations=None):
     with open(path, 'r') as file1:
         data = file1.readlines()
-        #print(len(data))
+        # print(len(data))
         count = 0
         protein_count = 0
 
         protein_seq = ''
         idpr = ''
         predictions = []
+        proteins = []
         pred = ''
         for idx, i in enumerate(data):
 
             i = i.strip()
-            #print(i)
+            # print(i)
             # i = i.strip()
             # print(i[:36])
             # print(i[30:40])
             if '>' in i.strip():
+                proteins.append(i.strip())
                 # print(pred)
                 predictions.append(pred)
                 pred = ''
@@ -134,11 +132,11 @@ def metrics_seg(path, annotations):
                 region = i
                 region = region.replace('x', '1')
                 region = re.sub('\D', '0', region)
-                #print(pred)
+                # print(pred)
                 pred += region
 
             # print(i)
-        #print(count)
+        # print(count)
         # while True:
         #     count += 1
         #
@@ -153,9 +151,10 @@ def metrics_seg(path, annotations):
         #     print("Line{}: {}".format(count, line.strip()))
     predictions.append(pred)
     predictions.pop(0)
-   # print(protein_count)
-    #print(len(predictions))
+    # print(protein_count)
+    # print(len(predictions))
     file1.close()
+    return predictions, proteins
     # annotations = []
     # with open(ground_truth_path, 'r') as file1:
     #     gt = file1.read().splitlines()
@@ -164,9 +163,9 @@ def metrics_seg(path, annotations):
     #         if not '>' in i:
     #             annotations.append(i)
 
-    assert len(annotations) == len(predictions), print(len(annotations), len(predictions))
-    target_metrics(predictions, annotations)
-    return count
+    # assert len(annotations) == len(predictions), print(len(annotations), len(predictions))
+    # target_metrics(predictions, annotations)
+    # return count
 
     return count
 
@@ -335,7 +334,7 @@ def iupred2a_metrics(path, annotations):
             # print({i.strip()})
             if '>' not in i:
                 s = 0
-                #print(i.split('\t'))
+                # print(i.split('\t'))
                 amino_score = i.split('\t')[-1]
                 pred += amino_score
 
@@ -344,8 +343,8 @@ def iupred2a_metrics(path, annotations):
 
                 idppreds.append(pred)
                 pred = ''
-                #print(i)
-    #annotations = []
+                # print(i)
+    # annotations = []
     idppreds.pop(0)
     idppreds.append(pred)
     # with open(ground_truth_path, 'r') as file1:
@@ -726,9 +725,10 @@ def metric(dataset_preds, dataset_target):
     s = f'\nTP\tTN\tFP\tFN\t\n{TP:.2f}\t{TN:.2f}\t{FP:.2f}\t{FN:.2f}\n' \
         f'F1  \t  MCC  \t  TPR  \t  TNR  \t  PPV  \t  NPV  \t  FPR  \t  FNR  \t  BAC\t AUC\t\n' \
         f'{F1 :.4f}\t{MCC :.4f}\t{TPR:.4f}\t{TNR:.4f}\t{PPV:.4f}\t{NPV:.4f}\t{FPR:.4f}\t{FNR:.4f}\t{BAC:.4f}\t{auc:.4f}'
-    return s# f'TP {TP:.2f} ,TN {TN:.2f} FP {FP:.2f},FN {FN:.2f},\n F1 {F1 :.4f}   MCC {MCC :.4f}\n TPR {TPR:.4f} TNR ' \
-           #f'{TNR:.4f}  PPV {PPV:.4f}\nNPV {NPV:.4f} FPR {FPR:.4f} FNR {FNR:.4f} BAC {BAC:.4f}'
+    return s  # f'TP {TP:.2f} ,TN {TN:.2f} FP {FP:.2f},FN {FN:.2f},\n F1 {F1 :.4f}   MCC {MCC :.4f}\n TPR {TPR:.4f}
+    # TNR ' \
 
+    # f'{TNR:.4f}  PPV {PPV:.4f}\nNPV {NPV:.4f} FPR {FPR:.4f} FNR {FNR:.4f} BAC {BAC:.4f}'
 
 
 def metricv2(dataset_preds: np.array, dataset_target: np.array):
@@ -786,12 +786,12 @@ def target_metrics(idppreds, annotations):
     avg_cm = [0, 0, 0, 0]
     dataset_preds = []
     dataset_target = []
-    #print(idppreds)
+    # print(idppreds)
     for i in range(len(idppreds)):
         # print(idppreds[i])
         pred = [int(c) for c in idppreds[i]]
         target = [int(c) for c in annotations[i]]
-        #print(i, len(pred), len(target))
+        # print(i, len(pred), len(target))
         assert len(pred) == len(target)
         dataset_preds += pred
         dataset_target += target
@@ -838,15 +838,15 @@ def target_metrics(idppreds, annotations):
     # MCC = numerotr/denominator
 
     s = f'{"TP":4}\t{"TN":4}\t{"FP":4}\t{"FN":4}\t{"F1":4}\t{"MCC":4}\t{"TPR":4}\t{"TNR":4}' \
-           f'\t{"PPV":4}\t{"NPV":4}\t{"FPR":4}\t{"FNR":4}\t{"BAC":4}'
+        f'\t{"PPV":4}\t{"NPV":4}\t{"FPR":4}\t{"FNR":4}\t{"BAC":4}'
     print(s)
     s = f'{TP:d}\t{TN:d}\t{FP:d}\t{FN:d}\t{F1:.4f}\t{MCC:.4f}\t{TPR:.4f}\t{TNR:.4f}' \
-    f'\t{PPV:.4f}\t{NPV:.4f}\t{FPR:.4f}\t{FNR:.4f}\t{BAC:.4f}'
+        f'\t{PPV:.4f}\t{NPV:.4f}\t{FPR:.4f}\t{FNR:.4f}\t{BAC:.4f}'
     # print(auc)
     print(s)
     s = f'TP={TP:.2f}\tTN={TN:.2f}\tFP={FP:.2f}\tFN={FN:.2f}\tF1={F1 :.4f}\t   MCC {MCC :.4f}\n TPR {TPR:.4f} TNR ' \
-           f'{TNR:.4f}  PPV {PPV:.4f}\nNPV {NPV:.4f} FPR {FPR:.4f} FNR {FNR:.4f} BAC {BAC:.4f}'
-    #print(s)
+        f'{TNR:.4f}  PPV {PPV:.4f}\nNPV {NPV:.4f} FPR {FPR:.4f} FNR {FNR:.4f} BAC {BAC:.4f}'
+    # print(s)
 
     return s
 
@@ -870,8 +870,8 @@ def cast_metrics(predictions_path, ground_truth_path):
             # print(i)
         elif '>' in i:
 
-            #print(s)
-            #print(i)
+            # print(s)
+            # print(i)
 
             proteins.append(i)
             if s != '':
@@ -879,13 +879,13 @@ def cast_metrics(predictions_path, ground_truth_path):
             s = ''
         else:
             s += i
-    #print(s)
+    # print(s)
     if s != '':
         predictions.append(s)
-    #print(len(proteins), len(predictions))
+    # print(len(proteins), len(predictions))
     idppreds = []
     for i in range(len(predictions)):
-        #print(predictions[i])
+        # print(predictions[i])
         s = predictions[i]
         s = s.replace('X', '1')
         s = re.sub('\D', '0', s)
@@ -1003,7 +1003,10 @@ def read_caid_data(path):
     f.close()
 
 
-# def create_caid_fasta_file(proteins,protein_ids,annotations):
+def create_annot_fasta(path, predictions, proteins):
+    with open(path, 'w') as f:
+        for i in range(len(proteins)):
+            f.write(f"{proteins[i]}\n{predictions[i]}\n")
 
 
 def read_json(path):
@@ -1015,6 +1018,7 @@ def read_json(path):
         data = data['data']
         print(data[0])
         print(size)
+
 
 # # read_json('/mnt/784C5F3A4C5EF1FC/PROJECTS/MScThesis/data/DisProt release_2021_08.json')
 # # import glob
@@ -1037,7 +1041,8 @@ def read_json(path):
 # #
 # #
 # #
-#metrics_seg('/home/iliask/PycharmProjects/MScThesis/results/seg/CAID2018_seg_out.txt', '../data/CAID_data_2018/annotation_files/annot_disprot-disorder.txt')
+
+
 #
 # #post_process_iupred2a_out('/home/iliask/PycharmProjects/MScThesis/results/iupred2a/Caid_disorder.txt',
 # '../data/CAID_data_2018/annotation_files/annot_disprot-disorder.txt')
@@ -1048,3 +1053,9 @@ def read_json(path):
 # results_file = '/home/iliask/PycharmProjects/MScThesis/results/iupred2a/CAID2018__out.txt'
 # annotations = read_disprot(ground_truth)
 # iupred2a_metrics(results_file, annotations)
+# pred, prot = metrics_seg('/home/iliask/PycharmProjects/MScThesis/results/seg/mxd_494_test.txt')
+#
+# create_annot_fasta('/home/iliask/PycharmProjects/MScThesis/results/mobidb/seg_mxd_494_val.txt', pred, prot)
+#
+# print(len(pred))
+# print(prot)

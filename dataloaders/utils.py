@@ -184,9 +184,9 @@ def read_mobidb4_json(json_path):
 
 # read_mobidb4_json('/home/iliask/PycharmProjects/MScThesis/results/mobidb/mxd494_val.json')
 #
-train_mxd494 = np.load('/home/iliask/PycharmProjects/MScThesis/results/mobidb/mxd494_val.npy', allow_pickle=True)
-print(a.item().keys())
-
+# train_mxd494 = np.load('/home/iliask/PycharmProjects/MScThesis/results/mobidb/mxd494_val.npy', allow_pickle=True)
+# print(a.item().keys())
+#
 
 def mobi_db_annot():
     protein_ids, sequences, annotations = read_idp_dataset(
