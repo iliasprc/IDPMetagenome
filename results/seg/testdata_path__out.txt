@@ -1,0 +1,82 @@
+>DP00084
+
+                                  1-134  MSDNDDIEVESDEEQPRFQSAADKRAHHNA
+                                         LERKRRDHIKDSFHSLRDSVPSLQGEKASR
+                                         AQILDKATEYIQYMRRKNHTHQQDIDDLKR
+                                         QNALLEQQVRALEKARSSAQLQTNYPSSDN
+                                         SLYTNAKGSTISAF
+               dggsdsssesepeep  135-149  
+                                150-160  QSRKKLRMEAS
+
+>DP00182
+
+                                  1-14   MAPTKRKGSCPGAA
+                pkkpkepvqvpklv   15-28   
+                                 29-362  IKGGIEVLGVKTGVDSFTEVECFLNPQMGN
+                                         PDEHQKGLSKSLAAEKQFTDDSPDKEQLPC
+                                         YSVARIPLPNINEDLTCGNILMWEAVTVKT
+                                         EVIGVTAMLNLHSGTQKTHENGAGKPIQGS
+                                         NFHFFAVGGEPLELQGVLANYRTKYPAQTV
+                                         TPKNATVDSQQMNTDHKAVLDKDNAYPVEC
+                                         WVPDPSKNENTRYFGTYTGGENVPPVLHIT
+                                         NTATTVLLDEQGVGPLCKADSLYVSAVDIC
+                                         GLFTNTSGTQQWKGLPRYFKITLRKRSVKN
+                                         PYPISFLLSDLINRRTQRVDGQPMIGMSSQ
+                                         VEEVRVYEDTEELPGDPDMIRYIDEFGQTT
+                                         TRMQ
+
+>DP00206
+
+                                  1-17   MKAAQKGFTLIELMIVV
+                 aiigilaaiaipa   18-30   
+                                 31-85   YQDYTARAQLSERMTLASGLKTKVSDIFSQ
+                                         DGSCPANTAATAGIEKDTDINGKYV
+              akvttggtaaasggct   86-101  
+                                102-147  IVATMKASDVATPLRGKTLTLTLGNADKGS
+                                         YTWACTSNADNKYLPK
+                     tcqtatttt  148-156  
+                                157-157  P
+
+>DP00334
+
+                                  1-29   MCNTNMSVPTDGAVTTSQIPASEQETLVR
+                    pkplllkllk   30-39   
+                                 40-201  SVGAQKDTYTMKEVLFYLGQYIMTKRLYDE
+                                         KQQHIVYCSNDLLGDLFGVPSFSVKEHRKI
+                                         YTMIYRNLVVVNQQESSDSGTSVSENRCHL
+                                         EGGSDQKDLVQELQEEKPSSSHLVSRPSTS
+                                         SRRRAISETEENSDELSGERQRKRHKSDSI
+                                         SLSFDESLALCV
+                ireiccersssses  202-215  
+                                216-251  TGTPSNPDLDAGVSEHSGDWLDQDSVSDQF
+                                         SVEFEV
+                 esldsedyslsee  252-264  
+                                265-393  GQELSDEDDEVYQVTVYQAGESDTDSFEED
+                                         PEISLADYWKCTSCNEMNPPLPSHCNRCWA
+                                         LRENWLPEDKGKDKGEISEKAKLENSTQAE
+                                         EGFDVPDCKKTIVNDSRESCVEENDDKITQ
+                                         ASQSQESED
+               ysqpstsssiiyssq  394-408  
+                                409-491  EDVKEFEREETQDKEESVESSLPLNAIEPC
+                                         VICQGRPKNGCIVHGKTGHLMACFTCAKKL
+                                         KKRNKPCPVCRQPIQMIVLTYFP
+
+>DP00359
+
+                                  1-9    MMLTKSVVI
+           srpavrpvstrravvvras   10-28   
+                                 29-107  GQPAVDLNKKVQDAVKEAEDACAKGTSADC
+                                         AVAWDTVEELSAAVSHKKDAVKADVTLTDP
+                                         LEAFCKDAPDADECRVYED
+
+>DP00518
+
+                                  1-79   MAKQPSDVSSECDREGGQLQPAERPPQLRP
+                                         GAPTSLQTEPQGNPDGEGDRCPHGSPQGPL
+                                         APPASPGPFATRSPLFIFV
+                   rrssllsrsss   80-90   
+                                 91-196  GYFSFDTDRSPAPMSCDKSTQTPSPPCQAF
+                                         NHYLSAMASIRQSQEEPEDLRPEIRIAQEL
+                                         RRIGDEFNETYTRRVFANDYREAEDHPQMV
+                                         ILQLLRFIFRLVWRRH
+

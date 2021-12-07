@@ -159,6 +159,7 @@ class Mobidb4Format(Formatter):
                 count = self.content_count(regions)
 
                 if regions:
+                    #print(prediction.method,regions)
                     if 'disorder' in prediction.types:
                         out_obj["prediction-disorder-{}".format(prediction.method)] = {
                             'regions': regions,
@@ -166,6 +167,7 @@ class Mobidb4Format(Formatter):
                             'content_fraction': round(count / self.seqlen, 3)
                         }
                     elif 'lowcomp' in prediction.types:
+                        print('lowcomp')
                         out_obj["prediction-low_complexity-{}".format(prediction.method)] = {
                             'regions': regions,
                             'content_count': count,
@@ -177,6 +179,13 @@ class Mobidb4Format(Formatter):
                             'content_count': count,
                             'content_fraction': round(count / self.seqlen, 3)
                         }
+                else:
+                    print("no regions found")
+                    out_obj["prediction-disorder-{}".format(prediction.method)] = {
+                        'regions'         : 'None',
+                        'content_count'   : 0,
+                        'content_fraction': 0
+                    }
 
                 if 'rigidity' in prediction.types:
                     out_obj["prediction-rigidity-{}".format(prediction.method)] = {
@@ -188,6 +197,8 @@ class Mobidb4Format(Formatter):
                     out_obj["prediction-{}-{}".format(ptype, method)] = {
                         'scores': prediction.scores
                     }
+            else:
+                print(f'prediction not valid')
 
         if out_obj:
             out_obj["length"] = self.seqlen
