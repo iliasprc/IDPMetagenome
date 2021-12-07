@@ -34,14 +34,14 @@ def cast_args():
                         help='... print this text                 -thr t   ... set the threshold score for reported '
                              'regions default is 40' \
                              't should be an integer number' \
-                             '-stat    ... outputs statistics information to file cast.stat' \
+                             '-stat    ... outputs statistics information to file IDP_COMPARE.txt' \
                              '-matrix  ... use different mutation matrix (.mat) file' \
                              '-verbose ... verbose mode prints filtering information to standard output' \
                              '-stderr  ... verbose mode prints filtering information to standard error ')
 
     parser.add_argument('-thr', default=40, type=int,
                         help='... print this text                 -thr t   ... set the threshold score for reported ')
-    parser.add_argument('-stat', default=True, type=bool, help='... outputs statistics information to file cast.stat')
+    parser.add_argument('-stat', default=True, type=bool, help='... outputs statistics information to file IDP_COMPARE.txt')
     parser.add_argument('-verbose', default=True, type=bool,
                         help='verbose mode prints filtering information to standard output')
     parser.add_argument('-stderr', default=True, type=bool,

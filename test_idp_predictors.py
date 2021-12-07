@@ -19,9 +19,9 @@ predictors = ['prediction-disorder-iupl', 'prediction-disorder-iups',
               'prediction-disorder-espN', 'prediction-disorder-espX', 'prediction-disorder-espD',
               'prediction-disorder-glo']
 
-test_predictor = 'prediction-disorder-iupl'
-train_predictors = ['prediction-disorder-glo', 'prediction-disorder-iups',
-                    'prediction-disorder-espN', 'prediction-disorder-espX', 'prediction-disorder-espD']
+test_predictor = 'prediction-disorder-espD'#'prediction-disorder-iups'
+train_predictors = ['prediction-disorder-glo', 'prediction-disorder-iupl',
+                    'prediction-disorder-iups', 'prediction-disorder-espN', 'prediction-disorder-espX']
 
 
 class IDP_tester(nn.Module):

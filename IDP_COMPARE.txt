@@ -1,0 +1,38 @@
+PREDICT IUPREDL
+TP      TN      FP      FN
+5911.00 213618.00       1642.00 3578.00
+F1        MCC     TPR     TNR     PPV     NPV     FPR     FNR     BAC    AUC
+0.6937  0.6866  0.6229  0.9924  0.7826  0.9835  0.0076  0.3771  0.8077  0.8077
+
+PREDICT IUPRED SHORT
+
+
+TP      TN      FP      FN
+8382.00 211555.00       1546.00 3266.00
+F1        MCC     TPR     TNR     PPV     NPV     FPR     FNR     BAC    AUC
+0.7770  0.7685  0.7196  0.9927  0.8443  0.9848  0.0073  0.2804  0.8562  0.8562
+
+
+PREDICT prediction-disorder-espN
+
+TP      TN      FP      FN
+11354.00        195471.00       3337.00 14587.00
+F1        MCC     TPR     TNR     PPV     NPV     FPR     FNR     BAC    AUC
+0.5589  0.5441  0.4377  0.9832  0.7729  0.9306  0.0168  0.5623  0.7105  0.7105
+
+
+prediction-disorder-espX
+
+
+TP      TN      FP      FN
+6529.00 213790.00       1278.00 3152.00
+F1        MCC     TPR     TNR     PPV     NPV     FPR     FNR     BAC    AUC
+0.7467  0.7412  0.6744  0.9941  0.8363  0.9855  0.0059  0.3256  0.8342  0.8342
+
+prediction-disorder-espD
+
+
+TP      TN      FP      FN
+487.00  222353.00       1438.00 471.00
+F1        MCC     TPR     TNR     PPV     NPV     FPR     FNR     BAC    AUC
+0.3378  0.3549  0.5084  0.9936  0.2530  0.9979  0.0064  0.4916  0.7510  0.7510
