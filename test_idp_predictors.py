@@ -19,8 +19,8 @@ predictors = ['prediction-disorder-iupl', 'prediction-disorder-iups',
               'prediction-disorder-espN', 'prediction-disorder-espX', 'prediction-disorder-espD',
               'prediction-disorder-glo']
 
-test_predictor = 'prediction-disorder-espD'#'prediction-disorder-iups'
-train_predictors = ['prediction-disorder-glo', 'prediction-disorder-iupl',
+test_predictor = 'prediction-disorder-glo'#'prediction-disorder-iups'
+train_predictors = ['prediction-disorder-espD', 'prediction-disorder-iupl',
                     'prediction-disorder-iups', 'prediction-disorder-espN', 'prediction-disorder-espX']
 
 

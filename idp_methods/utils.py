@@ -1019,7 +1019,6 @@ def read_json(path):
         print(data[0])
         print(size)
 
-
 # # read_json('/mnt/784C5F3A4C5EF1FC/PROJECTS/MScThesis/data/DisProt release_2021_08.json')
 # # import glob
 # # files_ = sorted(glob.glob(f'/mnt/784C5F3A4C5EF1FC/PROJECTS/MScThesis/data/CAID_data_2018/**.txt'))
