@@ -1,7 +1,6 @@
 import argparse
 import datetime
 import os
-import shutil
 
 import torch
 from torch.utils.tensorboard import SummaryWriter
@@ -54,7 +53,7 @@ def main():
         model = IDP_esm1_t12_85M_UR50S()
     elif args.model == 'IDP_esm1_t6_43M_UR50S':
         model = IDP_esm1_t6_43M_UR50S()
-    elif args.model  == 'IDP_esm1_msa':
+    elif args.model == 'IDP_esm1_msa':
         model = IDP_esm1_msa()
 
     log.info(f"{model}")
@@ -71,7 +70,7 @@ def main():
     optimizer, scheduler = select_optimizer(model, args, None)
 
     log.info(f"Checkpoint Folder {cpkt_fol_name} ")
-    #shutil.copy(os.path.join(args.cwd, config_file), cpkt_fol_name)
+    # shutil.copy(os.path.join(args.cwd, config_file), cpkt_fol_name)
 
     from trainer.esm_trainer import ESMTrainer
     trainer = ESMTrainer(args, model=model, optimizer=optimizer,

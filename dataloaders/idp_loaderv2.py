@@ -188,8 +188,6 @@ class Disorder723(Dataset):
         return output
 
 
-
-
 class MXD494_idp_dataset(Dataset):
     def __init__(self, cwd: str, split: str, tokenizer: Union[str, TAPETokenizer] = 'iupac', ):
         train_filepath = "data/idp_seq_2_seq/mxd494/MXD494_train_all.txt"
@@ -271,7 +269,8 @@ def idp_dataset(args, cwd):
         train_dataset = DM_idp_dataset(cwd=cwd, split='train', tokenizer=tokenizer)
 
         train_loader = setup_loader(train_dataset, batch_size=args.batch_size, local_rank=-1, n_gpu=1,
-                                    gradient_accumulation_steps=args.gradient_accumulation, num_workers=args.num_workers)
+                                    gradient_accumulation_steps=args.gradient_accumulation,
+                                    num_workers=args.num_workers)
         val_dataset = DM_idp_dataset(cwd=cwd, split='val', tokenizer=tokenizer)
 
         val_loader = setup_loader(val_dataset, batch_size=args.batch_size, local_rank=-1, n_gpu=1,
@@ -283,7 +282,8 @@ def idp_dataset(args, cwd):
         train_dataset = MXD494_idp_dataset(cwd=cwd, split='train', tokenizer=tokenizer)
 
         train_loader = setup_loader(train_dataset, batch_size=args.batch_size, local_rank=-1, n_gpu=1,
-                                    gradient_accumulation_steps=args.gradient_accumulation, num_workers=args.num_workers)
+                                    gradient_accumulation_steps=args.gradient_accumulation,
+                                    num_workers=args.num_workers)
         val_dataset = MXD494_idp_dataset(cwd=cwd, split='val', tokenizer=tokenizer)
 
         val_loader = setup_loader(val_dataset, batch_size=args.batch_size, local_rank=-1, n_gpu=1,

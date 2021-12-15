@@ -85,7 +85,7 @@ class ESMTrainer(BaseTrainer):
             target = target.to(self.device)
 
             output = self.model(data[0])
- 
+
             loss = self.criterion(output.squeeze(0), target.squeeze(0))
             loss = loss.mean()
 
@@ -119,7 +119,7 @@ class ESMTrainer(BaseTrainer):
         pred = np.array(yhat)
         target = np.array(y)
 
-        metrics_,_ = dataset_metrics(yhat, y)
+        metrics_, _ = dataset_metrics(yhat, y)
         self.logger.info(metrics_)
         # print_metrics(metrics, self.logger)
         self._progress(batch_idx, epoch, metrics=self.train_metrics, mode='train', print_summary=True)
@@ -139,7 +139,6 @@ class ESMTrainer(BaseTrainer):
         self.confusion_matrix = 0 * self.confusion_matrix
         with torch.no_grad():
             for batch_idx, (data, target) in enumerate(loader):
-
 
                 target = target.to(self.device)
 
@@ -164,7 +163,7 @@ class ESMTrainer(BaseTrainer):
         # pred = np.array(yhat)
         # target = np.array(y)
 
-        metrics,_ = dataset_metrics(yhat, y)
+        metrics, _ = dataset_metrics(yhat, y)
         self.logger.info(metrics)
         self._progress(batch_idx, epoch, metrics=self.valid_metrics, mode=mode, print_summary=True)
         k = 5

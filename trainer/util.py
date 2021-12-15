@@ -373,11 +373,11 @@ def arguments():
     parser = argparse.ArgumentParser()
     parser.add_argument('-b', '--batch_size', type=int, default=4, help='batch size for training')
     parser.add_argument('--dataset', type=str, default="MXD494", help='dataset name')
-    parser.add_argument('--dataset_type',type=str,default='classification')
+    parser.add_argument('--dataset_type', type=str, default='classification')
     parser.add_argument('--epochs', type=int, default=50, help='total number of epochs')
 
     parser.add_argument('--device', type=int, default=0, help='gpu device')
-    parser.add_argument('--cuda', type=bool,default=True, help='use_cuda')
+    parser.add_argument('--cuda', type=bool, default=True, help='use_cuda')
     parser.add_argument('--cwd', type=str, default='/home/', help='working directory')
     parser.add_argument('--logger', type=str, default='IDP', help='logger name')
 
@@ -431,13 +431,11 @@ def arguments():
 
     parser.add_argument('--num-workers', type=int, default=4, metavar='N',
                         help='how many training processes to use (default: 4)')
-    parser.add_argument('--train_augmentation', type=bool, default=True,)
+    parser.add_argument('--train_augmentation', type=bool, default=True, )
     parser.add_argument('--shuffle', type=bool, default=True, )
     parser.add_argument('--val_augmentation', type=bool, default=True, )
-    parser.add_argument('--tensorboard',type=bool,default=True)
+    parser.add_argument('--tensorboard', type=bool, default=True)
     return parser
-
-
 
 
 def get_arguments():
@@ -472,7 +470,6 @@ def get_arguments():
 
 
 def reproducibility(args):
-
     SEED = args.seed
     torch.manual_seed(SEED)
     torch.backends.cudnn.deterministic = True

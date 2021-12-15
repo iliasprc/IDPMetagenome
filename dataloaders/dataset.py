@@ -7,11 +7,11 @@ def loaders(args, dataset_name=''):
     batch_size = 1
     val_params = {'batch_size' : args.batch_size,
                   'shuffle'    : False,
-                  'num_workers':  args.num_workers}
+                  'num_workers': args.num_workers}
 
     train_params = {'batch_size' : args.batch_size,
-                  'shuffle'    : args.shuffle,
-                  'num_workers':  args.num_workers}
+                    'shuffle'    : args.shuffle,
+                    'num_workers': args.num_workers}
 
     if dataset_name == 'DM':
         from dataloaders.dm_loader import DMLoader

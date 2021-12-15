@@ -71,7 +71,7 @@ def main():
             model = torch.nn.DataParallel(model)
     model.to(device)
 
-    optimizer, scheduler = select_optimizer(model, args , None)
+    optimizer, scheduler = select_optimizer(model, args, None)
     # log.info(f'{model}')
     log.info(f"Checkpoint Folder {cpkt_fol_name} ")
 
