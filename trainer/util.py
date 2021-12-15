@@ -11,6 +11,7 @@ import torch
 import torch.nn as nn
 import torch.nn.functional as F
 import torch.optim as optim
+import yaml
 
 
 def _create_model_training_folder(writer, files_to_same=0):
@@ -348,12 +349,103 @@ def getopts(argv):
     return opts
 
 
+def _parse_args(config_parser, parser):
+    # Do we have a config file to parse?
+    args_config, remaining = config_parser.parse_known_args()
+    print(remaining)
+    print(args_config)
+    if args_config.config:
+        with open(args_config.config, 'r') as f:
+            cfg = yaml.safe_load(f)
+            parser.set_defaults(**cfg)
+
+    # The main arg parser parses the rest of the args, the usual
+    # defaults will have been overridden if config file specified.
+    args = parser.parse_args(remaining)
+    # print(args)
+
+    # Cache the args as a text string to save them in the output dir later
+    args_text = yaml.safe_dump(args.__dict__, default_flow_style=False)
+    return args, args_text
+
+
+def arguments():
+    parser = argparse.ArgumentParser()
+    parser.add_argument('-b', '--batch_size', type=int, default=4, help='batch size for training')
+    parser.add_argument('--dataset', type=str, default="MXD494", help='dataset name')
+    parser.add_argument('--dataset_type',type=str,default='classification')
+    parser.add_argument('--epochs', type=int, default=50, help='total number of epochs')
+
+    parser.add_argument('--device', type=int, default=0, help='gpu device')
+    parser.add_argument('--cuda', type=bool,default=True, help='use_cuda')
+    parser.add_argument('--cwd', type=str, default='/home/', help='working directory')
+    parser.add_argument('--logger', type=str, default='IDP', help='logger name')
+
+    # Model parameters
+    parser.add_argument('--model', default='idptransformer', type=str, metavar='MODEL',
+                        help='Name of model to train (default: "countception"')
+    parser.add_argument('--heads', type=int, default=8, metavar='S',
+                        help='number of Transformer heads')
+    parser.add_argument('--layers', type=int, default=8, metavar='S',
+                        help='number of Transformer layers')
+    parser.add_argument('--dim', type=int, default=512, metavar='S',
+                        help='number of Transformer layers')
+    parser.add_argument('--load', type=bool, default=False, help='Load pretrained checkpoint')
+
+    # Optimizer parameters
+    parser.add_argument('--opt', '--optimizer', default='Adam', type=str, metavar='OPTIMIZER',
+                        help='Optimizer (default: "sgd"')
+    parser.add_argument('--gradient_accumulation', type=int, default=2, help='number of gradient accumulation steps')
+    parser.add_argument('--opt-eps', default=None, type=float, metavar='EPSILON',
+                        help='Optimizer Epsilon (default: None, use opt default)')
+    parser.add_argument('--opt-betas', default=None, type=float, nargs='+', metavar='BETA',
+                        help='Optimizer Betas (default: None, use opt default)')
+    parser.add_argument('--momentum', type=float, default=0.9, metavar='M',
+                        help='Optimizer momentum (default: 0.9)')
+    parser.add_argument('--weight-decay', type=float, default=0.0001,
+                        help='weight decay (default: 0.0001)')
+    parser.add_argument('--clip-grad', type=float, default=None, metavar='NORM',
+                        help='Clip gradient norm (default: None, no clipping)')
+    parser.add_argument('--clip-mode', type=str, default='norm',
+                        help='Gradient clipping mode. One of ("norm", "value", "agc")')
+
+    # Learning rate schedule parameters
+    parser.add_argument('--scheduler', default='ReduceLRonPlateau', type=str, metavar='SCHEDULER',
+                        help='LR scheduler (default: "step"')
+    parser.add_argument('--lr', type=float, default=0.01, metavar='LR',
+                        help='learning rate (default: 0.01)')
+    parser.add_argument('--scheduler_factor', type=float, default=0.81, metavar='LR',
+                        help='learning rate change ratio (default: 0.81)')
+    parser.add_argument('--scheduler_patience', type=int, default=3, metavar='LR',
+                        help='scheduler patience for some epochs')
+    parser.add_argument('--scheduler_min_lr', type=float, default=1e-5, metavar='LR',
+                        help='minimum learning rate value (default: 1e-5 )')
+    parser.add_argument('--scheduler_verbose', type=bool, default=True, metavar='LR',
+                        help='print if learning rate is changed')
+
+    # Misc
+    parser.add_argument('--seed', type=int, default=42, metavar='S',
+                        help='random seed (default: 42)')
+    parser.add_argument('--log-interval', type=int, default=50, metavar='N',
+                        help='how many batches to wait before logging training status')
+
+    parser.add_argument('--num-workers', type=int, default=4, metavar='N',
+                        help='how many training processes to use (default: 4)')
+    parser.add_argument('--train_augmentation', type=bool, default=True,)
+    parser.add_argument('--shuffle', type=bool, default=True, )
+    parser.add_argument('--val_augmentation', type=bool, default=True, )
+    return parser
+
+
+
+
 def get_arguments():
     parser = argparse.ArgumentParser()
     parser.add_argument('--batch_size', type=int, default=4, help='batch size for training')
     parser.add_argument('--log_interval', type=int, default=1000, help='steps to log.info metrics and loss')
     parser.add_argument('--dataset_name', type=str, default="COVIDx", help='dataset name COVIDx or COVID_CT')
-    parser.add_argument('--nEpochs', type=int, default=250, help='total number of epochs')
+    parser.add_argument('--epochs', type=int, default=50, help='total number of epochs')
+    parser.add_argument('--gradient_accumulation', type=int, default=2, help='number of gradient accumulation steps')
     parser.add_argument('--device', type=int, default=0, help='gpu device')
     parser.add_argument('--seed', type=int, default=123, help='select seed number for reproducibility')
     parser.add_argument('--classes', type=int, default=3, help='dataset classes')
@@ -378,14 +470,14 @@ def get_arguments():
     return args
 
 
-def reproducibility(config):
-    os.environ['CUDA_VISIBLE_DEVICES'] = str(config.gpu)
-    SEED = config.seed
+def reproducibility(args):
+
+    SEED = args.seed
     torch.manual_seed(SEED)
     torch.backends.cudnn.deterministic = True
     torch.backends.cudnn.benchmark = False
     np.random.seed(SEED)
-    if (config.cuda):
+    if (args.cuda):
         torch.cuda.manual_seed(SEED)
 
 
@@ -423,27 +515,27 @@ class Cosine_LR_Scheduler(object):
         return self.current_lr
 
 
-def select_optimizer(model, config, checkpoint=None):
-    opt = config['optimizer']['type']
-    lr = config['optimizer']['lr']
+def select_optimizer(model, args, checkpoint=None):
+    opt = args.opt
+    lr = args.lr
     predictor_prefix = ('module.predictor', 'predictor')
 
     if (opt == 'Adam'):
         print(" use optimizer Adam lr ", lr)
-        optimizer = optim.Adam(model.parameters(), lr=float(config['optimizer']['lr']),
-                               weight_decay=float(config['optimizer']['weight_decay']))
+        optimizer = optim.Adam(model.parameters(), lr=float(lr),
+                               weight_decay=float(args.weight_decay))
     elif (opt == 'AdamW'):
         print(" use optimizer Adam lr ", lr)
-        optimizer = optim.Adam(model.parameters(), lr=float(config['optimizer']['lr']),
-                               weight_decay=float(config['optimizer']['weight_decay']))
+        optimizer = optim.Adam(model.parameters(), lr=float(lr),
+                               weight_decay=float(args.weight_decay))
     elif (opt == 'SGD'):
         print(" use optimizer SGD lr ", lr)
-        optimizer = optim.SGD(model.parameters(), lr=float(config['optimizer']['lr']), momentum=0.9,
-                              weight_decay=float(config['optimizer']['weight_decay']))
+        optimizer = optim.SGD(model.parameters(), lr=float(lr), momentum=0.9,
+                              weight_decay=float(args.weight_decay))
     elif (opt == 'RMSprop'):
         print(" use RMS  lr", lr)
-        optimizer = optim.RMSprop(model.parameters(), lr=float(config['optimizer']['lr']),
-                                  weight_decay=float(config['optimizer']['weight_decay']))
+        optimizer = optim.RMSprop(model.parameters(), lr=float(lr),
+                                  weight_decay=float(args.weight_decay))
     # if (checkpoint != None):
     #     # print('load opt cpkt')
     #     optimizer.load_state_dict(checkpoint['optimizer_dict'])
@@ -451,14 +543,14 @@ def select_optimizer(model, config, checkpoint=None):
     #         g['lr'] = 0.005
     #     print(optimizer.state_dict()['state'].keys())
 
-    # if config['scheduler']['type'] == 'ReduceLRonPlateau':
-    #     from torch.optim.lr_scheduler import ReduceLROnPlateau
-    #     scheduler = ReduceLROnPlateau(optimizer, factor=config['scheduler']['scheduler_factor'],
-    #                                   patience=config['scheduler']['scheduler_patience'],
-    #                                   min_lr=config['scheduler']['scheduler_min_lr'],
-    #                                   verbose=config['scheduler']['scheduler_verbose'])
-    #
-    #     return optimizer, scheduler
+    if args.scheduler == 'ReduceLRonPlateau':
+        from torch.optim.lr_scheduler import ReduceLROnPlateau
+        scheduler = ReduceLROnPlateau(optimizer, factor=args.scheduler_factor,
+                                      patience=args.scheduler_patience,
+                                      min_lr=args.scheduler_min_lr,
+                                      verbose=args.scheduler_verbose)
+
+        return optimizer, scheduler
 
     return optimizer, None
 
@@ -508,29 +600,30 @@ def select_optimizer_pretrain(model, config, checkpoint=None):
 
 
 def select_model(config, n_classes, pretrained=False):
-    if config.model.name == 'idptransformer':
+    if config.model == 'idptransformer':
         from models.transformer import IDPTransformer
-        return IDPTransformer(config, dim=config.dim, blocks=config.layers, heads=config.heads, dim_head=None, dim_linear_block=config.dim * 2,
+        return IDPTransformer(config, dim=config.dim, blocks=config.layers, heads=config.heads, dim_head=None,
+                              dim_linear_block=config.dim * 2,
                               dropout=0.2,
                               prenorm=False, classes=n_classes)
-    elif config.model.name == 'idpcct':
+    elif config.model == 'idpcct':
         from models.transformer import IDP_cct
-        return IDP_cct(dim=config.dim, blocks=config.layers, heads=config.heads, dim_head=None, dim_linear_block=config.dim  , dropout=0.2,
+        return IDP_cct(dim=config.dim, blocks=config.layers, heads=config.heads, dim_head=None,
+                       dim_linear_block=config.dim, dropout=0.2,
                        prenorm=False, classes=n_classes)
-    elif config.model.name == 'idprnn':
+    elif config.model == 'idprnn':
         from models.rnn import IDPrnn
         return IDPrnn(dropout=0.2, dim=config.dim, blocks=config.layers, classes=n_classes)
-    elif config.model.name == 'IDPseqvec':
+    elif config.model == 'IDPseqvec':
         from models.transformer import IDPseqvec
 
         return IDPseqvec()
-    elif config.model.name == 'lm':
+    elif config.model == 'lm':
         from models.embed import LM
         return LM(vocab=n_classes, dim=config.dim)
-    elif config.model.name == 'proteinbert':
+    elif config.model == 'proteinbert':
         from models.protein_bert import IDP_ProteinBert
         return IDP_ProteinBert()
-
 
 
 class FocalLoss(nn.CrossEntropyLoss):

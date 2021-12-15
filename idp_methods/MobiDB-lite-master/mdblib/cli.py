@@ -4,7 +4,7 @@ import argparse
 
 def arg_parser(cd):
     """
-    Command line arguments parser. For more information on Arguments see README
+    Command line arguments parser. For more information on Arguments see README.md
     or launch ``mobidb_lite_old.py --help``
     """
 
@@ -31,7 +31,7 @@ def arg_parser(cd):
 
     parser.add_argument('-f', '--outputFormat', default='interpro',
                         choices=['interpro', 'fasta', 'mobidb4', 'caid'],
-                        help='output format, see README.md for further details')
+                        help='output format, see README.md.md for further details')
 
     parser.add_argument('-c', '--conf', type=str, default=os.path.join(cd, 'config.ini'),
                         help="path to an alternative configuration file.")

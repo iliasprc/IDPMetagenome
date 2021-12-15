@@ -8,12 +8,12 @@ class BaseTrainer:
     Base class for all trainers
     """
 
-    def __init__(self, config, data_loader, writer, checkpoint_dir, logger,
+    def __init__(self, args, data_loader, writer, checkpoint_dir, logger,
                  valid_data_loader=None,
                  test_data_loader=None, metric_ftns=None):
 
-        self.config = config
-        if self.config.cuda:
+        self.args = args
+        if self.args.cuda:
             use_cuda = torch.cuda.is_available()
             self.device = torch.device("cuda" if use_cuda else "cpu")
         else:
@@ -21,21 +21,21 @@ class BaseTrainer:
         self.logger = logger
         self.train_data_loader = data_loader
         self.len_epoch = len(self.train_data_loader)
-        self.epochs = self.config.epochs
+        self.epochs = self.args.epochs
         self.valid_data_loader = valid_data_loader
         self.test_data_loader = test_data_loader
         self.do_validation = self.valid_data_loader is not None
         self.do_test = self.test_data_loader is not None
         # setup GPU device if available, move model into configured device
-        # self.device, device_ids = self._prepare_device(config['n_gpu'])
+        # self.device, device_ids = self._prepare_device(args['n_gpu'])
         self.writer = writer
         self.checkpoint_dir = checkpoint_dir
         self.logger = logger
-        self.epochs = config.epochs
+        self.epochs = args.epochs
         self.start_epoch = 1
-        self.log_step = config.log_interval
+        self.log_step = args.log_interval
         #
-        # cfg_trainer = config['trainer']
+        # cfg_trainer = args['trainer']
         # self.epochs = cfg_trainer['epochs']
         # self.save_period = cfg_trainer['save_period']
         # self.monitor = cfg_trainer.get('monitor', 'off')
@@ -58,8 +58,8 @@ class BaseTrainer:
         # # setup visualization writer instance
         # self.writer = writer
 
-        # if config.resume is not None:
-        #     self._resume_checkpoint(config.resume)
+        # if args.resume is not None:
+        #     self._resume_checkpoint(args.resume)
 
     @abstractmethod
     def _train_epoch(self, epoch):

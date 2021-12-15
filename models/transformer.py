@@ -331,7 +331,7 @@ class IDPTransformer(nn.Module):
                  classes=1):
         super().__init__()
         self.embed = nn.Embedding(embed_dim, dim)
-        self.use_elmo = config.dataset.use_strings
+        self.use_elmo = True
 
         self.pos_embed = PositionalEncodingSin(dim, dropout=0.1, max_tokens=2000)
         encoder_layer = nn.TransformerEncoderLayer(d_model=dim, dim_feedforward=dim_linear_block, nhead=heads,

@@ -13,13 +13,13 @@ class Trainer(BaseTrainer):
     Trainer class
     """
 
-    def __init__(self, config, model, optimizer, data_loader, writer, checkpoint_dir, logger, class_dict,
+    def __init__(self, args, model, optimizer, data_loader, writer, checkpoint_dir, logger, class_dict,
                  valid_data_loader=None, test_data_loader=None, lr_scheduler=None, metric_ftns=None):
-        super(Trainer, self).__init__(config, data_loader, writer, checkpoint_dir, logger,
+        super(Trainer, self).__init__(args, data_loader, writer, checkpoint_dir, logger,
                                       valid_data_loader=valid_data_loader,
                                       test_data_loader=test_data_loader, metric_ftns=metric_ftns)
 
-        if (self.config.cuda):
+        if (self.args.cuda):
             use_cuda = torch.cuda.is_available()
             self.device = torch.device("cuda" if use_cuda else "cpu")
         else:
@@ -27,26 +27,26 @@ class Trainer(BaseTrainer):
         self.start_epoch = 1
         self.train_data_loader = data_loader
 
-        self.len_epoch = self.config.batch_size * len(self.train_data_loader)
-        self.epochs = self.config.epochs
+        self.len_epoch = self.args.batch_size * len(self.train_data_loader)
+        self.epochs = self.args.epochs
         self.valid_data_loader = valid_data_loader
         self.test_data_loader = test_data_loader
         self.do_validation = self.valid_data_loader is not None
         self.do_test = self.test_data_loader is not None
         self.lr_scheduler = lr_scheduler
-        self.log_step = self.config.log_interval
+        self.log_step = self.args.log_interval
         self.model = model
         self.num_classes = len(class_dict)
         self.optimizer = optimizer
 
         self.mnt_best = np.inf
-        # if self.config.dataset.type == 'multi_target':
+        # if self.args.dataset.type == 'multi_target':
         self.criterion = torch.nn.BCEWithLogitsLoss(reduction='mean')
         self.criterion = torch.nn.CrossEntropyLoss(reduction='mean',
                                                    weight=torch.tensor([1.0, 2.0], dtype=torch.float32).to(self.device))
 
         self.checkpoint_dir = checkpoint_dir
-        self.gradient_accumulation = config.gradient_accumulation
+        self.gradient_accumulation = args.gradient_accumulation
         self.writer = writer
         self.metric_ftns = ['loss', 'acc']
         self.train_metrics = MetricTracker(*[m for m in self.metric_ftns], writer=self.writer, mode='train')
@@ -57,15 +57,15 @@ class Trainer(BaseTrainer):
         self.scheduler = Cosine_LR_Scheduler(
             self.optimizer,
             warmup_epochs=10, warmup_lr=0,
-            num_epochs=self.epochs + 2, base_lr=self.config['model']['optimizer']['lr'], final_lr=5e-5,
+            num_epochs=self.epochs + 2, base_lr=self.args.lr, final_lr=5e-5,
             iter_per_epoch=len(self.train_data_loader) // self.gradient_accumulation,
             constant_predictor_lr=True  # see the end of section 4.2 predictor
         )
 
         self.confusion_matrix = torch.zeros(2, 2)
-        self.use_elmo = config.dataset.use_strings
+        self.use_elmo = True
         # if self.use_elmo:
-        #     model_dir = Path('/config/uniref50_v2')
+        #     model_dir = Path('/args/uniref50_v2')
         #     weights = model_dir / 'weights.hdf5'
         #     options = model_dir / 'options.json'
         #     self.embedder = ElmoEmbedder(options, weights, cuda_device=0)
@@ -85,9 +85,7 @@ class Trainer(BaseTrainer):
         gradient_accumulation = self.gradient_accumulation
 
         for batch_idx, (data, target) in enumerate(self.train_data_loader):
-            if self.use_elmo:
-                # print(data)
-                data = torch.FloatTensor(self.embedder.embed_sentence(list(data[0]))).sum(dim=0).unsqueeze(0)
+
             # print(data.shape)
             data = data.to(self.device)
 
@@ -125,10 +123,8 @@ class Trainer(BaseTrainer):
         k = 5
         # print(len(yhat),len(y))
         # print(yhat[:10],y[:10])
-        pred = np.array(yhat)
-        target = np.array(y)
 
-        metrics = metric(yhat, y)
+        metrics,_ = dataset_metrics(np.array(yhat), np.array(y))
         self.logger.info(metrics)
         # print_metrics(metrics, self.logger)
         self._progress(batch_idx, epoch, metrics=self.train_metrics, mode='train', print_summary=True)
@@ -178,7 +174,8 @@ class Trainer(BaseTrainer):
         # pred = np.array(yhat)
         # target = np.array(y)
 
-        metrics = metric(yhat, y)
+        metrics,_ = dataset_metrics(np.array(yhat), np.array(y))
+        self.logger.info(metrics)
         self.logger.info(metrics)
         self._progress(batch_idx, epoch, metrics=self.valid_metrics, mode=mode, print_summary=True)
         k = 5
@@ -192,7 +189,7 @@ class Trainer(BaseTrainer):
         Train the model
         """
         for epoch in range(self.start_epoch, self.epochs):
-            # torch.manual_seed(self.config.seed)
+            # torch.manual_seed(self.args.seed)
             self._train_epoch(epoch)
 
             self.logger.info(f"{'!' * 10}    VALIDATION   , {'!' * 10}")
@@ -248,14 +245,14 @@ class Trainer(BaseTrainer):
 
     def _progress(self, batch_idx, epoch, metrics, mode='', print_summary=False):
         metrics_string = metrics.calc_all_metrics()
-        if ((batch_idx * self.config.batch_size) % self.log_step == 0):
+        if ((batch_idx * self.args.batch_size) % self.log_step == 0):
 
             if metrics_string == None:
                 self.logger.warning(f" No metrics")
             else:
                 self.logger.info(
                     f"{mode} Epoch: [{epoch:2d}/{self.epochs:2d}]\t Sample ["
-                    f"{batch_idx * self.config.batch_size:5d}/{self.len_epoch:5d}]\t {metrics_string}")
+                    f"{batch_idx * self.args.batch_size:5d}/{self.len_epoch:5d}]\t {metrics_string}")
         elif print_summary:
             self.logger.info(
                 f'{mode} summary  Epoch: [{epoch}/{self.epochs}]\t {metrics_string}')

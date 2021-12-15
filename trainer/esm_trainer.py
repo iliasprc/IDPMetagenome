@@ -119,7 +119,7 @@ class ESMTrainer(BaseTrainer):
         pred = np.array(yhat)
         target = np.array(y)
 
-        metrics_ = metric(yhat, y)
+        metrics_,_ = dataset_metrics(yhat, y)
         self.logger.info(metrics_)
         # print_metrics(metrics, self.logger)
         self._progress(batch_idx, epoch, metrics=self.train_metrics, mode='train', print_summary=True)
@@ -164,7 +164,7 @@ class ESMTrainer(BaseTrainer):
         # pred = np.array(yhat)
         # target = np.array(y)
 
-        metrics = metric(yhat, y)
+        metrics,_ = dataset_metrics(yhat, y)
         self.logger.info(metrics)
         self._progress(batch_idx, epoch, metrics=self.valid_metrics, mode=mode, print_summary=True)
         k = 5

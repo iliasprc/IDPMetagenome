@@ -6,7 +6,7 @@ trainer:
   cuda: True # use nvidia gpu
   gpu: 0 # id of gpu
   save: True # save checkpoint
-  batch_size: 4
+  batch_size: 1
   dim: 128
   layers: 2
   heads: 2

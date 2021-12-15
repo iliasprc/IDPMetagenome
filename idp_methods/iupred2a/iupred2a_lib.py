@@ -1,6 +1,6 @@
+import math
 import os
 import textwrap
-import math
 
 PATH = os.path.dirname(os.path.realpath(__file__))
 
@@ -178,7 +178,6 @@ def iupred(seq, mode='long', new_smoothing=False):
     return iupred_score, glob_text
 
 
-
 def iupred_redox(seq):
     return iupred(seq.replace("C", "S"))
 
@@ -246,7 +245,8 @@ def anchor2(seq):
     interface_energy_score = [0] * len(seq)
     energy_gain = [0] * len(seq)
     for idx in range(len(seq)):
-        freq_dct = aa_freq(seq[max(0, idx - local_window_size):max(0, idx - 1)] + seq[idx + 2:idx + local_window_size + 1])
+        freq_dct = aa_freq(
+            seq[max(0, idx - local_window_size):max(0, idx - 1)] + seq[idx + 2:idx + local_window_size + 1])
         for aa, freq in freq_dct.items():
             try:
                 local_energy_score[idx] += mtx[seq[idx]][aa] * freq
@@ -271,3 +271,176 @@ def anchor2(seq):
         anchor_score[idx] = sign * (energy_gain[idx] + corr - par_b) * (iupred_scores[idx] - par_c)
         anchor_score[idx] = 1 / (1 + math.e ** (-22.97968 * (anchor_score[idx] - 0.0116)))
     return anchor_score
+
+
+def post_process_iupred2a_out1(path, ground_truth_path):
+    with open(path, 'r') as file1:
+        data = file1.read().splitlines()
+        print(len(data))
+        count = 0
+        pred = ''
+        idppreds = []
+        for idx, i in enumerate(data):
+            # print({i.strip()})
+            if '>' not in i:
+                s = 0
+                print(i.split('\t'))
+                amino_score = i.split('\t')[-1]
+                pred += amino_score
+
+
+            else:
+
+                idppreds.append(pred)
+                pred = ''
+                print(i)
+    annotations = []
+    idppreds.pop(0)
+    idppreds.append(pred)
+    annotations = read_annotation_file(ground_truth_path)
+    assert len(annotations) == len(idppreds), print(f'{len(annotations)}  != {len(idppreds)}')
+    print(len(annotations))
+    avgf1 = 0
+    avg_mcc = 0
+    avg_cm = [0, 0, 0, 0]
+    dataset_preds = []
+    dataset_target = []
+    TPR = 0
+    # Specificity or true negative rate
+    TNR = 0
+    # Precision or positive predictive value
+    PPV = 0
+    # Negative predictive value
+    NPV = 0
+    # Fall out or false positive rate
+    FPR = 0
+    # False negative rate
+    FNR = 0
+    # False discovery rate
+    FDR = 0
+    F1 = 0
+    # Overall accuracy
+    ACC = 0
+
+    BAC = 0
+
+    for i in range(len(idppreds)):
+        # print(idppreds[i])
+        pred = [int(c) for c in idppreds[i]]
+        target = [int(c) for c in annotations[i]]
+        # print(i,len(pred), len(target))
+        assert len(pred) == len(target)
+        pred = np.array(pred)
+        target = np.array(target)
+
+        # mcc = sklearn.metrics.matthews_corrcoef(target,pred)
+        # print(np.where(target<1,target,-1),target)
+        # print(precision, f1, mcc)
+        # avg_mcc += mcc
+
+        # print(target,pred)
+        confusion_matrix = sklearn.metrics.confusion_matrix(target, pred)
+
+        cm = confusion_matrix.ravel()
+        # print(cm)
+        if 0 in cm:
+            print(cm)
+        if (len(cm) != 4):
+            print('GAMWWWWWWWWWWWWWWWWWWWWW\n\n\n\n\n\n\n\n\n')
+            TN = cm[0] - 3
+            FP, FN, TP = 1, 1, 1
+        else:
+            TN, FP, FN, TP = cm
+
+            # F1 = TP / (TP + 0.5 * (FP + FN))
+        # avgf1 += F1
+
+        # Sensitivity, hit rate, recall, or true positive rate
+        TPR += TP / (TP + FN)
+        # Specificity or true negative rate
+        TNR += TN / (TN + FP)
+        # Precision or positive predictive value
+        PPV += TP / (TP + FP)
+        # Negative predictive value
+        NPV += TN / (TN + FN)
+        # Fall out or false positive rate
+        FPR += FP / (FP + TN)
+        # False negative rate
+        FNR += FN / (TP + FN)
+        # False discovery rate
+        FDR += FP / (TP + FP)
+        F1 += TP / (TP + 0.5 * (FP + FN))
+        # Overall accuracy
+        ACC += (TP + TN) / (TP + FP + FN + TN)
+
+        BAC += (TPR + TNR) / 2.0
+
+        avg_cm[0] += TP
+        avg_cm[1] += TN
+        avg_cm[2] += FP
+        avg_cm[3] += FN
+        # print(TN, FP, FN, TP)
+        # print(cm, cm.sum(), len(pred))
+
+    # Sensitivity, hit rate, recall, or true positive rate
+    # TPR = TP / (TP + FN)
+    # # Specificity or true negative rate
+    # TNR = TN / (TN + FP)
+    # # Precision or positive predictive value
+    # PPV = TP / (TP + FP)
+    # # Negative predictive value
+    # NPV = TN / (TN + FN)
+    # # Fall out or false positive rate
+    # FPR = FP / (FP + TN)
+    # # False negative rate
+    # FNR = FN / (TP + FN)
+    # # False discovery rate
+    # FDR = FP / (TP + FP)
+    # F1 = TP / (TP + 0.5 * (FP + FN))
+    # # Overall accuracy
+    # ACC = (TP + TN) / (TP + FP + FN + TN)
+    #
+    # BAC = (TPR + TNR) / 2.0
+    # print(auc)
+    print(avgf1 / len(idppreds), avg_mcc / len(idppreds))
+    avg_cm[0] = avg_cm[0]  # * len(predictions)
+    avg_cm[1] = avg_cm[1]  # * len(predictions)
+    avg_cm[2] = avg_cm[2]  # * len(predictions)
+    avg_cm[3] = avg_cm[3]  # * len(predictions)
+    print(avg_cm)
+    print(
+        f'TP,TN,FP,FN\n{avg_cm[0] / len(idppreds):.2f},{avg_cm[1] / len(idppreds):.2f},'
+        f'{avg_cm[2] / len(idppreds):.2f},{avg_cm[3] / len(idppreds):.2f}\n F1 {avgf1 :.4f} F1 {F1 / len(idppreds)}  '
+        f'MCC {avg_mcc :.4f}')
+    print(
+        f" TPR {TPR / len(idppreds):.4f} TNR {TNR / len(idppreds):.4f}  PPV {PPV / len(idppreds):.4f}\nNPV "
+        f"{NPV / len(idppreds):.4f} FPR {FPR / len(idppreds):.4f} FNR {FNR / len(idppreds):.4f} BAC "
+        f"{BAC / len(idppreds):.4f}")
+    return count
+
+
+def iupred2a_predictions(path):
+    with open(path, 'r') as file1:
+        data = file1.read().splitlines()
+        print(len(data))
+        count = 0
+        pred = ''
+        idppreds = []
+        for idx, i in enumerate(data):
+            # print({i.strip()})
+            if '>' not in i:
+                s = 0
+                # print(i.split('\t'))
+                amino_score = i.split('\t')[-1]
+                pred += amino_score
+
+
+            else:
+
+                idppreds.append(pred)
+                pred = ''
+                # print(i)
+    # annotations = []
+    idppreds.pop(0)
+    idppreds.append(pred)
+    return idppreds
