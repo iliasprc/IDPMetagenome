@@ -21,6 +21,7 @@ def main():
     args, args_text = _parse_args(config_parser, args)
     now = datetime.datetime.now()
     cwd = os.getcwd()
+    args.cwd = os.getcwd()
     # if len(myargs) > 0:
     #     if 'c' in myargs:
     #         config_file = myargs['c']
@@ -32,7 +33,7 @@ def main():
     reproducibility(args)
     dt_string = now.strftime("%d_%m_%Y_%H.%M.%S")
     cpkt_fol_name = os.path.join(args.cwd,
-                                 f'checkpoints/dataset_{args.dataset.name}/model_{args.model.name}/date_'
+                                 f'checkpoints/dataset_{args.dataset}/model_{args.model}/date_'
                                  f'{dt_string}')
 
     log = Logger(path=cpkt_fol_name, name='LOG').get_logger()
@@ -46,14 +47,14 @@ def main():
     device = torch.device("cuda:0" if use_cuda else "cpu")
     log.info(f'device: {device}')
 
-    training_generator, val_generator, test_gen, classes = loaders(args=args, dataset_name=args.dataset )
+    training_generator, val_generator, test_gen, classes = loaders(args=args, dataset_name=args.dataset)
     log.info(f'train {len(training_generator)} dev {len(val_generator)} test ')
 
     if args.model == 'IDP_esm1_t12_85M_UR50S':
         model = IDP_esm1_t12_85M_UR50S()
     elif args.model == 'IDP_esm1_t6_43M_UR50S':
         model = IDP_esm1_t6_43M_UR50S()
-    elif args.model.name == 'IDP_esm1_msa':
+    elif args.model  == 'IDP_esm1_msa':
         model = IDP_esm1_msa()
 
     log.info(f"{model}")
@@ -67,10 +68,10 @@ def main():
             model = torch.nn.DataParallel(model)
     model.to(device)
 
-    optimizer, scheduler = select_optimizer(model, args['model'], None)
+    optimizer, scheduler = select_optimizer(model, args, None)
 
     log.info(f"Checkpoint Folder {cpkt_fol_name} ")
-    shutil.copy(os.path.join(args.cwd, config_file), cpkt_fol_name)
+    #shutil.copy(os.path.join(args.cwd, config_file), cpkt_fol_name)
 
     from trainer.esm_trainer import ESMTrainer
     trainer = ESMTrainer(args, model=model, optimizer=optimizer,

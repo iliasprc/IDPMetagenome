@@ -434,6 +434,7 @@ def arguments():
     parser.add_argument('--train_augmentation', type=bool, default=True,)
     parser.add_argument('--shuffle', type=bool, default=True, )
     parser.add_argument('--val_augmentation', type=bool, default=True, )
+    parser.add_argument('--tensorboard',type=bool,default=True)
     return parser
 
 
@@ -599,29 +600,29 @@ def select_optimizer_pretrain(model, config, checkpoint=None):
     return optimizer, None
 
 
-def select_model(config, n_classes, pretrained=False):
-    if config.model == 'idptransformer':
+def select_model(args, n_classes, pretrained=False):
+    if args.model == 'idptransformer':
         from models.transformer import IDPTransformer
-        return IDPTransformer(config, dim=config.dim, blocks=config.layers, heads=config.heads, dim_head=None,
-                              dim_linear_block=config.dim * 2,
+        return IDPTransformer(args, dim=args.dim, blocks=args.layers, heads=args.heads, dim_head=None,
+                              dim_linear_block=args.dim * 2,
                               dropout=0.2,
                               prenorm=False, classes=n_classes)
-    elif config.model == 'idpcct':
+    elif args.model == 'idpcct':
         from models.transformer import IDP_cct
-        return IDP_cct(dim=config.dim, blocks=config.layers, heads=config.heads, dim_head=None,
-                       dim_linear_block=config.dim, dropout=0.2,
+        return IDP_cct(dim=args.dim, blocks=args.layers, heads=args.heads, dim_head=None,
+                       dim_linear_block=args.dim, dropout=0.2,
                        prenorm=False, classes=n_classes)
-    elif config.model == 'idprnn':
+    elif args.model == 'idprnn':
         from models.rnn import IDPrnn
-        return IDPrnn(dropout=0.2, dim=config.dim, blocks=config.layers, classes=n_classes)
-    elif config.model == 'IDPseqvec':
+        return IDPrnn(dropout=0.2, dim=args.dim, blocks=args.layers, classes=n_classes)
+    elif args.model == 'IDPseqvec':
         from models.transformer import IDPseqvec
 
         return IDPseqvec()
-    elif config.model == 'lm':
+    elif args.model == 'lm':
         from models.embed import LM
-        return LM(vocab=n_classes, dim=config.dim)
-    elif config.model == 'proteinbert':
+        return LM(vocab=n_classes, dim=args.dim)
+    elif args.model == 'proteinbert':
         from models.protein_bert import IDP_ProteinBert
         return IDP_ProteinBert()
 

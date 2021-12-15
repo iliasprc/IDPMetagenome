@@ -3,7 +3,7 @@ import os
 import numpy as np
 import torch
 
-from idp_programs.utils import metric
+from idp_methods.utils import dataset_metrics
 from models.utils import Cosine_LR_Scheduler
 from trainer.basetrainer import BaseTrainer
 from trainer.util import MetricTracker, write_csv, save_model, make_dirs
@@ -20,7 +20,7 @@ class Trainer(BaseTrainer):
                                       valid_data_loader=valid_data_loader,
                                       test_data_loader=test_data_loader, metric_ftns=metric_ftns)
 
-        if (self.config.cuda):
+        if (self.args.cuda):
             use_cuda = torch.cuda.is_available()
             self.device = torch.device("cuda" if use_cuda else "cpu")
         else:
@@ -28,14 +28,14 @@ class Trainer(BaseTrainer):
         self.start_epoch = 1
         self.train_data_loader = data_loader
 
-        self.len_epoch = self.config.batch_size * len(self.train_data_loader)
-        self.epochs = self.config.epochs
+        self.len_epoch = self.args.batch_size * len(self.train_data_loader)
+        self.epochs = self.args.epochs
         self.valid_data_loader = valid_data_loader
         self.test_data_loader = test_data_loader
         self.do_validation = self.valid_data_loader is not None
         self.do_test = self.test_data_loader is not None
         self.lr_scheduler = lr_scheduler
-        self.log_step = self.config.log_interval
+        self.log_step = self.args.log_interval
         self.model = model
         self.num_classes = len(class_dict)
         self.optimizer = optimizer
@@ -57,7 +57,7 @@ class Trainer(BaseTrainer):
         self.scheduler = Cosine_LR_Scheduler(
             self.optimizer,
             warmup_epochs=10, warmup_lr=0,
-            num_epochs=self.epochs + 2, base_lr=self.config['model']['optimizer']['lr'], final_lr=5e-5,
+            num_epochs=self.epochs + 2, base_lr=self.args.lr, final_lr=5e-5,
             iter_per_epoch=len(self.train_data_loader) // self.gradient_accumulation,
             constant_predictor_lr=True  # see the end of section 4.2 predictor
         )
@@ -217,7 +217,7 @@ class Trainer(BaseTrainer):
         Train the model
         """
         for epoch in range(self.start_epoch, self.epochs):
-            # torch.manual_seed(self.config.seed)
+            # torch.manual_seed(self.args.seed)
             self._train_epoch(epoch)
 
             self.logger.info(f"{'!' * 10}    VALIDATION   , {'!' * 10}")
@@ -273,14 +273,14 @@ class Trainer(BaseTrainer):
 
     def _progress(self, batch_idx, epoch, metrics, mode='', print_summary=False):
         metrics_string = metrics.calc_all_metrics()
-        if ((batch_idx * self.config.batch_size) % self.log_step == 0):
+        if ((batch_idx * self.args.batch_size) % self.log_step == 0):
 
             if metrics_string == None:
                 self.logger.warning(f" No metrics")
             else:
                 self.logger.info(
                     f"{mode} Epoch: [{epoch:2d}/{self.epochs:2d}]\t Sample ["
-                    f"{batch_idx * self.config.batch_size:5d}/{self.len_epoch:5d}]\t {metrics_string}")
+                    f"{batch_idx * self.args.batch_size:5d}/{self.len_epoch:5d}]\t {metrics_string}")
         elif print_summary:
             self.logger.info(
                 f'{mode} summary  Epoch: [{epoch}/{self.epochs}]\t {metrics_string}')

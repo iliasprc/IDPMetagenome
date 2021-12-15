@@ -13,13 +13,13 @@ class ESMTrainer(BaseTrainer):
     Trainer class
     """
 
-    def __init__(self, config, model, optimizer, data_loader, writer, checkpoint_dir, logger, class_dict,
+    def __init__(self, args, model, optimizer, data_loader, writer, checkpoint_dir, logger, class_dict,
                  valid_data_loader=None, test_data_loader=None, lr_scheduler=None, metric_ftns=None):
-        super(ESMTrainer, self).__init__(config, data_loader, writer, checkpoint_dir, logger,
+        super(ESMTrainer, self).__init__(args, data_loader, writer, checkpoint_dir, logger,
                                          valid_data_loader=valid_data_loader,
                                          test_data_loader=test_data_loader, metric_ftns=metric_ftns)
 
-        if (self.config.cuda):
+        if (self.args.cuda):
             use_cuda = torch.cuda.is_available()
             self.device = torch.device("cuda" if use_cuda else "cpu")
         else:
@@ -27,20 +27,20 @@ class ESMTrainer(BaseTrainer):
         self.start_epoch = 1
         self.train_data_loader = data_loader
 
-        self.len_epoch = self.config.batch_size * len(self.train_data_loader)
-        self.epochs = self.config.epochs
+        self.len_epoch = self.args.batch_size * len(self.train_data_loader)
+        self.epochs = self.args.epochs
         self.valid_data_loader = valid_data_loader
         self.test_data_loader = test_data_loader
         self.do_validation = self.valid_data_loader is not None
         self.do_test = self.test_data_loader is not None
         self.lr_scheduler = lr_scheduler
-        self.log_step = self.config.log_interval
+        self.log_step = self.args.log_interval
         self.model = model
         self.num_classes = len(class_dict)
         self.optimizer = optimizer
 
         self.mnt_best = np.inf
-        # if self.config.dataset.type == 'multi_target':
+        # if self.args.dataset.type == 'multi_target':
         # self.criterion = torch.nn.BCEWithLogitsLoss(reduction='mean')
         self.criterion = torch.nn.CrossEntropyLoss(reduction='mean', label_smoothing=0.1,
                                                    weight=torch.tensor([1.0, 2.0]).to(self.device))
@@ -48,7 +48,7 @@ class ESMTrainer(BaseTrainer):
         # from trainer.util import FocalLoss
         # self.criterion = FocalLoss(gamma=2.0)
         self.checkpoint_dir = checkpoint_dir
-        self.gradient_accumulation = config.gradient_accumulation
+        self.gradient_accumulation = args.gradient_accumulation
         self.writer = writer
         self.metric_ftns = ['loss', 'acc']
         self.train_metrics = MetricTracker(*[m for m in self.metric_ftns], writer=self.writer, mode='train')
@@ -59,7 +59,7 @@ class ESMTrainer(BaseTrainer):
         self.scheduler = Cosine_LR_Scheduler(
             self.optimizer,
             warmup_epochs=10, warmup_lr=0,
-            num_epochs=self.epochs, base_lr=self.config['model']['optimizer']['lr'], final_lr=1e-5,
+            num_epochs=self.epochs, base_lr=self.args.lr, final_lr=1e-5,
             iter_per_epoch=len(self.train_data_loader) // self.gradient_accumulation,
             constant_predictor_lr=True  # see the end of section 4.2 predictor
         )
@@ -178,7 +178,7 @@ class ESMTrainer(BaseTrainer):
         Train the model
         """
         for epoch in range(self.start_epoch, self.epochs):
-            # torch.manual_seed(self.config.seed)
+            # torch.manual_seed(self.args.seed)
             self._train_epoch(epoch)
 
             self.logger.info(f"{'!' * 10}    VALIDATION   , {'!' * 10}")
@@ -234,14 +234,14 @@ class ESMTrainer(BaseTrainer):
 
     def _progress(self, batch_idx, epoch, metrics, mode='', print_summary=False):
         metrics_string = metrics.calc_all_metrics()
-        if ((batch_idx * self.config.batch_size) % self.log_step == 0):
+        if ((batch_idx * self.args.batch_size) % self.log_step == 0):
 
             if metrics_string == None:
                 self.logger.warning(f" No metrics")
             else:
                 self.logger.info(
                     f"{mode} Epoch: [{epoch:2d}/{self.epochs:2d}]\t Sample ["
-                    f"{batch_idx * self.config.batch_size:5d}/{self.len_epoch:5d}]\t {metrics_string}")
+                    f"{batch_idx * self.args.batch_size:5d}/{self.len_epoch:5d}]\t {metrics_string}")
         elif print_summary:
             self.logger.info(
                 f'{mode} summary  Epoch: [{epoch}/{self.epochs}]\t {metrics_string}')

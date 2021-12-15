@@ -141,12 +141,12 @@ class FIDPNN_idp_dataset(Dataset):
 
 
 class Disorder723(Dataset):
-    def __init__(self, config, mode):
+    def __init__(self, args, mode):
         train_filepath = "data/idp_seq_2_seq/disorder723/train_723.txt"
         dev_filepath = "data/idp_seq_2_seq/disorder723/disorder723.txt"
         test_filepath = ""
 
-        cwd = config.cwd
+        cwd = args.cwd
         if mode == train_prefix:
             self.names, self.annotations, self.proteins, _, _ = read_data_(
                 os.path.join(cwd, train_filepath))
@@ -264,46 +264,46 @@ def setup_loader(dataset: Dataset,
     return loader
 
 
-def idp_dataset(config, cwd):
+def idp_dataset(args, cwd):
     tokenizer = TAPETokenizer(vocab='iupac')
-    if config.dataset.name == 'DM':
+    if args.dataset == 'DM':
 
         train_dataset = DM_idp_dataset(cwd=cwd, split='train', tokenizer=tokenizer)
 
-        train_loader = setup_loader(train_dataset, batch_size=config.batch_size, local_rank=-1, n_gpu=1,
-                                    gradient_accumulation_steps=config.gradient_accumulation, num_workers=config.dataloader.num_workers)
+        train_loader = setup_loader(train_dataset, batch_size=args.batch_size, local_rank=-1, n_gpu=1,
+                                    gradient_accumulation_steps=args.gradient_accumulation, num_workers=args.num_workers)
         val_dataset = DM_idp_dataset(cwd=cwd, split='val', tokenizer=tokenizer)
 
-        val_loader = setup_loader(val_dataset, batch_size=config.batch_size, local_rank=-1, n_gpu=1,
-                                  gradient_accumulation_steps=config.gradient_accumulation,
+        val_loader = setup_loader(val_dataset, batch_size=args.batch_size, local_rank=-1, n_gpu=1,
+                                  gradient_accumulation_steps=args.gradient_accumulation,
                                   num_workers=2)
         return train_loader, val_loader, None, tokenizer.vocab
-    elif config.dataset.name == 'MXD494':
+    elif args.dataset == 'MXD494':
 
         train_dataset = MXD494_idp_dataset(cwd=cwd, split='train', tokenizer=tokenizer)
 
-        train_loader = setup_loader(train_dataset, batch_size=config.batch_size, local_rank=-1, n_gpu=1,
-                                    gradient_accumulation_steps=config.gradient_accumulation, num_workers=config.dataloader.num_workers)
+        train_loader = setup_loader(train_dataset, batch_size=args.batch_size, local_rank=-1, n_gpu=1,
+                                    gradient_accumulation_steps=args.gradient_accumulation, num_workers=args.num_workers)
         val_dataset = MXD494_idp_dataset(cwd=cwd, split='val', tokenizer=tokenizer)
 
-        val_loader = setup_loader(val_dataset, batch_size=config.batch_size, local_rank=-1, n_gpu=1,
-                                  gradient_accumulation_steps=config.gradient_accumulation,
+        val_loader = setup_loader(val_dataset, batch_size=args.batch_size, local_rank=-1, n_gpu=1,
+                                  gradient_accumulation_steps=args.gradient_accumulation,
                                   num_workers=2)
         return train_loader, val_loader, None, tokenizer.vocab
-    elif config.dataset_name == 'FIDPNN':
+    elif args.dataset_name == 'FIDPNN':
 
         train_dataset = FIDPNN_idp_dataset(cwd=cwd, split='train', tokenizer=tokenizer)
 
-        train_loader = setup_loader(train_dataset, batch_size=config.batch_size, local_rank=-1, n_gpu=1,
-                                    gradient_accumulation_steps=config.gradient_accumulation, num_workers=2)
+        train_loader = setup_loader(train_dataset, batch_size=args.batch_size, local_rank=-1, n_gpu=1,
+                                    gradient_accumulation_steps=args.gradient_accumulation, num_workers=2)
         val_dataset = FIDPNN_idp_dataset(cwd=cwd, split='val', tokenizer=tokenizer)
 
-        val_loader = setup_loader(val_dataset, batch_size=config.batch_size, local_rank=-1, n_gpu=1,
-                                  gradient_accumulation_steps=config.gradient_accumulation,
+        val_loader = setup_loader(val_dataset, batch_size=args.batch_size, local_rank=-1, n_gpu=1,
+                                  gradient_accumulation_steps=args.gradient_accumulation,
                                   num_workers=2)
         test_dataset = FIDPNN_idp_dataset(cwd=cwd, split='test', tokenizer=tokenizer)
 
-        test_loader = setup_loader(test_dataset, batch_size=config.batch_size, local_rank=-1, n_gpu=1,
-                                   gradient_accumulation_steps=config.gradient_accumulation,
+        test_loader = setup_loader(test_dataset, batch_size=args.batch_size, local_rank=-1, n_gpu=1,
+                                   gradient_accumulation_steps=args.gradient_accumulation,
                                    num_workers=2)
         return train_loader, val_loader, test_loader, tokenizer.vocab
