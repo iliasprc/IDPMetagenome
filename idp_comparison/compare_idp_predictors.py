@@ -1,3 +1,5 @@
+import sys,os
+sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 import torch
 import torch.nn as nn
 
@@ -10,18 +12,25 @@ torch.backends.cudnn.benchmark = False
 np.random.seed(SEED)
 torch.cuda.manual_seed(SEED)
 
-train_dataset = np.load('/results/mobidb/mxd494_train.npy',
+# train_dataset = np.load('/results/mobidb/mxd494_train.npy',
+#                         allow_pickle=True).item()
+#
+# val_dataset = np.load('/results/mobidb/mxd494_val.npy', allow_pickle=True).item()
+#
+
+train_dataset = np.load('./results/mobidb/mxd494_train_pred2.npy',
                         allow_pickle=True).item()
 
-val_dataset = np.load('/results/mobidb/mxd494_val.npy', allow_pickle=True).item()
+val_dataset = np.load('./results/mobidb/mxd494_val_pred2.npy', allow_pickle=True).item()
+print(val_dataset['0'].keys())
 
 predictors = ['prediction-disorder-iupl', 'prediction-disorder-iups',
               'prediction-disorder-espN', 'prediction-disorder-espX', 'prediction-disorder-espD',
-              'prediction-disorder-glo']
+              'prediction-disorder-glo', 'cast', 'seg']
 
 test_predictor = 'prediction-disorder-glo'  # 'prediction-disorder-iups'
 train_predictors = ['prediction-disorder-espD', 'prediction-disorder-iupl',
-                    'prediction-disorder-iups', 'prediction-disorder-espN', 'prediction-disorder-espX']
+                    'prediction-disorder-iups', 'prediction-disorder-espN', 'prediction-disorder-espX', 'cast', 'seg']
 
 
 class IDP_fc(nn.Module):
@@ -66,6 +75,25 @@ for sample in val_dataset:
 
     val_X.append(sample_data.transpose(0, 1).float())
     valY.append(torch.from_numpy(train_dataset[sample][test_predictor]).unsqueeze(0).transpose(0, 1).float())
+
+# for batchidx in range(len(train_X)):
+#     sample = train_X[batchidx]
+#     print(sample.shape)
+
+sample = train_X[-1]
+num_predictors = sample.shape[0-1]
+print(sample.shape)
+len = sample.shape[0]
+
+segments = 20
+step = int(len/segments)
+
+sample2 = sample[:segments*step,:]
+sample2 = np.reshape(sample2,(step,segments,num_predictors))
+print(sample2.shape)
+s = sample2.amax(axis=0)
+print(s.shape)
+exit()
 
 EPOCHS = 50
 optimizer = torch.optim.Adam(m.parameters(), lr=1e-3)

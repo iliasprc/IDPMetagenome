@@ -1,6 +1,7 @@
 import torch
 import torch.nn as nn
-
+import sys,os
+sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 from idp_methods.utils import *
 
 SEED = 1234
@@ -10,10 +11,10 @@ torch.backends.cudnn.benchmark = False
 np.random.seed(SEED)
 torch.cuda.manual_seed(SEED)
 
-train_dataset = np.load('/results/mobidb/mxd494_train_pred2.npy',
+train_dataset = np.load('./results/mobidb/mxd494_train_pred2.npy',
                         allow_pickle=True).item()
 
-val_dataset = np.load('/results/mobidb/mxd494_val_pred2.npy', allow_pickle=True).item()
+val_dataset = np.load('./results/mobidb/mxd494_val_pred2.npy', allow_pickle=True).item()
 print(val_dataset['0'].keys())
 predictors = ['prediction-disorder-iupl', 'prediction-disorder-iups',
               'prediction-disorder-espN', 'prediction-disorder-espX', 'prediction-disorder-espD',
@@ -23,7 +24,6 @@ test_predictor = 'prediction-disorder-glo'  # 'prediction-disorder-iups'
 train_predictors = ['prediction-disorder-espD', 'prediction-disorder-iupl',
                     'prediction-disorder-iups', 'prediction-disorder-espN', 'prediction-disorder-espX', 'cast', 'seg']
 
-exit()
 
 
 class IDP_tester(nn.Module):
@@ -62,7 +62,7 @@ class IDP_fc(nn.Module):
         return self.classifier(out)
 
 
-m = IDP_tester()
+m = IDP_tester(input_channels=len(train_predictors))
 train_X = []
 trainY = []
 for sample in train_dataset:
@@ -118,7 +118,7 @@ for i in range(EPOCHS):
     metrics_, _ = dataset_metrics(yhat, y)
 
     print(f'EPOCH {i} Train Loss {train_loss / (batchidx + 1):.4f}')
-    print(f'EPOCH {i}\n{metrics_}')
+    print(f'EPOCH TRAIN METRICS{i}\n{metrics_}')
     train_loss = 0.0
     val_loss = 0.0
     yhat = []
@@ -142,5 +142,5 @@ for i in range(EPOCHS):
     metrics_, _ = dataset_metrics(yhat, y)
 
     print(f'EPOCH {i} Val Loss {val_loss / (batchidx + 1):.4f}')
-    print(f'EPOCH {i}\n{metrics_}')
+    print(f'EPOCH VALIDATION METRICS {i}\n{metrics_}')
     # print(out.shape,sample.shape)
