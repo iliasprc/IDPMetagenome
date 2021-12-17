@@ -1,10 +1,25 @@
+import argparse
+import os
+import sys
+
 import torch
 import torch.nn as nn
-import sys,os
+
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 from idp_methods.utils import *
 
-SEED = 1234
+parser = argparse.ArgumentParser()
+parser.add_argument('-b', '--batch_size', type=int, default=4, help='batch size for training')
+parser.add_argument('--dataset', type=str, default="MXD494", help='dataset name')
+parser.add_argument('--epochs', type=int, default=50, help='total number of epochs')
+parser.add_argument('--test-predictor', type=str, default='prediction-disorder-glo',
+                    choices=['prediction-disorder-iupl', 'prediction-disorder-iups',
+                             'prediction-disorder-espN', 'prediction-disorder-espX', 'prediction-disorder-espD',
+                             'prediction-disorder-glo', 'cast', 'seg'])
+
+args = parser.parse_args()
+
+SEED = 42
 torch.manual_seed(SEED)
 torch.backends.cudnn.deterministic = True
 torch.backends.cudnn.benchmark = False
@@ -20,10 +35,10 @@ predictors = ['prediction-disorder-iupl', 'prediction-disorder-iups',
               'prediction-disorder-espN', 'prediction-disorder-espX', 'prediction-disorder-espD',
               'prediction-disorder-glo', 'cast', 'seg']
 
-test_predictor = 'prediction-disorder-glo'  # 'prediction-disorder-iups'
-train_predictors = ['prediction-disorder-espD', 'prediction-disorder-iupl',
-                    'prediction-disorder-iups', 'prediction-disorder-espN', 'prediction-disorder-espX', 'cast', 'seg']
-
+test_predictor = args.test_predictor
+predictors.remove(test_predictor)
+train_predictors = predictors
+assert len(train_predictors) == len(predictors)
 
 
 class IDP_tester(nn.Module):
@@ -35,30 +50,12 @@ class IDP_tester(nn.Module):
         self.classes = classes
         self.input_fc = nn.Linear(self.input_channels, self.hidden_dim)
         self.rnn = nn.LSTM(input_size=self.hidden_dim, hidden_size=self.hidden_dim, num_layers=self.n_layers,
-                           bidirectional=True, batch_first=True)
+                           bidirectional=True, batch_first=True, dropout=0.2)
         self.classifier = nn.Linear(2 * self.hidden_dim, self.classes)
 
     def forward(self, x):
         x = self.input_fc(x)
         out, (h, c) = self.rnn(x)
-        return self.classifier(out)
-
-
-class IDP_fc(nn.Module):
-    def __init__(self, input_channels=5, hidden_dim=32, n_layers=2, classes=2):
-        super().__init__()
-        self.input_channels = input_channels
-        self.hidden_dim = hidden_dim
-        self.n_layers = n_layers
-        self.classes = classes
-        self.input_fc = nn.Linear(self.input_channels, self.hidden_dim)
-
-        self.classifier = nn.Linear(self.hidden_dim, self.classes)
-
-    def forward(self, x):
-        x_mean = x.mean(dim=1)
-        out = self.input_fc(x_mean)
-
         return self.classifier(out)
 
 
@@ -87,7 +84,7 @@ for sample in val_dataset:
     val_X.append(sample_data.transpose(0, 1).float())
     valY.append(torch.from_numpy(train_dataset[sample][test_predictor]).unsqueeze(0).transpose(0, 1).float())
 
-EPOCHS = 10
+EPOCHS = 50
 optimizer = torch.optim.Adam(m.parameters(), lr=1e-4)
 use_cuda = torch.cuda.is_available()
 

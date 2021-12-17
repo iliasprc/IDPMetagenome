@@ -4,15 +4,36 @@ import sys
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 import torch
 import torch.nn as nn
-
+import argparse
 from idp_methods.utils import *
 
-SEED = 1234
+parser = argparse.ArgumentParser()
+parser.add_argument('-b', '--batch_size', type=int, default=4, help='batch size for training')
+parser.add_argument('--dataset', type=str, default="MXD494", help='dataset name')
+parser.add_argument('--epochs', type=int, default=50, help='total number of epochs')
+parser.add_argument('--test-predictor', type=str, default='prediction-disorder-glo',
+                    choices=['prediction-disorder-iupl', 'prediction-disorder-iups',
+                             'prediction-disorder-espN', 'prediction-disorder-espX', 'prediction-disorder-espD',
+                             'prediction-disorder-glo', 'cast', 'seg'])
+
+args = parser.parse_args()
+SEED = 42
 torch.manual_seed(SEED)
 torch.backends.cudnn.deterministic = True
 torch.backends.cudnn.benchmark = False
 np.random.seed(SEED)
 torch.cuda.manual_seed(SEED)
+
+predictors = ['prediction-disorder-iupl', 'prediction-disorder-iups',
+              'prediction-disorder-espN', 'prediction-disorder-espX', 'prediction-disorder-espD',
+              'prediction-disorder-glo', 'cast', 'seg']
+
+test_predictor = args.test_predictor  # 'prediction-disorder-iups'
+predictors.remove(test_predictor)
+train_predictors = predictors
+
+num_predictors = len(train_predictors)
+assert num_predictors == 7
 
 
 class IDP_fc(nn.Module):
@@ -45,17 +66,6 @@ def dataset_preparation():
 
     val_dataset = np.load('./results/mobidb/mxd494_val_pred2.npy', allow_pickle=True).item()
 
-    predictors = ['prediction-disorder-iupl', 'prediction-disorder-iups',
-                  'prediction-disorder-espN', 'prediction-disorder-espX', 'prediction-disorder-espD',
-                  'prediction-disorder-glo', 'cast', 'seg']
-
-    test_predictor = 'prediction-disorder-glo'  # 'prediction-disorder-iups'
-    train_predictors = ['prediction-disorder-espD', 'prediction-disorder-iupl',
-                        'prediction-disorder-iups', 'prediction-disorder-espN', 'prediction-disorder-espX', 'cast',
-                        'seg']
-
-    num_predictors = len(train_predictors)
-
     segments = 20
 
     train_X = []
@@ -82,7 +92,7 @@ def dataset_preparation():
 
         target, _ = target.max(dim=-1)
 
-        train_X.append(sample_data.float().view(-1,num_predictors))
+        train_X.append(sample_data.float().view(-1, num_predictors))
         trainY.append(target.float().view(-1))
 
     val_X = []
@@ -109,16 +119,15 @@ def dataset_preparation():
         val_X.append(sample_data.float())
         valY.append(target.float().view(-1))
 
-    train_X = torch.stack(train_X, dim=0).view(-1,num_predictors)
-    trainY = torch.stack(trainY, dim=0).view(-1)
-    val_X = torch.stack(val_X, dim=0).view(-1,num_predictors)
-    valY = torch.stack(valY, dim=0).view(-1)
-    return train_X,trainY,val_X,valY
+    train_X = torch.stack(train_X, dim=0)#.view(-1, num_predictors)
+    trainY = torch.stack(trainY, dim=0)#.view(-1)
+    val_X = torch.stack(val_X, dim=0)#.view(-1, num_predictors)
+    valY = torch.stack(valY, dim=0)#.view(-1)
+    return train_X, trainY, val_X, valY
 
 
-
-train_X,trainY,val_X,valY = dataset_preparation()
-print(train_X.shape,trainY.shape)
+train_X, trainY, val_X, valY = dataset_preparation()
+print(train_X.shape, trainY.shape)
 m = IDP_fc()
 EPOCHS = 50
 optimizer = torch.optim.SGD(m.parameters(), lr=1e-3)
@@ -127,7 +136,6 @@ use_cuda = torch.cuda.is_available()
 device = torch.device("cuda:0" if use_cuda else "cpu")
 m = m.to(device)
 loss = nn.MSELoss()
-
 
 BATCH_SIZE = 20
 for i in range(EPOCHS):
@@ -139,8 +147,7 @@ for i in range(EPOCHS):
         sample = train_X[batchidx].to(device).unsqueeze(0)
         target = trainY[batchidx].to(device)
         out = m(sample).squeeze(0)
-        #print(sample.shape, target.shape,out.shape)
-
+        # print(sample.shape, target.shape,out.shape)
 
         target = target
         # print(target.shape, out.shape)
