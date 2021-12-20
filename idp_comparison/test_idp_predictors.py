@@ -4,7 +4,7 @@ import sys
 
 import torch
 import torch.nn as nn
-
+from models.rnn import IDP_test_rnn
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 from idp_methods.utils import *
 
@@ -40,26 +40,15 @@ predictors.remove(test_predictor)
 train_predictors = predictors
 assert len(train_predictors) == len(predictors)
 
-
-class IDP_tester(nn.Module):
-    def __init__(self, input_channels=5, hidden_dim=32, n_layers=2, classes=2):
-        super().__init__()
-        self.input_channels = input_channels
-        self.hidden_dim = hidden_dim
-        self.n_layers = n_layers
-        self.classes = classes
-        self.input_fc = nn.Linear(self.input_channels, self.hidden_dim)
-        self.rnn = nn.LSTM(input_size=self.hidden_dim, hidden_size=self.hidden_dim, num_layers=self.n_layers,
-                           bidirectional=True, batch_first=True, dropout=0.2)
-        self.classifier = nn.Linear(2 * self.hidden_dim, self.classes)
-
-    def forward(self, x):
-        x = self.input_fc(x)
-        out, (h, c) = self.rnn(x)
-        return self.classifier(out)
+def next_number(x, N=20):
+    if x % 20:
+        return x + (N - x % N)
+    else:
+        return 0
 
 
-m = IDP_tester(input_channels=len(train_predictors))
+
+m = IDP_test_rnn(input_channels=len(train_predictors))
 train_X = []
 trainY = []
 for sample in train_dataset:

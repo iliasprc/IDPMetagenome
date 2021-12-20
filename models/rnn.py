@@ -20,4 +20,23 @@ class IDPrnn(nn.Module):
         x = self.head(x)
         return x
 
+
+
+class IDP_test_rnn(nn.Module):
+    def __init__(self, input_channels=7, hidden_dim=32, n_layers=2, classes=2, segments=20):
+        super().__init__()
+        self.input_channels = input_channels
+        self.hidden_dim = hidden_dim
+        self.n_layers = n_layers
+        self.classes = classes
+        self.input_fc = nn.Linear(self.input_channels, self.hidden_dim)
+        self.rnn = nn.LSTM(input_size=self.hidden_dim, hidden_size=self.hidden_dim, num_layers=self.n_layers,
+                           bidirectional=True, batch_first=True, dropout=0.2)
+        self.classifier = nn.Linear(2 * self.hidden_dim, self.classes)
+
+    def forward(self, x):
+        # print(x.shape)
+        x = self.input_fc(x)
+        out, (h, c) = self.rnn(x)
+        return self.classifier(out)
 #

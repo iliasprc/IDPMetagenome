@@ -326,6 +326,49 @@ class IDPseqvec(nn.Module):
 
 
 class IDPTransformer(nn.Module):
+    def __init__(self, config, dim, blocks=3, heads=2, dim_head=None, dim_linear_block=64, dropout=0, prenorm=False,
+                  input_channels=7,segments=20,classes=2):
+
+        super().__init__()
+        self.input_channels = input_channels
+
+        self.classes = classes
+        self.input_fc = nn.Linear(self.input_channels, dim)
+
+        self.pos_embed = PositionalEncodingSin(dim, dropout=0.1, max_tokens=2000)
+        encoder_layer = nn.TransformerEncoderLayer(d_model=dim, dim_feedforward=dim_linear_block, nhead=heads,
+                                                   activation='gelu', dropout=dropout, batch_first=True)
+        self.transformer_encoder = nn.TransformerEncoder(encoder_layer, num_layers=blocks)
+
+        self.head = nn.Linear(dim, classes)
+        self.apply(weights_init)
+
+    def forward(self, x, mask=None):
+
+        x = self.input_fc(x)
+
+        x = self.pos_embed(x)  # self.embed(x))
+        x = self.transformer_encoder(x)
+        x = self.head(x).squeeze(-1)
+        return x
+
+#
+# m = IDPTransformer(768)
+# print(m)
+# i = torch.randn(1,1000,768)
+# o =  m(i)
+# print(o.shape)
+# m = IDP_cct(128)
+# dim = 128
+# # m = TextTokenizer(word_embedding_dim=dim,embedding_dim=dim,kernel_size=1,stride=1,
+# #                                                                         padding=1)
+# print(m )
+# a = torch.randint(0,19,(8,1000))
+# o = m(a)
+
+
+
+class IDP_test_Transformer(nn.Module):
     def __init__(self, config, dim, blocks=6, heads=8, dim_head=None, dim_linear_block=1024, dropout=0, prenorm=False,
                  embed_dim=30,
                  classes=1):
@@ -356,16 +399,3 @@ class IDPTransformer(nn.Module):
         x = self.head(x).squeeze(-1)
         return x
 
-#
-# m = IDPTransformer(768)
-# print(m)
-# i = torch.randn(1,1000,768)
-# o =  m(i)
-# print(o.shape)
-# m = IDP_cct(128)
-# dim = 128
-# # m = TextTokenizer(word_embedding_dim=dim,embedding_dim=dim,kernel_size=1,stride=1,
-# #                                                                         padding=1)
-# print(m )
-# a = torch.randint(0,19,(8,1000))
-# o = m(a)
