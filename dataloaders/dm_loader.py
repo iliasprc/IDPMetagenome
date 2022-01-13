@@ -13,12 +13,12 @@ test_prefix = "test"
 
 
 class DMshort(Dataset):
-    def __init__(self, args, mode):
+    def __init__(self, config, mode):
         train_filepath = "data/idp_seq_2_seq/train/all_train.txt"
         dev_filepath = "data/idp_seq_2_seq/validation/all_valid.txt"
         test_filepath = ""
 
-        cwd = args.cwd
+        cwd = config.cwd
         if mode == train_prefix:
             self.names, self.annotations, self.proteins, self.classes, self.w2i = read_data_(
                 os.path.join(cwd, train_filepath))
@@ -36,11 +36,14 @@ class DMshort(Dataset):
         print(self.classes)
         self.w2i = dict(zip(self.classes, indixes))
         # print('classes\n\n', self.classes,len(self.classes))
-        self.ssl = args.dataset_type == 'SSL'
-        self.use_elmo = False
+        self.ssl = config.dataset.type == 'SSL'
+        self.use_elmo = config.dataset.use_strings
         if self.use_elmo:
             print('\n USE ELMO \n')
-
+            # model_dir = Path('/config/uniref50_v2')
+            # weights = model_dir / 'weights.hdf5'
+            # options = model_dir / 'options.json'
+            # self.embedder = ElmoEmbedder(options, weights, cuda_device=-1)
             if self.ssl:
                 print('\n SELF-SUPERVISED\n')
             else:
@@ -112,12 +115,12 @@ class DMshort(Dataset):
 
 
 class DMLoader(Dataset):
-    def __init__(self, args, mode):
+    def __init__(self, config, mode):
         train_filepath = "data/idp_seq_2_seq/train/all_train.txt"
         dev_filepath = "data/idp_seq_2_seq/validation/all_valid.txt"
         test_filepath = ""
 
-        cwd = args.cwd
+        cwd = config.cwd
         if mode == train_prefix:
             self.names, self.annotations, self.proteins, self.classes, self.w2i = read_data_(
                 os.path.join(cwd, train_filepath))
@@ -135,11 +138,11 @@ class DMLoader(Dataset):
         print(self.classes)
         self.w2i = dict(zip(self.classes, indixes))
         # print('classes\n\n', self.classes,len(self.classes))
-        self.ssl = args.dataset_type == 'SSL'
-        self.use_elmo = False
+        self.ssl = config.dataset.type == 'SSL'
+        self.use_elmo = config.dataset.use_strings
         if self.use_elmo:
             print('\n USE ELMO \n')
-            # model_dir = Path('/args/uniref50_v2')
+            # model_dir = Path('/config/uniref50_v2')
             # weights = model_dir / 'weights.hdf5'
             # options = model_dir / 'options.json'
             # self.embedder = ElmoEmbedder(options, weights, cuda_device=-1)
@@ -214,7 +217,7 @@ class DMLoader(Dataset):
 
 
 class MXD494Loader(Dataset):
-    def __init__(self, args, mode):
+    def __init__(self, config, mode):
         train_prefix = "train"
         dev_prefix = "val"
         test_prefix = "test"
@@ -222,7 +225,7 @@ class MXD494Loader(Dataset):
 
         test_filepath = "data/idp_seq_2_seq/mxd494/MXD494.txt"
         dev_filepath = test_filepath
-        cwd = args.cwd
+        cwd = config.cwd
 
         if mode == train_prefix:
             self.names, self.annotations, self.proteins, self.classes, self.w2i = read_data_(
@@ -241,9 +244,14 @@ class MXD494Loader(Dataset):
         print(self.classes)
         self.w2i = dict(zip(self.classes, indixes))
         # print('classes\n\n', self.classes,len(self.classes))
-        self.ssl = args.dataset_type == 'SSL'
-        self.use_elmo = False
-
+        self.ssl = config.dataset.type == 'SSL'
+#        self.use_elmo = config.dataset.use_strings
+ #       if self.use_elmo:
+  #          print('\n USE ELMO \n')
+            # model_dir = Path('/config/uniref50_v2')
+            # weights = model_dir / 'weights.hdf5'
+            # options = model_dir / 'options.json'
+            # embedder = ElmoEmbedder(options, weights, cuda_device=0)
         if self.ssl:
             print('\n SELF-SUPERVISED\n')
         else:
@@ -275,7 +283,7 @@ class MXD494Loader(Dataset):
             left = randint(0, L // 4)
             right = randint(L // 2, L)
             x = [self.w2i[amino] for amino in self.proteins[index]]  # [left:right]
-            if self.use_elmo:
+            if True:
                 x = self.proteins[index]  # [left:right]
 
             else:
@@ -295,7 +303,7 @@ class MXD494Loader(Dataset):
         x = [self.w2i[amino] for amino in self.proteins[index]]
         y = [int(i) for i in self.annotations[index]]
         # print(len(x),len(y),len(self.proteins[index]),len(self.annotations[index]))
-        if self.use_elmo:
+        if True:
             x = self.proteins[index]
 
         else:
@@ -313,12 +321,12 @@ class MXD494Loader(Dataset):
 
 
 class Disorder723(Dataset):
-    def __init__(self, args, mode):
+    def __init__(self, config, mode):
         train_filepath = "data/idp_seq_2_seq/disorder723/train_723.txt"
         dev_filepath = "data/idp_seq_2_seq/disorder723/disorder723.txt"
         test_filepath = ""
 
-        cwd = args.cwd
+        cwd = config.cwd
         if mode == train_prefix:
             self.names, self.annotations, self.proteins, self.classes, self.w2i = read_data_(
                 os.path.join(cwd, train_filepath))
@@ -336,18 +344,14 @@ class Disorder723(Dataset):
         print(self.classes)
         self.w2i = dict(zip(self.classes, indixes))
         # print('classes\n\n', self.classes,len(self.classes))
-        self.ssl = args.dataset_type == 'SSL'
-        self.use_elmo = False
-        if self.use_elmo:
-            print('\n USE ELMO \n')
-            # model_dir = Path('/args/uniref50_v2')
+        self.ssl = config.dataset.type == 'SSL'
+   #     self.use_elmo = config.dataset.use_strings
+    #    if self.use_elmo:
+     #       print('\n USE ELMO \n')
+            # model_dir = Path('/config/uniref50_v2')
             # weights = model_dir / 'weights.hdf5'
             # options = model_dir / 'options.json'
             # self.embedder = ElmoEmbedder(options, weights, cuda_device=-1)
-            if self.ssl:
-                print('\n SELF-SUPERVISED\n')
-            else:
-                print('\nIDP fully-supervised\n')
 
     def __len__(self):
         return len(self.proteins)
@@ -375,7 +379,7 @@ class Disorder723(Dataset):
             left = randint(0, L // 4)
             right = randint(L // 2, L)
             x = [self.w2i[amino] for amino in self.proteins[index]]  # [left:right]
-            if self.use_elmo:
+            if True:
                 x = self.proteins[index]
                 # print(seq)
                 # x =  torch.FloatTensor(self.embedder.embed_sentence(list(seq))).sum(dim=0).cpu()
@@ -396,7 +400,7 @@ class Disorder723(Dataset):
         x = [self.w2i[amino] for amino in self.proteins[index]]
         y = [int(i) for i in self.annotations[index]]
         # print(len(x),len(y),len(self.proteins[index]),len(self.annotations[index]))
-        if self.use_elmo:
+        if True:
             seq = self.proteins[index]
             # print(seq)
             x = seq
@@ -415,12 +419,12 @@ class Disorder723(Dataset):
 
 
 class CAID2018_Disprot(Dataset):
-    def __init__(self, args, mode):
+    def __init__(self, config, mode):
 
         dev_filepath = "data/CAID_data_2018/disprot-disorder.txt"
         test_filepath = ""
 
-        cwd = args.cwd
+        cwd = config.cwd
 
         self.names, self.annotations, self.proteins, _, _ = read_data_(
             os.path.join(cwd, dev_filepath))
@@ -433,11 +437,11 @@ class CAID2018_Disprot(Dataset):
         print(self.classes)
         self.w2i = dict(zip(self.classes, indixes))
         # print('classes\n\n', self.classes,len(self.classes))
-        self.ssl = args.dataset_type == 'SSL'
-        self.use_elmo = args.dataset.use_elmo
+        self.ssl = config.dataset.type == 'SSL'
+        self.use_elmo = config.dataset.use_elmo
         if self.use_elmo:
             print('\n USE ELMO \n')
-            # model_dir = Path('/args/uniref50_v2')
+            # model_dir = Path('/config/uniref50_v2')
             # weights = model_dir / 'weights.hdf5'
             # options = model_dir / 'options.json'
             # self.embedder = ElmoEmbedder(options, weights, cuda_device=-1)
@@ -466,12 +470,12 @@ class CAID2018_Disprot(Dataset):
 
 
 class FidpnnLoader(Dataset):
-    def __init__(self, args, mode):
+    def __init__(self, config, mode):
         train_filepath = "data/fidpnn_data/flDPnn_Training_Annotation.txt"
         dev_filepath = "data/fidpnn_data/flDPnn_Validation_Annotation.txt"
         test_filepath = "data/fidpnn_data/flDPnn_DissimiTest_Annotation.txt"
 
-        cwd = args.cwd
+        cwd = config.cwd
         if mode == train_prefix:
             self.names, self.proteins, self.annotations = read_fidpnn_dataset(
                 os.path.join(cwd, train_filepath))
@@ -494,8 +498,8 @@ class FidpnnLoader(Dataset):
         print(self.classes)
         self.w2i = dict(zip(self.classes, indixes))
 
-        self.ssl = args.dataset_type == 'SSL'
-        self.use_strings = True
+        self.ssl = config.dataset.type == 'SSL'
+        self.use_strings = config.dataset.use_elmo
         if self.use_strings:
             print('\n USE ELMO \n')
 
@@ -512,18 +516,15 @@ class FidpnnLoader(Dataset):
         if self.mode == 'train' and self.augment:
 
             L = len(self.proteins[index])
-            if L > 2048:
-                right = 2048
-            else:
-                right = -1
-            x = [self.w2i[amino] for amino in self.proteins[index]]
+            left = randint(0, L // 4)
+            right = randint(L // 2, L)
+            x = [self.w2i[amino] for amino in self.proteins[index]]  # [left:right]
             if self.use_strings:
                 x = self.proteins[index]
 
             else:
                 x = torch.LongTensor(x)
-            x = x[:right]
-            y = [int(i) for i in self.annotations[index]][:right]  # [left:right]
+            y = [int(i) for i in self.annotations[index]]  # [left:right]
 
             y = torch.LongTensor(y)  # .unsqueeze(-1)
 

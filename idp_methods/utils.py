@@ -5,6 +5,21 @@ import numpy as np
 import sklearn.metrics
 
 
+def read_fldpnn_file(path):
+    step =12
+    with open(path,'r') as f:
+        data = f.read().replace(',','').splitlines()
+        proteins_ids = data[::step]
+        sequences = data[1::step]
+        #
+        predictions = data[2::step]
+
+    # print(proteins_ids)
+    # print(sequences)
+    # print(predictions)
+    #print(len(proteins_ids),len(sequences),len(predictions))
+    return proteins_ids, sequences, predictions
+
 def read_swissprot(path):
     annotations = []
     with open(path, 'r') as file1:
@@ -582,3 +597,7 @@ def read_json(path):
 #
 # print(len(pred))
 # print(prot)
+#
+# proteins_ids, sequences, predictions = read_fldpnn_file('/home/iliask/PycharmProjects/MScThesis/idp_methods/fldpnn_docker/mxd494.test/function_results.txt')
+annotations = read_annotation_file('/data/mxd494/annotations/MXD494.test.fasta')
+# target_metrics(predictions,annotations)

@@ -126,7 +126,8 @@ def read_mobidb4_json(json_path):
 
             pred = line.strip('\n')
             d = json.loads(pred)
-            # print(d.keys())
+            print(d.keys())
+            #print(pred)
             keys = d.keys()
             len = d['length']
             predictors = ['prediction-disorder-iupl', 'prediction-disorder-iups',
@@ -158,6 +159,7 @@ def read_mobidb4_json(json_path):
             for predictor in predictors:
                 lca[predictor] = np.zeros(len)
                 regions = d[predictor]['regions']
+                #scores = d[predictor]['scores']
                 if regions != 'None':
                     for area in regions:
                         start, end = area
@@ -179,10 +181,83 @@ def read_mobidb4_json(json_path):
     # pickle.dump(big_dict, a_file)
     #
     # a_file.close()
-    np.save('/home/iliask/PycharmProjects/MScThesis/results/mobidb/mxd494_val.npy', big_dict)
+    #np.save('/home/iliask/PycharmProjects/MScThesis/results/mobidb/mxd494_val.npy', big_dict)
 
 
-# read_mobidb4_json('/home/iliask/PycharmProjects/MScThesis/results/mobidb/mxd494_val.json')
+
+
+def convert_mobidb4_json(json_path,out_path='/home/iliask/PycharmProjects/MScThesis/results/mobidb/test_mobi_out.txt'):
+    big_dict = {}
+    fout = open(out_path,'w')
+    with open(json_path, 'r') as f:
+
+        for idx, line in enumerate(f):
+
+            pred = line.strip('\n')
+            d = json.loads(pred)
+            print(d.keys())
+            fout.write(f'>sequence{idx}\n')
+            #print(pred)
+            keys = d.keys()
+            len = d['length']
+            predictors = ['prediction-disorder-iupl', 'prediction-disorder-iups',
+                          'prediction-disorder-espN', 'prediction-disorder-espX', 'prediction-disorder-espD',
+                          'prediction-disorder-glo']
+            # 'prediction-disorder-seg'
+            # prediction_disorder_th_50 = d['prediction-disorder-th_50']
+            # prediction_disorder_iupl = d['prediction-disorder-iupl']
+            # prediction_disorder_iups = d['prediction-disorder-iups']
+            # prediction_disorder_espN = d['prediction-disorder-espN']
+            # prediction_disorder_espX = d['prediction-disorder-espX']
+            # prediction_disorder_glo = d['prediction-disorder-glo']
+            # regions_prediction_disorder_th_50 = d['prediction-disorder-th_50']['regions']
+            # regions_prediction_disorder_iupl = d['prediction-disorder-iupl']['regions']
+            # regions_prediction_disorder_iups = d['prediction-disorder-iups']['regions']
+            # regions_prediction_disorder_espN = d['prediction-disorder-espN']['regions']
+            # regions_prediction_disorder_espX = d['prediction-disorder-espX']['regions']
+            # regions_prediction_disorder_glo = d['prediction-disorder-glo']['regions']
+            # regions_th_50 = np.zeros(len)
+            # regions_iupl = np.zeros(len)
+            # regions_iups = np.zeros(len)
+            # regions_espN = np.zeros(len)
+            # regions_espX = np.zeros(len)
+            # regions_espD = np.zeros(len)
+            # regions_seg = np.zeros(len)
+            # regions_glo = np.zeros(len)
+            lca = {}
+
+            for predictor in predictors:
+                lca[predictor] = np.zeros(len)
+                regions = d[predictor]['regions']
+                #scores = d[predictor]['scores']
+                if regions != 'None':
+                    for area in regions:
+                        start, end = area
+                        lca[predictor][start:end] = 1
+                np_to_str = "".join([str(int(x)) for x in lca[predictor]])
+                fout.write(f"{np_to_str}\n")
+                # else:
+                #     print('rdafgdsfdsf')
+            # print(lca)
+            # lca[predictor] = lca[predictor].tolist()
+
+            big_dict[str(idx)] = lca
+
+            # regions_prediction_disorder_dis465 = d['prediction-disorder-dis465']
+            # prediction_disorder_disHL = d['prediction-disorder-disHL']
+
+            # if 'prediction-disorder-th_50' not in keys:
+            #     print('prediction-disorder-espX')
+
+    # a_file = open('/home/iliask/PycharmProjects/MScThesis/results/mobidb/mxd494_val_pred.pkl', "w")
+    # pickle.dump(big_dict, a_file)
+    #
+    # a_file.close()
+    #np.save('/home/iliask/PycharmProjects/MScThesis/results/mobidb/mxd494_val.npy', big_dict)
+
+
+
+convert_mobidb4_json('/home/iliask/PycharmProjects/MScThesis/results/mobidb/mxd494_val.json')
 #
 # train_mxd494 = np.load('/home/iliask/PycharmProjects/MScThesis/results/mobidb/mxd494_val.npy', allow_pickle=True)
 # print(a.item().keys())
@@ -190,15 +265,15 @@ def read_mobidb4_json(json_path):
 
 def mobi_db_annot():
     protein_ids, sequences, annotations = read_idp_dataset(
-        '/home/iliask/PycharmProjects/MScThesis/data/idp_seq_2_seq/disorder723/disorder723.txt')
+        '/data/disorder723/disorder723.txt')
 
     len_ = len(protein_ids)
-    with open('/home/iliask/PycharmProjects/MScThesis/data/idp_seq_2_seq/disorder723/data/test_d723.fasta', 'w') as f:
+    with open('/data/disorder723/data/test_d723.fasta', 'w') as f:
         for i in range(len_):
             f.write(f'{protein_ids[i]}\n')
             f.write(f'{sequences[i]}\n')
     f.close()
-    with open('/home/iliask/PycharmProjects/MScThesis/data/idp_seq_2_seq/disorder723/annotations/test_d723.fasta',
+    with open('/data/disorder723/annotations/test_d723.fasta',
               'w') as f:
         for i in range(len_):
             f.write(f'{protein_ids[i]}\n')
