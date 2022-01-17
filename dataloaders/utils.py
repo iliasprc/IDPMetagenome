@@ -253,7 +253,7 @@ def convert_mobidb4_json(json_path,out_path='/home/iliask/PycharmProjects/MScThe
     # pickle.dump(big_dict, a_file)
     #
     # a_file.close()
-    #np.save('/home/iliask/PycharmProjects/MScThesis/results/mobidb/mxd494_val.npy', big_dict)
+    np.save('/home/iliask/PycharmProjects/MScThesis/results/mobidb/mxd494_val_3.npy', big_dict)
 
 
 
