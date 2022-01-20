@@ -1,18 +1,18 @@
 import argparse
 import os
 import sys
-
+sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 import torch
 import torch.nn as nn
 from models.rnn import IDP_test_rnn
-sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+
 from idp_methods.utils import *
 
 parser = argparse.ArgumentParser()
 parser.add_argument('-b', '--batch_size', type=int, default=4, help='batch size for training')
-parser.add_argument('--dataset', type=str, default="MXD494", help='dataset name')
+parser.add_argument('--dataset', type=str, default="d723", help='dataset name')
 parser.add_argument('--epochs', type=int, default=50, help='total number of epochs')
-parser.add_argument('--test-predictor', type=str, default='prediction-disorder-glo',
+parser.add_argument('--test-predictor', type=str, default='seg',
                     choices=['prediction-disorder-iupl', 'prediction-disorder-iups',
                              'prediction-disorder-espN', 'prediction-disorder-espX', 'prediction-disorder-espD',
                              'prediction-disorder-glo', 'cast', 'seg'])
@@ -25,15 +25,28 @@ torch.backends.cudnn.deterministic = True
 torch.backends.cudnn.benchmark = False
 np.random.seed(SEED)
 torch.cuda.manual_seed(SEED)
+dataset = args.dataset
 
-train_dataset = np.load('./results/mobidb/mxd494_train_pred2.npy',
-                        allow_pickle=True).item()
+if dataset == 'd723':
+    train_dataset = np.load('./results/mobidb/d723_train2.npy',
+                            allow_pickle=True).item()
 
-val_dataset = np.load('./results/mobidb/mxd494_val_pred2.npy', allow_pickle=True).item()
-print(val_dataset['0'].keys())
-predictors = ['prediction-disorder-iupl', 'prediction-disorder-iups',
-              'prediction-disorder-espN', 'prediction-disorder-espX', 'prediction-disorder-espD',
-              'prediction-disorder-glo', 'cast', 'seg']
+    val_dataset = np.load('./results/mobidb/d723_test2.npy', allow_pickle=True).item()
+    print(val_dataset['0'].keys())
+    predictors = ['prediction-disorder-iupl', 'prediction-disorder-iups',
+                  'prediction-disorder-espN', 'prediction-disorder-espX', 'prediction-disorder-espD',
+                  'prediction-disorder-glo', 'cast', 'seg']
+elif dataset == 'mxd494':
+
+
+    train_dataset = np.load('./results/mobidb/mxd494_train_pred3.npy',
+                            allow_pickle=True).item()
+
+    val_dataset = np.load('./results/mobidb/mxd494_val_pred3.npy', allow_pickle=True).item()
+    print(val_dataset['0'].keys())
+    predictors = ['prediction-disorder-iupl', 'prediction-disorder-iups',
+                  'prediction-disorder-espN', 'prediction-disorder-espX', 'prediction-disorder-espD',
+                  'prediction-disorder-glo', 'cast', 'seg','fldpnn']
 
 test_predictor = args.test_predictor
 predictors.remove(test_predictor)
@@ -101,6 +114,7 @@ for i in range(EPOCHS):
         # print(output.shape)
         y += target.squeeze().detach().cpu().numpy().tolist()
         yhat += output.tolist()
+        #print(f'EPOCH {i} Train Loss {train_loss / (batchidx + 1):.4f}')
     metrics_, _ = dataset_metrics(yhat, y)
 
     print(f'EPOCH {i} Train Loss {train_loss / (batchidx + 1):.4f}')

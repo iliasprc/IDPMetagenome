@@ -181,7 +181,7 @@ def read_mobidb4_json(json_path):
     # pickle.dump(big_dict, a_file)
     #
     # a_file.close()
-    #np.save('/home/iliask/PycharmProjects/MScThesis/results/mobidb/mxd494_val.npy', big_dict)
+    np.save('/home/iliask/PycharmProjects/MScThesis/results/mobidb/d723_test.npy', big_dict)
 
 
 
@@ -253,11 +253,11 @@ def convert_mobidb4_json(json_path,out_path='/home/iliask/PycharmProjects/MScThe
     # pickle.dump(big_dict, a_file)
     #
     # a_file.close()
-    np.save('/home/iliask/PycharmProjects/MScThesis/results/mobidb/mxd494_val_3.npy', big_dict)
+    np.save('/home/iliask/PycharmProjects/MScThesis/results/mobidb/d723_test.npy', big_dict)
 
 
 
-convert_mobidb4_json('/home/iliask/PycharmProjects/MScThesis/results/mobidb/mxd494_val.json')
+convert_mobidb4_json('/home/iliask/PycharmProjects/MScThesis/results/mobidb/d723_test.json')
 #
 # train_mxd494 = np.load('/home/iliask/PycharmProjects/MScThesis/results/mobidb/mxd494_val.npy', allow_pickle=True)
 # print(a.item().keys())

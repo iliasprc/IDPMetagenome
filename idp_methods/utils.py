@@ -603,6 +603,6 @@ def read_json(path):
 # print(len(pred))
 # print(prot)
 #
-proteins_ids, sequences, predictions = read_fldpnn_file('/home/iliask/PycharmProjects/MScThesis/idp_methods/fldpnn_docker/mxd494.test/function_results.txt')
-#annotations = read_annotation_file('/data/mxd494/annotations/MXD494.test.fasta')
-# target_metrics(predictions,annotations)
+# proteins_ids, sequences, predictions = read_fldpnn_file('/home/iliask/PycharmProjects/MScThesis/idp_methods/fldpnn_docker/mxd494.test/function_results.txt')
+# #annotations = read_annotation_file('/data/mxd494/annotations/MXD494.test.fasta')
+# # target_metrics(predictions,annotations)

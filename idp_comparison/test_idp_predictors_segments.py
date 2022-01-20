@@ -1,22 +1,22 @@
 import argparse
 import os
 import sys
-
+sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 import torch
 import torch.nn as nn
 
-sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+
 from idp_methods.utils import *
 from models.rnn import IDP_test_rnn
 
 parser = argparse.ArgumentParser()
 parser.add_argument('-b', '--batch_size', type=int, default=4, help='batch size for training')
-parser.add_argument('--dataset', type=str, default="MXD494", help='dataset name')
+parser.add_argument('--dataset', type=str, default="d723", help='dataset name')
 parser.add_argument('--epochs', type=int, default=50, help='total number of epochs')
-parser.add_argument('--test-predictor', type=str, default='prediction-disorder-glo',
+parser.add_argument('--test-predictor', type=str, default='fldpnn',
                     choices=['prediction-disorder-iupl', 'prediction-disorder-iups',
                              'prediction-disorder-espN', 'prediction-disorder-espX', 'prediction-disorder-espD',
-                             'prediction-disorder-glo', 'cast', 'seg'])
+                             'prediction-disorder-glo', 'cast', 'seg','fldpnn'])
 
 args = parser.parse_args()
 
@@ -27,14 +27,29 @@ torch.backends.cudnn.benchmark = False
 np.random.seed(SEED)
 torch.cuda.manual_seed(SEED)
 
-train_dataset = np.load('./results/mobidb/mxd494_train_pred2.npy',
-                        allow_pickle=True).item()
+dataset = args.dataset
 
-val_dataset = np.load('./results/mobidb/mxd494_val_pred2.npy', allow_pickle=True).item()
-print(val_dataset['0'].keys())
-predictors = ['prediction-disorder-iupl', 'prediction-disorder-iups',
-              'prediction-disorder-espN', 'prediction-disorder-espX', 'prediction-disorder-espD',
-              'prediction-disorder-glo', 'cast', 'seg']
+if dataset == 'd723':
+    train_dataset = np.load('./results/mobidb/d723_train2.npy',
+                            allow_pickle=True).item()
+
+    val_dataset = np.load('./results/mobidb/d723_test2.npy', allow_pickle=True).item()
+    print(val_dataset['0'].keys())
+    predictors = ['prediction-disorder-iupl', 'prediction-disorder-iups',
+                  'prediction-disorder-espN', 'prediction-disorder-espX', 'prediction-disorder-espD',
+                  'prediction-disorder-glo', 'cast', 'seg']
+elif dataset == 'mxd494':
+
+
+    train_dataset = np.load('./results/mobidb/mxd494_train_pred3.npy',
+                            allow_pickle=True).item()
+
+    val_dataset = np.load('./results/mobidb/mxd494_val_pred3.npy', allow_pickle=True).item()
+    print(val_dataset['0'].keys())
+    predictors = ['prediction-disorder-iupl', 'prediction-disorder-iups',
+                  'prediction-disorder-espN', 'prediction-disorder-espX', 'prediction-disorder-espD',
+                  'prediction-disorder-glo', 'cast', 'seg','fldpnn']
+
 
 test_predictor = args.test_predictor
 predictors.remove(test_predictor)
@@ -56,10 +71,10 @@ m = IDP_test_rnn(input_channels=len(train_predictors))
 
 
 def dataset_preparation_padded():
-    train_dataset = np.load('./results/mobidb/mxd494_train_pred2.npy',
+    train_dataset = np.load('./results/mobidb/mxd494_train_pred3.npy',
                             allow_pickle=True).item()
 
-    val_dataset = np.load('./results/mobidb/mxd494_val_pred2.npy', allow_pickle=True).item()
+    val_dataset = np.load('./results/mobidb/mxd494_val_pred3.npy', allow_pickle=True).item()
 
     predictors = ['prediction-disorder-iupl', 'prediction-disorder-iups',
                   'prediction-disorder-espN', 'prediction-disorder-espX', 'prediction-disorder-espD',
@@ -98,7 +113,7 @@ def dataset_preparation_padded():
 
         pad_ = torch.zeros((target.shape[0], next_number(length) - length))
         target = torch.cat((target, pad_), dim=-1)
-        print(target.shape)
+        #print(target.shape)
         target = target[:, :step * segments]
         # print(target.tolist())
 
@@ -151,10 +166,10 @@ def dataset_preparation_padded():
 
 
 def dataset_preparation():
-    train_dataset = np.load('./results/mobidb/mxd494_train_pred2.npy',
-                            allow_pickle=True).item()
-
-    val_dataset = np.load('./results/mobidb/mxd494_val_pred2.npy', allow_pickle=True).item()
+    # train_dataset = np.load('./results/mobidb/mxd494_train_pred3.npy',
+    #                         allow_pickle=True).item()
+    #
+    # val_dataset = np.load('./results/mobidb/mxd494_val_pred3.npy', allow_pickle=True).item()
 
     segments = 20
 
@@ -171,7 +186,7 @@ def dataset_preparation():
 
         length = sample_data.shape[-1]
         step = int(length / segments)
-        print(sample_data.shape)
+        #print(sample_data.shape)
         sample_data = sample_data[:, :step * segments]
         sample_data = sample_data.view(num_predictors, segments, step)
 
