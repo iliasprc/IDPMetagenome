@@ -1,5 +1,36 @@
+## SEG 
 
-## flDpnn file format 
+To run seg use the following command
+
+```
+./seg ./../../data/path/to/fastafile -x > ./../../results/seg/outputfile
+```
+
+### Arguments
+
+```python
+Usage: seg <file> <window> <locut> <hicut> <options>
+         <file>   - filename containing fasta-formatted sequence(s) 
+         <window> - OPTIONAL window size (default 12) 
+         <locut>  - OPTIONAL low (trigger) complexity (default 2.2) 
+         <hicut>  - OPTIONAL high (extension) complexity (default locut + 0.3) 
+         <options> 
+            -x  each input sequence is represented by a single output 
+                sequence with low-complexity regions replaced by 
+                strings of 'x' characters 
+            -c <chars> number of sequence characters/line (default 60)
+            -m <size> minimum length for a high-complexity segment 
+                (default 0).  Shorter segments are merged with adjacent 
+                low-complexity segments 
+            -l  show only low-complexity segments (fasta format) 
+            -h  show only high-complexity segments (fasta format) 
+            -a  show all segments (fasta format) 
+            -n  do not add complexity information to the header line 
+            -o  show overlapping low-complexity segments (default merge) 
+            -t <maxtrim> maximum trimming of raw segment (default 100) 
+            -p  prettyprint each segmented sequence (tree format) 
+            -q  prettyprint each segmented sequence (block format) 
+### flDpnn file format 
 ```
 -------------File Format-------------------------
 line 1:  >protein ID (when the pssm matrix cannot be calculated for an input sequence,  [WARNING-DEFAULT PSSM] is added in front of the protein ID which means that the prediction is based on default/low quality PSSM which may lead to lower quality of the disorder predictions.)

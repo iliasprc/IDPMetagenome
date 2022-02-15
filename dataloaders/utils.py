@@ -10,7 +10,7 @@ def has_numbers(inputString):
 def remove_blanks(path):
     with open(path, 'r') as f:
         data = f.read().splitlines()
-    with open('/home/papastrat/Desktop/MscThesis/s.txt', 'w') as f1:
+    with open('/home/iliask/PycharmProjects/MScThesis/s.txt', 'w') as f1:
         proteins = []
         names = []
         annotations = []
@@ -23,10 +23,11 @@ def remove_blanks(path):
             #     print(i)
 
             if line.rstrip():
+                print(line)
                 # print(line,'\n')
                 if ">" in line:
                     print(f'{sequence}\n{annot}\n{line}')
-                    f1.write(f'{sequence}\n{annot}\n{line}\n')
+                    f1.write(f'{sequence}\n{annot}\n{line}')
                     sequence = ''
                     annot = ''
                 if not has_numbers(line):
@@ -127,7 +128,7 @@ def read_mobidb4_json(json_path):
             pred = line.strip('\n')
             d = json.loads(pred)
             print(d.keys())
-            #print(pred)
+            # print(pred)
             keys = d.keys()
             len = d['length']
             predictors = ['prediction-disorder-iupl', 'prediction-disorder-iups',
@@ -159,7 +160,7 @@ def read_mobidb4_json(json_path):
             for predictor in predictors:
                 lca[predictor] = np.zeros(len)
                 regions = d[predictor]['regions']
-                #scores = d[predictor]['scores']
+                # scores = d[predictor]['scores']
                 if regions != 'None':
                     for area in regions:
                         start, end = area
@@ -184,11 +185,9 @@ def read_mobidb4_json(json_path):
     np.save('/home/iliask/PycharmProjects/MScThesis/results/mobidb/d723_test.npy', big_dict)
 
 
-
-
-def convert_mobidb4_json(json_path,out_path='/home/iliask/PycharmProjects/MScThesis/results/mobidb/test_mobi_out.txt'):
+def convert_mobidb4_json(json_path, out_path='/home/iliask/PycharmProjects/MScThesis/results/mobidb/test_mobi_out.txt'):
     big_dict = {}
-    fout = open(out_path,'w')
+    fout = open(out_path, 'w')
     with open(json_path, 'r') as f:
 
         for idx, line in enumerate(f):
@@ -197,7 +196,7 @@ def convert_mobidb4_json(json_path,out_path='/home/iliask/PycharmProjects/MScThe
             d = json.loads(pred)
             print(d.keys())
             fout.write(f'>sequence{idx}\n')
-            #print(pred)
+            # print(pred)
             keys = d.keys()
             len = d['length']
             predictors = ['prediction-disorder-iupl', 'prediction-disorder-iups',
@@ -229,7 +228,7 @@ def convert_mobidb4_json(json_path,out_path='/home/iliask/PycharmProjects/MScThe
             for predictor in predictors:
                 lca[predictor] = np.zeros(len)
                 regions = d[predictor]['regions']
-                #scores = d[predictor]['scores']
+                # scores = d[predictor]['scores']
                 if regions != 'None':
                     for area in regions:
                         start, end = area
@@ -256,8 +255,7 @@ def convert_mobidb4_json(json_path,out_path='/home/iliask/PycharmProjects/MScThe
     np.save('/home/iliask/PycharmProjects/MScThesis/results/mobidb/d723_test.npy', big_dict)
 
 
-
-convert_mobidb4_json('/home/iliask/PycharmProjects/MScThesis/results/mobidb/d723_test.json')
+# convert_mobidb4_json('/home/iliask/PycharmProjects/MScThesis/results/mobidb/d723_test.json')
 #
 # train_mxd494 = np.load('/home/iliask/PycharmProjects/MScThesis/results/mobidb/mxd494_val.npy', allow_pickle=True)
 # print(a.item().keys())
@@ -278,3 +276,6 @@ def mobi_db_annot():
         for i in range(len_):
             f.write(f'{protein_ids[i]}\n')
             f.write(f'{annotations[i]}\n')
+
+
+remove_blanks('/home/iliask/PycharmProjects/MScThesis/results/seg/mgm_simulationassembly.txt')

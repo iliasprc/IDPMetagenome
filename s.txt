@@ -1,6 +1,0 @@
-2021-11-28-17:47:35 | INFO | LOG | Checkpoint Folder /home/papastrat/Desktop/MscThesis/checkpoints/dataset_CAID2018/model_IDP_esm1_t6_43M_UR50S/date_28_11_2021_17,47,33 
-2021-11-28-17:47:47 | INFO | LOG | 
-TP	TN	FP	FN	
-36340,00	216288,00	66902,00	18538,00
-F1  	  MCC  	  TPR  	  TNR  	  PPV  	  NPV  	  FPR  	  FNR  	  BAC	 AUC	
-0,4597	0,3410	0,6622	0,7638	0,3520	0,9211	0,2362	0,3378	0,7130	0,7130

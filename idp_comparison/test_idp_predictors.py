@@ -5,6 +5,7 @@ sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 import torch
 import torch.nn as nn
 from models.rnn import IDP_test_rnn
+from models.transformer import IDP_compare_Transformer
 
 from idp_methods.utils import *
 
@@ -62,6 +63,7 @@ def next_number(x, N=20):
 
 
 m = IDP_test_rnn(input_channels=len(train_predictors))
+m =IDP_compare_Transformer(input_channels=len(train_predictors))
 train_X = []
 trainY = []
 for sample in train_dataset:
@@ -87,7 +89,7 @@ for sample in val_dataset:
     valY.append(torch.from_numpy(train_dataset[sample][test_predictor]).unsqueeze(0).transpose(0, 1).float())
 
 EPOCHS = 50
-optimizer = torch.optim.Adam(m.parameters(), lr=1e-4)
+optimizer = torch.optim.Adam(m.parameters(), lr=0.5e-3)
 use_cuda = torch.cuda.is_available()
 
 device = torch.device("cuda:0" if use_cuda else "cpu")

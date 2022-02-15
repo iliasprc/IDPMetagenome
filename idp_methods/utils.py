@@ -7,8 +7,8 @@ import sklearn.metrics
 
 def read_fldpnn_file(path):
     step = 12
-    with open(path,'r') as f:
-        data = f.read().replace(',','').splitlines()
+    with open(path, 'r') as f:
+        data = f.read().replace(',', '').splitlines()
         proteins_ids = data[::step]
         sequences = data[1::step]
         #
@@ -18,12 +18,12 @@ def read_fldpnn_file(path):
     #     print(f'{proteins_ids[i]}')
     #     print(f'{predictions[i]}')
 
-
     # print(proteins_ids)
     # print(sequences)
     # print(predictions)
-    print(len(proteins_ids),len(sequences),len(predictions))
+    print(len(proteins_ids), len(sequences), len(predictions))
     return proteins_ids, sequences, predictions
+
 
 def read_swissprot(path):
     annotations = []
@@ -83,36 +83,34 @@ def post_process_seg_output(path):
             # i = i.strip()
             # print(i[:36])
             # print(i[30:40])
-            if '>' in i.strip():
-                protein_count += 1
-                # continue
-            elif has_numbers(i.strip()):
-                #
-                # print(i)
-                print(i[30:40].strip())
-                ids = [int(x) for x in i[30:40].strip().split('-')]
-                print(ids)
-                # print(i.strip())
-                # print(len(i))
-                # print(i)
-                if '-' in i.strip()[-5:]:
-                    # print(i)
-                    count += 1
+            if i.rstrip():
 
+                if '>' in i.strip():
+                    protein_count += 1
+                    # continue
+                elif has_numbers(i.strip()):
+                    # if String contains numbers
+
+                    # check output of seg if number are on left or right region
+                    # and find IDRs
+                    #
+                    # print(i)
+                    # print(i[30:40].strip())
+                    ids = [int(x) for x in i[30:40].strip().split('-')]
+                    # print(ids)
+                    # print(i.strip())
+                    # print(len(i))
+                    # print(i)
+                    if '-' in i.strip()[-5:]:
+                        # print(i)
+                        count += 1
+                # else:
+                #     print(i.strip(),has_numbers(i.strip()))
+            # else:
+            #     print(i)
             # print(i)
-        print(count)
-        # while True:
-        #     count += 1
-        #
-        #     # Get next line from file
-        #     line = file1.readline()
-        #
-        #     # if line is empty
-        #     # end of file is reached
-        #     if not line:
-        #         print('break')
-        #         break
-        #     print("Line{}: {}".format(count, line.strip()))
+        print('Number of IDRs ', count)
+        print('Number of  Proteins ', protein_count)
 
     file1.close()
     return count
@@ -142,7 +140,7 @@ def seg_predictions(path, annotations=None):
 
             if '>' in i.strip():
                 proteins.append(i.strip())
-                # print(pred)
+                #
                 predictions.append(pred)
                 pred = ''
                 protein_count += 1
@@ -491,7 +489,7 @@ def cast_metrics(predictions_path, ground_truth_path=None):
             s = ''
         else:
             s += i
-    # print(s)
+    print('IDR regions from CAST ',count)
     if s != '':
         predictions.append(s)
     # print(len(proteins), len(predictions))
@@ -563,46 +561,205 @@ def read_json(path):
         print(data[0])
         print(size)
 
-# # read_json('/mnt/784C5F3A4C5EF1FC/PROJECTS/MScThesis/data/DisProt release_2021_08.json')
-# # import glob
-# # files_ = sorted(glob.glob(f'/mnt/784C5F3A4C5EF1FC/PROJECTS/MScThesis/data/CAID_data_2018/**.txt'))
-# # print(files_)
-# # for i in files_:
-# #
-# #     read_caid_data(i)
-#
-# # post_process_cast_output('/mnt/784C5F3A4C5EF1FC/PROJECTS/MScThesis/results/cast/data_disprot-disorder.out.txt',
-# #                          '/mnt/784C5F3A4C5EF1FC/PROJECTS/MScThesis/data/CAID_data_2018/annotation_files
-# #                          /annot_disprot-disorder.txt')
-#
-#
-# # cast_metrics_V2('../results/cast/CAID2018_out.txt',
-# #                 '../data/CAID_data_2018/annotation_files/annot_disprot-disorder.txt')
-# #
-# cast_metrics ('../results/cast/CAID2018_out.txt',
-#                '../data/CAID_data_2018/annotation_files/annot_disprot-disorder.txt')
-# #
-# #
-# #
+
+def post_process_cast_output(path):
+    with open(path, 'r') as file1:
+        data = file1.readlines()
+        print(len(data))
+        count = 0
+        for idx, i in enumerate(data):
+            print(f'{i.strip()}')
+            i = i.strip()
+            if 'region' in i:
+                count += 1
+                # print(i)
+
+            # if idx < 80000:
+            #     i = i.strip()
+            #     if '>disprot' in i:
+            #         continue
+            #     if has_numbers(i):
+            #        # print(i)
+            #         if '-' in i[-5:]:
+            #             print(i)
+            #             count+=1
+            #
+            #
+            # # print(i)
+        print('Number of IDRs', count)
+
+        file1.close()
+        return count
 
 
-#
-# #post_process_iupred2a_out('/home/iliask/PycharmProjects/MScThesis/results/iupred2a/Caid_disorder.txt',
-# '../data/CAID_data_2018/annotation_files/annot_disprot-disorder.txt')
+def read_mobidb4_json_full(json_path):
+    big_dict = {}
+
+    ordered = 0.0
+    disordered = 0.0
+    total_amino = 0.0
+    ratio = 0.0
+    num_regions = 0.0
+    predictors = ['prediction-disorder-iupl', 'prediction-disorder-iups',
+                  'prediction-disorder-espN', 'prediction-disorder-espX', 'prediction-disorder-espD',
+                  'prediction-disorder-glo']
+    regions_predictors = {'prediction-disorder-iupl':0, 'prediction-disorder-iups':0,
+                  'prediction-disorder-espN':0, 'prediction-disorder-espX':0, 'prediction-disorder-espD':0,
+                  'prediction-disorder-glo':0}
+    fraction_predictors = {'prediction-disorder-iupl':0, 'prediction-disorder-iups':0,
+                  'prediction-disorder-espN':0, 'prediction-disorder-espX':0, 'prediction-disorder-espD':0,
+                  'prediction-disorder-glo':0}
+    with open(json_path, 'r') as f:
+
+        for idx, line in enumerate(f):
+
+            pred = line.strip('\n')
+            d = json.loads(pred)
+            #print(d.keys())
+            # print(pred)
+            keys = d.keys()
+            len = d['length']
+
+            # 'prediction-disorder-seg'
+            # prediction_disorder_th_50 = d['prediction-disorder-th_50']
+            # prediction_disorder_iupl = d['prediction-disorder-iupl']
+            # prediction_disorder_iups = d['prediction-disorder-iups']
+            # prediction_disorder_espN = d['prediction-disorder-espN']
+            # prediction_disorder_espX = d['prediction-disorder-espX']
+            # prediction_disorder_glo = d['prediction-disorder-glo']
+            # regions_prediction_disorder_th_50 = d['prediction-disorder-th_50']['regions']
+            # regions_prediction_disorder_iupl = d['prediction-disorder-iupl']['regions']
+            # regions_prediction_disorder_iups = d['prediction-disorder-iups']['regions']
+            # regions_prediction_disorder_espN = d['prediction-disorder-espN']['regions']
+            # regions_prediction_disorder_espX = d['prediction-disorder-espX']['regions']
+            # regions_prediction_disorder_glo = d['prediction-disorder-glo']['regions']
+            # regions_th_50 = np.zeros(len)
+            # regions_iupl = np.zeros(len)
+            # regions_iups = np.zeros(len)
+            # regions_espN = np.zeros(len)
+            # regions_espX = np.zeros(len)
+            # regions_espD = np.zeros(len)
+            # regions_seg = np.zeros(len)
+            # regions_glo = np.zeros(len)
+            lca = {}
+            total_amino+=len
+            for predictor in predictors:
+                lca[predictor] = np.zeros(len)
+                if predictor in keys:
+                    regions = d[predictor]['regions']
+                    disordered_fraction = d[predictor]['content_fraction']
+                    fraction_predictors[predictor]+=disordered_fraction
+                    # scores = d[predictor]['scores']
+                    if regions != 'None':
+                        for area in regions:
+                            start, end = area
+                            lca[predictor][start:end] = 1
+
+                            regions_predictors[predictor]+=1
+                else:
+                    print(f'Predictor {predictor} not found')
+        print(idx)
+        for predictor in predictors:
 
 
-# read_disprot('/home/iliask/PycharmProjects/MScThesis/data/DisProt release_2021_08.fasta')
-# ground_truth = '../data/CAID_data_2018/annotation_files/annot_disprot-disorder.txt'
-# results_file = '/home/iliask/PycharmProjects/MScThesis/results/iupred2a/CAID2018__out.txt'
-# annotations = read_disprot(ground_truth)
-# iupred2a_metrics(results_file, annotations)
-# pred, prot = metrics_seg('/home/iliask/PycharmProjects/MScThesis/results/seg/mxd_494_test.txt')
+            fraction_predictors[predictor] = fraction_predictors[predictor]/idx
+    print(regions_predictors)
+    print(fraction_predictors)
+    for k,v in regions_predictors.items():
+        print(f'{k}|{v}')
+    for k,v in fraction_predictors.items():
+        print(f'{k}|{v}')
+
+def convert_mobidb4_json(json_path, out_path='/home/iliask/PycharmProjects/MScThesis/results/mobidb/test_mobi_out.txt'):
+    big_dict = {}
+    fout = open(out_path, 'w')
+    with open(json_path, 'r') as f:
+
+        for idx, line in enumerate(f):
+
+            pred = line.strip('\n')
+            d = json.loads(pred)
+            print(d.keys())
+            fout.write(f'>sequence{idx}\n')
+            # print(pred)
+            keys = d.keys()
+            len = d['length']
+            predictors = ['prediction-disorder-iupl', 'prediction-disorder-iups',
+                          'prediction-disorder-espN', 'prediction-disorder-espX', 'prediction-disorder-espD',
+                          'prediction-disorder-glo']
+            # 'prediction-disorder-seg'
+            # prediction_disorder_th_50 = d['prediction-disorder-th_50']
+            # prediction_disorder_iupl = d['prediction-disorder-iupl']
+            # prediction_disorder_iups = d['prediction-disorder-iups']
+            # prediction_disorder_espN = d['prediction-disorder-espN']
+            # prediction_disorder_espX = d['prediction-disorder-espX']
+            # prediction_disorder_glo = d['prediction-disorder-glo']
+            # regions_prediction_disorder_th_50 = d['prediction-disorder-th_50']['regions']
+            # regions_prediction_disorder_iupl = d['prediction-disorder-iupl']['regions']
+            # regions_prediction_disorder_iups = d['prediction-disorder-iups']['regions']
+            # regions_prediction_disorder_espN = d['prediction-disorder-espN']['regions']
+            # regions_prediction_disorder_espX = d['prediction-disorder-espX']['regions']
+            # regions_prediction_disorder_glo = d['prediction-disorder-glo']['regions']
+            # regions_th_50 = np.zeros(len)
+            # regions_iupl = np.zeros(len)
+            # regions_iups = np.zeros(len)
+            # regions_espN = np.zeros(len)
+            # regions_espX = np.zeros(len)
+            # regions_espD = np.zeros(len)
+            # regions_seg = np.zeros(len)
+            # regions_glo = np.zeros(len)
+            lca = {}
+
+            for predictor in predictors:
+                lca[predictor] = np.zeros(len)
+                regions = d[predictor]['regions']
+                # scores = d[predictor]['scores']
+                if regions != 'None':
+                    for area in regions:
+                        start, end = area
+                        lca[predictor][start:end] = 1
+                np_to_str = "".join([str(int(x)) for x in lca[predictor]])
+                fout.write(f"{np_to_str}\n")
+                # else:
+                #     print('rdafgdsfdsf')
+            # print(lca)
+            # lca[predictor] = lca[predictor].tolist()
+
+            big_dict[str(idx)] = lca
+
+            # regions_prediction_disorder_dis465 = d['prediction-disorder-dis465']
+            # prediction_disorder_disHL = d['prediction-disorder-disHL']
+
+            # if 'prediction-disorder-th_50' not in keys:
+            #     print('prediction-disorder-espX')
+
+    # a_file = open('/home/iliask/PycharmProjects/MScThesis/results/mobidb/mxd494_val_pred.pkl', "w")
+    # pickle.dump(big_dict, a_file)
+    #
+    # a_file.close()
+    np.save('/home/iliask/PycharmProjects/MScThesis/results/mobidb/d723_test.npy', big_dict)
+
+
+# convert_mobidb4_json('/home/iliask/PycharmProjects/MScThesis/results/mobidb/d723_test.json')
 #
-# create_annot_fasta('/home/iliask/PycharmProjects/MScThesis/results/mobidb/seg_mxd_494_val.txt', pred, prot)
+# train_mxd494 = np.load('/home/iliask/PycharmProjects/MScThesis/results/mobidb/mxd494_val.npy', allow_pickle=True)
+# print(a.item().keys())
 #
-# print(len(pred))
-# print(prot)
-#
-# proteins_ids, sequences, predictions = read_fldpnn_file('/home/iliask/PycharmProjects/MScThesis/idp_methods/fldpnn_docker/mxd494.test/function_results.txt')
-# #annotations = read_annotation_file('/data/mxd494/annotations/MXD494.test.fasta')
-# # target_metrics(predictions,annotations)
+
+def mobi_db_annot():
+    protein_ids, sequences, annotations = read_idp_dataset(
+        '/data/disorder723/disorder723.txt')
+
+    len_ = len(protein_ids)
+    with open('/data/disorder723/data/test_d723.fasta', 'w') as f:
+        for i in range(len_):
+            f.write(f'{protein_ids[i]}\n')
+            f.write(f'{sequences[i]}\n')
+    f.close()
+    with open('/data/disorder723/annotations/test_d723.fasta',
+              'w') as f:
+        for i in range(len_):
+            f.write(f'{protein_ids[i]}\n')
+            f.write(f'{annotations[i]}\n')
+
+# post_process_seg_output('/home/iliask/PycharmProjects/MScThesis/results/seg/mgm_simulationassembly.txt')

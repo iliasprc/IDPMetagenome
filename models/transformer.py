@@ -369,14 +369,14 @@ class IDPTransformer(nn.Module):
 
 
 class IDP_test_Transformer(nn.Module):
-    def __init__(self, config, dim, blocks=6, heads=8, dim_head=None, dim_linear_block=1024, dropout=0, prenorm=False,
+    def __init__(self, config, dim, blocks=2, heads=2, dim_head=None, dim_linear_block=128, dropout=0, prenorm=False,
                  embed_dim=30,
                  classes=1):
         super().__init__()
         self.embed = nn.Embedding(embed_dim, dim)
         self.use_elmo = True
 
-        self.pos_embed = PositionalEncodingSin(dim, dropout=0.1, max_tokens=2000)
+        self.pos_embed = PositionalEncodingSin(dim, dropout=0.1, max_tokens=3000)
         encoder_layer = nn.TransformerEncoderLayer(d_model=dim, dim_feedforward=dim_linear_block, nhead=heads,
                                                    activation='gelu', dropout=dropout, batch_first=True)
         self.transformer_encoder = nn.TransformerEncoder(encoder_layer, num_layers=blocks)
@@ -398,4 +398,36 @@ class IDP_test_Transformer(nn.Module):
         x = self.transformer_encoder(x)
         x = self.head(x).squeeze(-1)
         return x
+
+
+class IDP_compare_Transformer(nn.Module):
+    def __init__(self, input_channels = 7, dim=32, blocks=2, heads=2, dim_head=None, dim_linear_block=64, dropout=0, prenorm=False,
+                 embed_dim=30,
+                 classes=2):
+        super().__init__()
+        self.input_channels =input_channels
+        self.hidden_dim = dim
+        self.n_layers = blocks
+        self.classes = classes
+        self.input_fc = nn.Linear(self.input_channels, self.hidden_dim)
+        self.use_elmo = True
+
+        self.pos_embed = PositionalEncodingSin(self.hidden_dim, dropout=0.1, max_tokens=3000)
+        encoder_layer = nn.TransformerEncoderLayer(d_model=dim, dim_feedforward=dim_linear_block, nhead=heads,
+                                                   activation='gelu', dropout=dropout, batch_first=True)
+        self.transformer_encoder = nn.TransformerEncoder(encoder_layer, num_layers=blocks)
+
+        self.head = nn.Linear(dim, classes)
+        self.apply(weights_init)
+
+    def forward(self, x, mask=None):
+
+        x = self.input_fc (x)
+
+        x = self.pos_embed(x)  # self.embed(x))
+        x = self.transformer_encoder(x)
+        x = self.head(x)#.squeeze(-1)
+        return x
+
+
 

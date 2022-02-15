@@ -276,6 +276,8 @@ def anchor2(seq):
 def post_process_iupred2a_out1(path, ground_truth_path):
     with open(path, 'r') as file1:
         data = file1.read().splitlines()
+        #
+
         print(len(data))
         count = 0
         pred = ''
