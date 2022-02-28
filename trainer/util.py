@@ -412,8 +412,8 @@ def arguments():
     # Learning rate schedule parameters
     parser.add_argument('--scheduler', default='ReduceLRonPlateau', type=str, metavar='SCHEDULER',
                         help='LR scheduler (default: "step"')
-    parser.add_argument('--lr', type=float, default=0.01, metavar='LR',
-                        help='learning rate (default: 0.01)')
+    parser.add_argument('--lr', type=float, default=0.001, metavar='LR',
+                        help='learning rate (default: 0.001)')
     parser.add_argument('--scheduler_factor', type=float, default=0.81, metavar='LR',
                         help='learning rate change ratio (default: 0.81)')
     parser.add_argument('--scheduler_patience', type=int, default=3, metavar='LR',
@@ -523,7 +523,7 @@ def select_optimizer(model, args, checkpoint=None):
         optimizer = optim.Adam(model.parameters(), lr=float(lr),
                                weight_decay=float(args.weight_decay))
     elif (opt == 'AdamW'):
-        print(" use optimizer Adam lr ", lr)
+        print(" use optimizer Adam W lr =  ", lr)
         optimizer = optim.Adam(model.parameters(), lr=float(lr),
                                weight_decay=float(args.weight_decay))
     elif (opt == 'SGD'):

@@ -143,7 +143,7 @@ class Trainer(BaseTrainer):
 
             self.train_metrics.update(key='loss', value=loss.item(), n=1, writer_step=writer_step)
 
-            self._progress(batch_idx, epoch, metrics=self.train_metrics, mode='train')
+            #self._progress(batch_idx, epoch, metrics=self.train_metrics, mode='train')
 
         if self.dataset_metrics:
             metrics, metrics_dictionary = metric(np.array(yhat), np.array(y))
