@@ -31,23 +31,12 @@
 <br />
 <div align="center">
   <a href="https://github.com/iliasprc/MScThesis">
-    <img src="images/logo.png" alt="Logo" width="80" height="80">
+    <img src="images/logo.png" alt="Logo" >
   </a>
 
-  <h3 align="center">Best-README-Template</h3>
+  <h3 align="center"></h3>
 
-  <p align="center">
-    An awesome README template to jumpstart your projects!
-    <br />
-    <a href="https://github.com/iliasprc/MScThesis"><strong>Explore the docs »</strong></a>
-    <br />
-    <br />
-    <a href="https://github.com/iliasprc/MScThesis">View Demo</a>
-    ·
-    <a href="https://github.com/iliasprc/MScThesis/issues">Report Bug</a>
-    ·
-    <a href="https://github.com/iliasprc/MScThesis/issues">Request Feature</a>
-  </p>
+ 
 </div>
 
  -->
