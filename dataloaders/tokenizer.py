@@ -145,6 +145,7 @@ class TAPETokenizer():
             self.vocab = UNIREP_VOCAB
         self.tokens = list(self.vocab.keys())
         self._vocab_type = vocab
+        self.NUM_TOKENS         = len(self.tokens)
         assert self.start_token in self.vocab and self.stop_token in self.vocab
 
     @property
@@ -204,7 +205,7 @@ class TAPETokenizer():
 
     def encode(self, text: str) -> np.ndarray:
         tokens = self.tokenize(text)
-        tokens = self.add_special_tokens(tokens)
+        #tokens = self.add_special_tokens(tokens)
         token_ids = self.convert_tokens_to_ids(tokens)
         return np.array(token_ids, np.int64)
 

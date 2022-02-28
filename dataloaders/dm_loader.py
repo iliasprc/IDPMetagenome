@@ -221,9 +221,9 @@ class MXD494Loader(Dataset):
         train_prefix = "train"
         dev_prefix = "val"
         test_prefix = "test"
-        train_filepath = "data/idp_seq_2_seq/mxd494/MXD494_train_all.txt"
+        train_filepath = "data/mxd494/MXD494_train_all.txt"
 
-        test_filepath = "data/idp_seq_2_seq/mxd494/MXD494.txt"
+        test_filepath = "data/mxd494/MXD494.txt"
         dev_filepath = test_filepath
         cwd = config.cwd
 

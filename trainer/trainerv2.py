@@ -3,6 +3,7 @@ import os
 import numpy as np
 import torch
 
+from config.utils import metric
 from models.utils import Cosine_LR_Scheduler
 from trainer.basetrainer import BaseTrainer
 from trainer.util import MetricTracker, write_csv, save_model, make_dirs
@@ -100,21 +101,29 @@ class Trainer(BaseTrainer):
             writer_step = (epoch - 1) * self.len_epoch + batch_idx
 
             for i in range(target.shape[0]):
+                #print(input_d.shape)
                 sample_out = output[i]
                 sample_target = target[i]
                 ignore_ = sample_target != -1
+                #print(ignore_)
+                #print(ignore_.shape,sample_out.shape,sample_target.shape)
                 sample_target = sample_target[ignore_]
+                ign_ = torch.concat((ignore_.unsqueeze(-1),ignore_.unsqueeze(-1)),dim=-1)
+                #print(ign_.shape)
+               # print()
                 sample_out = sample_out[ignore_]
                 y += sample_target.squeeze().detach().cpu().numpy().tolist()
-                _, prediction = torch.max(torch.softmax(sample_out, dim=-1).squeeze(), 1)
+                _, prediction = torch.max(torch.softmax(sample_out, dim=-1), -1)
+                pred = prediction.detach().cpu().numpy().tolist()
+                #print(pred)
                 yhat += prediction.detach().cpu().numpy().tolist()
-                if not self.dataset_metrics:
-                    metrics, metrics_dictionary = metric(prediction.detach().cpu().numpy(),
-                                                         sample_target.cpu().detach().numpy())
-                    for key in metrics_dictionary.keys():
-                        val = 0.0 if np.isnan(metrics_dictionary[key]) else metrics_dictionary[key]
-                        # print(val,metrics_dictionary[key])
-                        self.train_metrics.update(key=key, value=val, n=1, writer_step=writer_step)
+                # if not self.dataset_metrics:
+                #     metrics, metrics_dictionary = metric(prediction.detach().cpu().numpy(),
+                #                                          sample_target.cpu().detach().numpy())
+                #     for key in metrics_dictionary.keys():
+                #         val = 0.0 if np.isnan(metrics_dictionary[key]) else metrics_dictionary[key]
+                #         # print(val,metrics_dictionary[key])
+                #         self.train_metrics.update(key=key, value=val, n=1, writer_step=writer_step)
                 # print(metrics)
             output = output.reshape(1, -1, 2)
 
@@ -181,12 +190,12 @@ class Trainer(BaseTrainer):
                     y += sample_target.squeeze().detach().cpu().numpy().tolist()
                     _, prediction = torch.max(torch.softmax(sample_out, dim=-1).squeeze(), 1)
                     yhat += prediction.detach().cpu().numpy().tolist()
-                    metrics, metrics_dictionary = metric(prediction.detach().cpu().numpy(),
-                                                         sample_target.cpu().detach().numpy())
-                    for key in metrics_dictionary.keys():
-                        val = 0.0 if np.isnan(metrics_dictionary[key]) else metrics_dictionary[key]
-                        # print(val,metrics_dictionary[key])
-                        self.valid_metrics.update(key=key, value=val, n=1, writer_step=writer_step)
+                    # metrics, metrics_dictionary = metric(prediction.detach().cpu().numpy(),
+                    #                                      sample_target.cpu().detach().numpy())
+                    # for key in metrics_dictionary.keys():
+                    #     val = 0.0 if np.isnan(metrics_dictionary[key]) else metrics_dictionary[key]
+                    #     # print(val,metrics_dictionary[key])
+                    #     self.valid_metrics.update(key=key, value=val, n=1, writer_step=writer_step)
                 output = output.reshape(1, -1, 2)
 
                 target = target.view(1, -1)

@@ -190,9 +190,9 @@ class Disorder723(Dataset):
 
 class MXD494_idp_dataset(Dataset):
     def __init__(self, cwd: str, split: str, tokenizer: Union[str, TAPETokenizer] = 'iupac', ):
-        train_filepath = "data/idp_seq_2_seq/mxd494/MXD494_train_all.txt"
+        train_filepath = "data/mxd494/MXD494_train_all.txt"
 
-        test_filepath = "data/idp_seq_2_seq/mxd494/MXD494.txt"
+        test_filepath = "data/mxd494/MXD494.txt"
         dev_filepath = test_filepath
 
         if isinstance(tokenizer, str):

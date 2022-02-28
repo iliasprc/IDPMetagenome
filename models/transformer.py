@@ -7,7 +7,7 @@ from torch import nn
 
 from models.utils import weights_init
 
-
+import torch.nn.functional as F
 class TextTokenizer(nn.Module):
     def __init__(self,
                  kernel_size, stride, padding,
@@ -326,8 +326,8 @@ class IDPseqvec(nn.Module):
 
 
 class IDPTransformer(nn.Module):
-    def __init__(self, config, dim, blocks=3, heads=2, dim_head=None, dim_linear_block=64, dropout=0, prenorm=False,
-                  input_channels=7,segments=20,classes=2):
+    def __init__(self, config, dim, blocks=2, heads=4, dim_head=None, dim_linear_block=64, dropout=0, prenorm=False,
+                  input_channels=30,segments=20,classes=2):
 
         super().__init__()
         self.input_channels = input_channels
@@ -335,7 +335,7 @@ class IDPTransformer(nn.Module):
         self.classes = classes
         self.input_fc = nn.Linear(self.input_channels, dim)
 
-        self.pos_embed = PositionalEncodingSin(dim, dropout=0.1, max_tokens=2000)
+        self.pos_embed = PositionalEncodingSin(dim, dropout=0.1, max_tokens=2500)
         encoder_layer = nn.TransformerEncoderLayer(d_model=dim, dim_feedforward=dim_linear_block, nhead=heads,
                                                    activation='gelu', dropout=dropout, batch_first=True)
         self.transformer_encoder = nn.TransformerEncoder(encoder_layer, num_layers=blocks)
@@ -343,13 +343,17 @@ class IDPTransformer(nn.Module):
         self.head = nn.Linear(dim, classes)
         self.apply(weights_init)
 
-    def forward(self, x, mask=None):
 
+    def forward(self, x, mask=None):
+       # print(x)
+        x = F.one_hot(x,num_classes=self.input_channels).float()
+        #print(one_hot.shape)
         x = self.input_fc(x)
 
         x = self.pos_embed(x)  # self.embed(x))
         x = self.transformer_encoder(x)
         x = self.head(x).squeeze(-1)
+        #print(x.shape)
         return x
 
 #
@@ -388,6 +392,7 @@ class IDP_test_Transformer(nn.Module):
         # print(x.shape)
         # assert len(x.shape) == 3
         # print(x.shape)
+        print(x)
         x = self.embed(x)
         # print(x.shape)
 

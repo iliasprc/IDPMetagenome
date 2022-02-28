@@ -384,11 +384,11 @@ def arguments():
     # Model parameters
     parser.add_argument('--model', default='idptransformer', type=str, metavar='MODEL',
                         help='Name of model to train (default: "countception"')
-    parser.add_argument('--heads', type=int, default=8, metavar='S',
+    parser.add_argument('--heads', type=int, default=4, metavar='S',
                         help='number of Transformer heads')
-    parser.add_argument('--layers', type=int, default=8, metavar='S',
+    parser.add_argument('--layers', type=int, default=6, metavar='S',
                         help='number of Transformer layers')
-    parser.add_argument('--dim', type=int, default=512, metavar='S',
+    parser.add_argument('--dim', type=int, default=64, metavar='S',
                         help='number of Transformer layers')
     parser.add_argument('--load', type=bool, default=False, help='Load pretrained checkpoint')
 
@@ -597,10 +597,10 @@ def select_optimizer_pretrain(model, config, checkpoint=None):
     return optimizer, None
 
 
-def select_model(args, n_classes, pretrained=False):
+def select_model(args, num_tokens,n_classes=2, pretrained=False):
     if args.model == 'idptransformer':
         from models.transformer import IDPTransformer
-        return IDPTransformer(args, dim=args.dim, blocks=args.layers, heads=args.heads, dim_head=None,
+        return IDPTransformer(args, dim=args.dim, blocks=args.layers, heads=args.heads, dim_head=None,input_channels=num_tokens,
                               dim_linear_block=args.dim * 2,
                               dropout=0.2,
                               prenorm=False, classes=n_classes)

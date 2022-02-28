@@ -47,8 +47,9 @@ def main():
     log.info(f'device: {device}')
 
     training_generator, val_generator, _, classes = idp_dataset(args, cwd)
+    print(len(classes))
 
-    model = select_model(args, 2)
+    model = select_model(args, num_tokens=len(classes),n_classes=2)
 
     log.info(f"{model}")
 
