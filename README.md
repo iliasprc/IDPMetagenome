@@ -174,6 +174,35 @@ val_augmentation: False
 
 ```
 
+
+<!-- RESULTS -->
+
+## Results
+
+### Results on Disprot
+<div align="center">
+  <a href="https://github.com/iliasprc/MScThesis">
+    <img src="images/table1.png" alt="Logo" >
+  </a>
+
+  <h3 align="center"></h3>
+
+ 
+</div>
+
+
+### Results on MXD494
+
+<div align="center">
+  <a href="https://github.com/iliasprc/MScThesis">
+    <img src="images/table5.3.png" alt="Logo" >
+  </a>
+
+  <h3 align="center"></h3>
+
+ 
+</div>
+
 <!-- ROADMAP -->
 ## Roadmap
 
@@ -239,9 +268,7 @@ Use this space to list resources you find helpful and would like to give credit 
 
 * [MobiDB-lite](https://github.com/BioComputingUP/MobiDB-lite)
 * [Evolutionary Scale Modeling](https://github.com/facebookresearch/esm)
-* [Choose an Open Source License](https://choosealicense.com)
-
-
+* [CAID](https://github.com/BioComputingUP/CAID)
 <p align="right">(<a href="#top">back to top</a>)</p>
 
 
