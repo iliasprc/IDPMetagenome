@@ -26,7 +26,7 @@
 [![LinkedIn][linkedin-shield]][linkedin-url]
 
 
-<!-- 
+
 <!-- PROJECT LOGO -->
 <br />
 <div align="center">
@@ -39,7 +39,8 @@
  
 </div>
 
- -->
+
+
 
 <!-- TABLE OF CONTENTS -->
 <details>
@@ -129,7 +130,49 @@ _For more examples, please refer to the [Documentation](https://example.com)_
 
 <p align="right">(<a href="#top">back to top</a>)</p>
 
+```commandline
+python trainv2.py -c config/config_parse.yml
+```
 
+Arguments for training
+
+```commandline
+cwd: /home/ # working directory
+logger: IDP # logger name
+epochs: 30 # number of training epochs
+seed: 123 # randomness seed
+cuda: True # use nvidia gpu
+gpu: 0 # id of gpu
+save: True # save checkpoint
+batch_size: 1
+dim: 128
+layers: 2
+heads: 2
+load: False # load pretrained checkpoint
+gradient_accumulation: 8 # gradient accumulation steps
+pretrained_cpkt: None
+log_interval: 1000 # print statistics every log_interval
+model: idprnn # model name   
+pretrained: False
+optimizer:  AdamW # optimizer type
+lr: 1e-5 # learning rate
+weight_decay: 0.00001 # weight decay
+scheduler: ReduceLRonPlateau # type of scheduler
+scheduler_factor: 0.8 # learning rate change ratio
+scheduler_patience: 3 # patience for some epochs
+scheduler_min_lr: 1e-5 # minimum learning rate value
+scheduler_verbose: 5e-6 # print if learning rate is changed
+dataset_type: classification
+num_workers: 2
+shuffle: True # shuffle samples after every epoch
+dataset: MXD494
+input_data: data_dir
+name: MXD494 # dataset name
+use_elmo: False
+train_augmentation: True # do augmentation  
+val_augmentation: False
+
+```
 
 <!-- ROADMAP -->
 ## Roadmap
@@ -176,9 +219,13 @@ Distributed under the MIT License. See `LICENSE.txt` for more information.
 <!-- CONTACT -->
 ## Contact
 
-Your Name - [@your_twitter](https://twitter.com/IPapastratis) - iliaspapastrat@gmail.com
+Ilias Papastratis 
+- [Twitter](https://twitter.com/IPapastratis)
+- [Mail](iliaspapastrat@gmail.com)
 
-Project Link: [https://github.com/your_username/repo_name](https://github.com/iliasprc/IDPMetagenome)
+Project Link: [IDPMetagenome](https://github.com/iliasprc/IDPMetagenome)
+
+
 
 <p align="right">(<a href="#top">back to top</a>)</p>
 
@@ -189,14 +236,11 @@ Project Link: [https://github.com/your_username/repo_name](https://github.com/il
 
 Use this space to list resources you find helpful and would like to give credit to. I've included a few of my favorites to kick things off!
 
+
+* [MobiDB-lite](https://github.com/BioComputingUP/MobiDB-lite)
+* [Evolutionary Scale Modeling](https://github.com/facebookresearch/esm)
 * [Choose an Open Source License](https://choosealicense.com)
-* [GitHub Emoji Cheat Sheet](https://www.webpagefx.com/tools/emoji-cheat-sheet)
-* [Malven's Flexbox Cheatsheet](https://flexbox.malven.co/)
-* [Malven's Grid Cheatsheet](https://grid.malven.co/)
-* [Img Shields](https://shields.io)
-* [GitHub Pages](https://pages.github.com)
-* [Font Awesome](https://fontawesome.com)
-* [React Icons](https://react-icons.github.io/react-icons/search)
+
 
 <p align="right">(<a href="#top">back to top</a>)</p>
 

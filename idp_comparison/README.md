@@ -1,5 +1,19 @@
 # IDP methods comparison
-## Deep learning methods
+
+Framework for comparison of IDP methods
+
+
+
+<div align="center">
+  <a href="https://github.com/iliasprc/MScThesis">
+    <img src="../images/idp_compare.png" alt="Logo" >
+  </a>
+
+  <h3 align="center"></h3>
+
+ 
+</div>
+
 ## RNN
 ```python
 python idp_comparison/test_idp_predictors.py --test-predictor predictor

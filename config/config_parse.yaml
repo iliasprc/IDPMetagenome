@@ -13,7 +13,7 @@ load: False # load pretrained checkpoint
 gradient_accumulation: 8 # gradient accumulation steps
 pretrained_cpkt: None
 log_interval: 1000 # print statistics every log_interval
-model: idprnn # model name  [mobilenet_v2,COVIDNet_small]
+model: idprnn # model name
 pretrained: False
 optimizer:  AdamW # optimizer type
 lr: 1e-5 # learning rate
@@ -30,5 +30,5 @@ dataset: MXD494
 input_data: data_dir
 name: MXD494 # dataset name
 use_elmo: False
-train_augmentation: True # do augmentation to video
+train_augmentation: True # do augmentation
 val_augmentation: False
