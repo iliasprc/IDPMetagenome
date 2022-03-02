@@ -1,6 +1,6 @@
 import torch.utils.data as data
 
-
+## DEPRECATED WORKS FOR BATCH=1
 def loaders(args, dataset_name=''):
     classes = ['A', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'K', 'L', 'M', 'N', 'P', 'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X',
                'Y']
