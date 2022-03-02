@@ -2,7 +2,7 @@ import torch
 import os
 from torch.utils.data import DataLoader, RandomSampler, Dataset
 from dataloaders.utils._sampler import BucketBatchSampler
-from dataloaders.idp_loaderv2 import DM_idp_dataset
+from dataloaders.idp_dataloader import DM_idp_dataset
 from dataloaders.tokenizer import TAPETokenizer
 def setup_loader(dataset: Dataset,
                  batch_size: int,

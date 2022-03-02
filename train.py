@@ -6,7 +6,7 @@ import torch
 import torch.nn as nn
 from torch.utils.tensorboard import SummaryWriter
 
-from dataloaders.idp_loaderv2 import idp_dataset
+from dataloaders.idp_dataloader import idp_dataset
 from trainer.logger import Logger
 from trainer.trainerv2 import Trainer
 from trainer.util import reproducibility, select_model, select_optimizer, load_checkpoint, arguments, _parse_args

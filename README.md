@@ -128,6 +128,8 @@ Use this space to show useful examples of how a project can be used. Additional 
 
 _For more examples, please refer to the [Documentation](https://example.com)_
 
+### Run Transformer for IDP
+
 <p align="right">(<a href="#top">back to top</a>)</p>
 
 ```commandline
@@ -178,7 +180,9 @@ val_augmentation: False
 <!-- RESULTS -->
 
 ## Results
-
+Intrinsic disorder prediction results on several datasets with Transformer-based methods.
+ESM-t6-43m and ESM-t12-85m were used pretrained from  [Evolutionary Scale Modeling](https://github.com/facebookresearch/esm)
+paper for best results.
 ### Results on Disprot
 <div align="center">
   <a href="https://github.com/iliasprc/MScThesis">

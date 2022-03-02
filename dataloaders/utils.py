@@ -1,6 +1,42 @@
 import json
 
 import numpy as np
+import logging
+from typing import Union, List, Tuple, Sequence, Dict, Any
+
+import numpy as np
+import torch
+
+from dataloaders.tokenizer import TAPETokenizer
+
+train_prefix = "train"
+dev_prefix = "val"
+test_prefix = "test"
+import os
+from torch.utils.data import DataLoader, RandomSampler, Dataset
+from dataloaders.utils._sampler import BucketBatchSampler
+from dataloaders.utils.utils import read_data_, read_fidpnn_dataset
+
+logger = logging.getLogger(__name__)
+
+
+def pad_sequences(sequences: Sequence, constant_value=0, dtype=None) -> np.ndarray:
+    batch_size = len(sequences)
+    shape = [batch_size] + np.max([seq.shape for seq in sequences], 0).tolist()
+
+    if dtype is None:
+        dtype = sequences[0].dtype
+
+    if isinstance(sequences[0], np.ndarray):
+        array = np.full(shape, constant_value, dtype=dtype)
+    elif isinstance(sequences[0], torch.Tensor):
+        array = torch.full(shape, constant_value, dtype=dtype)
+
+    for arr, seq in zip(array, sequences):
+        arrslice = tuple(slice(dim) for dim in seq.shape)
+        arr[arrslice] = seq
+
+    return array
 
 
 def has_numbers(inputString):
